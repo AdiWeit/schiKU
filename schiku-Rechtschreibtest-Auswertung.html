@@ -1,0 +1,133 @@
+<select id="textSelctor" onchange="wordsNeeded = words['kreisUnna'][value]; console.log(window.getSelection())">
+  <option value="1">Test 1</option>
+  <option value="2">Test 2</option>
+  <option value="3">Test 3</option>
+  <option value="4">Test 4</option>
+  <option value="5">Test 5</option>
+  <option value="6">Test 6</option>
+</select>
+<br>
+<button type="button" id="addPupil" onclick="addPupil();" name="button">Schüler hinzufügen</button>
+<script>
+  var words = {kreisUnna: [{kathegorien: ["ku", "2-silben", "3-silben"], words: ["Lama", "Nase", "Hupe", "Rose", "Faden", "Hose", "Hafen", "Salami", "Finale", "Domino", "Kanone", "Pedalen", "Tapete", "Kusine", "Rakete"]}, {kathegorien: ["au", "ei", "sch", "2-silben", "3-silben"], words: ["Haufen", "Anteil", "Ofen", "Einkauf", "Dusche", "Pirat", "Reifen", "Auslauf", "Schein", "Kamin", "Raupe", "Umtausch", "Eisen", "Maschine", "Ende"]}, {kathegorien: ["au", "ei", "ö", "w", "er", "el", "2-silben", "3-silben", "4-silben"], words: ["Wein", "Reiter", "Ampel", "Nadel", "Eimer", "Ausweis", "Döner", "Schönheit", "Alter", "Lederhose", "Melonenschale", "Nudelsalat", "Modenschau", "Kilometer", "Möwenfeder"]}, {kathegorien: ["au", "ei", "ö", "ü", "g", "b", "er", "2-silben", "3-silben", "4-silben"], words: ["Geige", "Bauer", "Eule", "Segel", "Biber", "Beutel", "Gabel", "Gemüse", "Scheunentor", "Geheimtür", "Möbelwagen", "Bügeleisen", "Lebewesen", "Gemeinheit", "Ofenfeuer"]}, {kathegorien: [], words: ["Badewanne", "Regenmantel", "Perlenkette", "Hasenfelle", "Waschbecken", "Rabenfeder", "Melonenkerne", "Waffeleisen", "Lassowerfer", "Möbelpacker",
+"Scherbenhaufen", "Lebewesen", "Kellerecke", "Tafellappen", "Lampenschalter"]}, {kathegorien: [], words: ["Hinweisschilder", "Lieferwagen", "Winterwetter", "Schiebetür", "Gewitterhimmel",
+"Wickeltisch", "Geheimnisse", "Tintenkiller", "Liegewiese", "Unterkiefer", "Rinderherde", "Liebeslieder", "Regenrinne", "Kinderwippe"]}, {kathegorien: [], words: ["Sonderangebote", "Hundefutter", "Soldatenrufe", "Kartoffelsorte", "Buckelwale", "Butterdose", "Eisscholle", "Regentonne", "Schulterwunde", "Nudelsuppe", "Wintersocken", "Fischkutter"]}, {kathegorien: [], words: ["Salatschüssel", "Raketenböller", "Körperteil", "Regenwürmer", "Hundehütte", "Kamelhöcker", "Dönerbude", "Suppenlöffel", "Damenhüte", "Füllertinte", "Schülerwünsche", "Wörterliste", "Rückennummer", "Löwenköpfe"]}]};
+var wordsNeeded = words['kreisUnna'][0];
+var pupils = 0;
+/*
+ * PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
+ */
+var selectedElementId;
+function addPupil() {
+  pupils++;
+  addElement({id: 'test' + pupils}, 'div');
+  addElement({placeholder: 'Name Schüler'}, 'input', 'test' + pupils);
+  addElement({placeholder: 'Klasse'}, 'input', 'test' + pupils);
+  addElement({}, 'br', 'test' + pupils);
+  for (var i = 0; i < wordsNeeded.words.length; i++) {
+    addElement({innerText: wordsNeeded.words[i], id: 'word ' + (i + 1)}, 'a', 'test' + pupils);
+    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id);', title: 'Die EIngabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie manuell das Wort korregieren.'}, 'input', 'test' + pupils);
+    addElement({id: 'correction ' + (i + 1)}, 'div', 'test' + pupils);
+
+    addElement({}, 'br', 'test' + pupils);
+
+  }
+  addElement({id: 'texturtest' + pupils}, 'canvas', 'test' + pupils);
+  addElement({}, 'br', 'test' + pupils);
+  if (pupils == 1) selectedElementId = document.getElementById('test1').id;
+}
+function findChild(idOfElement, idOfChild, elementNotId){
+  if (!elementNotId) var element = document.getElementById(idOfElement);
+  else var element = idOfElement;
+  return element.querySelector('[id="' + idOfChild + '"]');
+}
+function markErrors(id) {
+  var correct = findChild(selectedElementId, 'word ' + id.replace('pupilsWriting ', '')).innerText;
+  var wrong = findChild(selectedElementId, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
+  // findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')).remove();
+  var wrongI = 0;
+  var newWord = [];
+  var addI = 0;
+  for (var i = 0; findChild(findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), 'correctionLetter', true); i++) {
+    findChild(findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), 'correctionLetter', true).remove();
+  }
+  for (var i = 0; i < wrong.length; i++) {
+    newWord.push({letter: wrong[i], colour: "white"});
+  }
+  for (var i = 0; i < correct.length && wrong[i]; i++) {
+    if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
+      console.log(correct[i] + " before " + wrong[wrongI]);
+      newWord.splice(wrongI + addI, 0, {letter: correct[i], colour:"#50FB00/*green*/"});
+      addI++;
+      if (wrong[wrongI + 1] == correct[i + 1]) {
+        console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
+        // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
+        newWord[wrongI + addI].colour = "#FD6441/*red*/";
+        wrongI++;
+}
+    }
+    else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
+      console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
+      newWord[wrongI + addI].colour = "#FD6441/*red*/";
+      // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
+      /*if (i == 0) */i--;
+    }
+    if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] == correct[i + 1])) wrongI++;
+  }
+  // for (var i = i; i < correct.length && !wrong[i]; i++) {
+  //   newWord.push({letter: correct[i], colour: "#50FB00/*green*/"});
+  // }
+  // for (var i = wrongI; i < wrong.length; i++) {
+  //   console.log("remove " + wrong[i]);
+  //   newWord[i + addI].colour = "#FD6441/*red*/";
+  //   // newWord.splice(i, 0, {letter: wrong[i], colour:"#FD6441/*red*/"});
+  // }
+  console.log(newWord);
+  for (var i = 0; i < newWord.length; i++) {
+    addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'span', /*'correction ' + id.replace('pupilsWriting ', '')*/findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), true);
+  }
+}
+
+/*
+ * PURPOSE : generiert ein neues HTML Element
+ *  PARAMS : attr - Attribute des Elements
+ *           elm - Typ des Elements
+ *           childOf - in welchem welches HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
+ */
+  function addElement(attr, elm, childOf, asElement) {
+    // var newElement = document.createElement(/*'p'*/elm);
+    // document.body.appendChild(newElement);
+    // newElement.setAttribute("id", "word " + wordCounter);
+      var newElement = document.createElement(/*'span'*/elm);
+      if (childOf && !asElement) document.getElementById(childOf).appendChild(newElement);
+      else if (childOf) childOf.appendChild(newElement);
+      else document.body.appendChild(newElement);
+      for (var i = 0; i < Object.keys(attr).length; i++) {
+        if (Object.keys(attr)[i] == 'innerText') newElement.innerText = attr[Object.keys(attr)[i]];
+        else newElement.setAttribute(Object.keys(attr)[i]/*'style'*/, /*'color:' + word[i].colour*/attr[Object.keys(attr)[i]]);
+        // styleArgument.setAttribute('color', word[i].color);
+        // newElement.setAttribute('innerHTML', word[i].letter);
+      }
+    }
+
+    /*!
+ * Determine if an element is in the viewport
+ * (c) 2017 Chris Ferdinandi, MIT License, https://gomakethings.com
+ * @param  {Node}    elem The element
+ * @return {Boolean}      Returns true if element is in the viewport
+ */
+var isInViewport = function (elem) {
+	var distance = elem.getBoundingClientRect();
+	return (
+		distance.top >= 0 &&
+		distance.left >= 0 &&
+		distance.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+		distance.right <= (window.innerWidth || document.documentElement.clientWidth)
+	);
+};
+window.addEventListener('scroll', function (event) {
+  for (var i = 0; i < pupils; i++) {
+    if (isInViewport(document.getElementById('test' + (i + 1)))) selectedElementId = document.getElementById('test' + (i + 1)).id; //console.log(document.getElementById('test' + (i + 1)));
+  }
+}, false);
+</script>
