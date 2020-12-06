@@ -20,28 +20,29 @@ var pupils = 0;
 var selectedElementId;
 function addPupil() {
   pupils++;
-  addElement({id: 'test' + pupils}, 'div');
-  addElement({placeholder: 'Name Schüler'}, 'input', 'test' + pupils);
-  addElement({placeholder: 'Klasse'}, 'input', 'test' + pupils);
-  addElement({}, 'br', 'test' + pupils);
+  addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
+  addElement({placeholder: 'Name Schüler'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Klasse'}, 'input', 'pupilSheet' + pupils);
+  addElement({}, 'br', 'pupilSheet' + pupils);
   for (var i = 0; i < wordsNeeded.words.length; i++) {
-    addElement({innerText: wordsNeeded.words[i], id: 'word ' + (i + 1)}, 'a', 'test' + pupils);
-    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id);', title: 'Die EIngabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie manuell das Wort korregieren.'}, 'input', 'test' + pupils);
-    addElement({id: 'correction ' + (i + 1)}, 'div', 'test' + pupils);
+    addElement({innerText: wordsNeeded.words[i], id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
+    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', title: 'Die EIngabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie manuell das Wort korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, kann dieses Feld leer bleiben'}, 'input', 'pupilSheet' + pupils);
+    addElement({id: 'correction ' + (i + 1)}, 'div', 'pupilSheet' + pupils);
 
-    addElement({}, 'br', 'test' + pupils);
+    addElement({}, 'br', 'pupilSheet' + pupils);
 
   }
-  addElement({id: 'texturtest' + pupils}, 'canvas', 'test' + pupils);
-  addElement({}, 'br', 'test' + pupils);
-  if (pupils == 1) selectedElementId = document.getElementById('test1').id;
+  addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'pupilSheet' + pupils);
+  addElement({}, 'br', 'pupilSheet' + pupils);
+  if (pupils == 1) selectedElementId = document.getElementById('pupilSheet1').id;
 }
 function findChild(idOfElement, idOfChild, elementNotId){
   if (!elementNotId) var element = document.getElementById(idOfElement);
   else var element = idOfElement;
   return element.querySelector('[id="' + idOfChild + '"]');
 }
-function markErrors(id) {
+function markErrors(id, parentId) {
+  selectedElementId = parentId;
   var correct = findChild(selectedElementId, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild(selectedElementId, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
   // findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')).remove();
@@ -57,13 +58,15 @@ function markErrors(id) {
   for (var i = 0; i < correct.length && wrong[i]; i++) {
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       console.log(correct[i] + " before " + wrong[wrongI]);
-      newWord.splice(wrongI + addI, 0, {letter: correct[i], colour:"#50FB00/*green*/"});
-      addI++;
       if (wrong[wrongI + 1] == correct[i + 1]) {
         console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
         // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
         newWord[wrongI + addI].colour = "#FD6441/*red*/";
         wrongI++;
+}
+else {
+  newWord.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
+  addI++;
 }
     }
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
@@ -75,7 +78,7 @@ function markErrors(id) {
     if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] == correct[i + 1])) wrongI++;
   }
   // for (var i = i; i < correct.length && !wrong[i]; i++) {
-  //   newWord.push({letter: correct[i], colour: "#50FB00/*green*/"});
+  //   newWord.push({letter: '_', colour: "white"});
   // }
   // for (var i = wrongI; i < wrong.length; i++) {
   //   console.log("remove " + wrong[i]);
@@ -116,18 +119,4 @@ function markErrors(id) {
  * @param  {Node}    elem The element
  * @return {Boolean}      Returns true if element is in the viewport
  */
-var isInViewport = function (elem) {
-	var distance = elem.getBoundingClientRect();
-	return (
-		distance.top >= 0 &&
-		distance.left >= 0 &&
-		distance.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-		distance.right <= (window.innerWidth || document.documentElement.clientWidth)
-	);
-};
-window.addEventListener('scroll', function (event) {
-  for (var i = 0; i < pupils; i++) {
-    if (isInViewport(document.getElementById('test' + (i + 1)))) selectedElementId = document.getElementById('test' + (i + 1)).id; //console.log(document.getElementById('test' + (i + 1)));
-  }
-}, false);
 </script>
