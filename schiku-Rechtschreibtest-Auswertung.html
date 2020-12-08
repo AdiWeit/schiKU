@@ -26,7 +26,7 @@ function addPupil() {
   addElement({}, 'br', 'pupilSheet' + pupils);
   for (var i = 0; i < wordsNeeded.words.length; i++) {
     addElement({innerText: wordsNeeded.words[i], id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
-    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', title: 'Die EIngabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie manuell das Wort korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, kann dieses Feld leer bleiben'}, 'input', 'pupilSheet' + pupils);
+    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
     addElement({id: 'correction ' + (i + 1)}, 'div', 'pupilSheet' + pupils);
 
     addElement({}, 'br', 'pupilSheet' + pupils);
@@ -41,7 +41,13 @@ function findChild(idOfElement, idOfChild, elementNotId){
   else var element = idOfElement;
   return element.querySelector('[id="' + idOfChild + '"]');
 }
-function markErrors(id, parentId) {
+function pupilsWritingFinished(id) {
+  if (document.getElementById(id).value == "r") {
+    document.getElementById(id).value = findChild(selectedElementId, "word " + id.replace("pupilsWriting ", "")).innerText;
+    markErrors(id, "pupilSheet1", true);
+}
+}
+function markErrors(id, parentId, doNotMark) {
   selectedElementId = parentId;
   var correct = findChild(selectedElementId, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild(selectedElementId, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
@@ -58,11 +64,12 @@ function markErrors(id, parentId) {
   for (var i = 0; i < correct.length && wrong[i]; i++) {
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       console.log(correct[i] + " before " + wrong[wrongI]);
-      if (wrong[wrongI + 1] == correct[i + 1]) {
+      if (!wrong[wrongI + 1] || (wrong[wrongI + 1].toLowerCase() == correct[i + 1])) {
         console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
         // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
-        newWord[wrongI + addI].colour = "#FD6441/*red*/";
-        wrongI++;
+        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
+        /*if (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])*/ wrongI++;
+        // if (wrong[wrongI + 1] != correct[i + 1]) addI++;
 }
 else {
   newWord.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
@@ -75,18 +82,18 @@ else {
       // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
       /*if (i == 0) */i--;
     }
-    if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] == correct[i + 1])) wrongI++;
+    if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) wrongI++;
   }
-  // for (var i = i; i < correct.length && !wrong[i]; i++) {
-  //   newWord.push({letter: '_', colour: "white"});
-  // }
-  // for (var i = wrongI; i < wrong.length; i++) {
-  //   console.log("remove " + wrong[i]);
-  //   newWord[i + addI].colour = "#FD6441/*red*/";
-  //   // newWord.splice(i, 0, {letter: wrong[i], colour:"#FD6441/*red*/"});
-  // }
+  for (var i = i; i < correct.length && !/*wrong*/correct[i]; i++) {
+    newWord.push({letter: '_', colour: "white"});
+  }
+  for (var i = wrongI; i < wrong.length - 1; i++) {
+    console.log("remove " + wrong[i]);
+    newWord[i + addI].colour = "#FD6441/*red*/";
+    // newWord.splice(i, 0, {letter: wrong[i], colour:"#FD6441/*red*/"});
+  }
   console.log(newWord);
-  for (var i = 0; i < newWord.length; i++) {
+  for (var i = 0; i < newWord.length && !doNotMark; i++) {
     addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'span', /*'correction ' + id.replace('pupilsWriting ', '')*/findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), true);
   }
 }
