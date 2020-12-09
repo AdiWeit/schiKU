@@ -17,7 +17,7 @@ var pupils = 0;
 /*
  * PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
  */
-var selectedElementId;
+var selectedElementId = 'pupilSheet1';
 function addPupil() {
   pupils++;
   addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
@@ -34,7 +34,6 @@ function addPupil() {
   }
   addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'pupilSheet' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
-  if (pupils == 1) selectedElementId = document.getElementById('pupilSheet1').id;
 }
 function findChild(idOfElement, idOfChild, elementNotId){
   if (!elementNotId) var element = document.getElementById(idOfElement);
@@ -51,10 +50,10 @@ function markErrors(id, parentId, doNotMark) {
   selectedElementId = parentId;
   var correct = findChild(selectedElementId, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild(selectedElementId, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
-  // findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')).remove();
   var wrongI = 0;
   var newWord = [];
   var addI = 0;
+  var doubleError = 0;
   for (var i = 0; findChild(findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), 'correctionLetter', true); i++) {
     findChild(findChild(selectedElementId, 'correction ' + id.replace('pupilsWriting ', '')), 'correctionLetter', true).remove();
   }
@@ -62,14 +61,21 @@ function markErrors(id, parentId, doNotMark) {
     newWord.push({letter: wrong[i], colour: "white"});
   }
   for (var i = 0; i < correct.length && wrong[i]; i++) {
+    // check letter difference
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       console.log(correct[i] + " before " + wrong[wrongI]);
-      if (!wrong[wrongI + 1] || (wrong[wrongI + 1].toLowerCase() == correct[i + 1])) {
+      // check if letter missing
+      if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI].toLowerCase() != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) {
         console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-        // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
         if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
-        /*if (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])*/ wrongI++;
-        // if (wrong[wrongI + 1] != correct[i + 1]) addI++;
+        wrongI++;
+
+        // check if doubleError
+        if (wrong[wrongI - 2] == wrong[wrongI - 1]) {
+          newWord.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
+          addI++;
+          doubleError++;
+        }
 }
 else {
   newWord.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
@@ -79,18 +85,20 @@ else {
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
       newWord[wrongI + addI].colour = "#FD6441/*red*/";
-      // newWord.splice(wrongI, 0, {letter: wrong[wrongI], colour:"#FD6441/*red*/"});
-      /*if (i == 0) */i--;
+      // not sure about this [todo]
+      doubleError++;
+      i--;
     }
     if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) wrongI++;
   }
-  for (var i = i; i < correct.length && !/*wrong*/correct[i]; i++) {
+  // check end missing
+  for (var i = i; newWord.length - doubleError < correct.length; i++) {
     newWord.push({letter: '_', colour: "white"});
   }
-  for (var i = wrongI; i < wrong.length - 1; i++) {
+  // check too much in the end
+  for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     console.log("remove " + wrong[i]);
-    newWord[i + addI].colour = "#FD6441/*red*/";
-    // newWord.splice(i, 0, {letter: wrong[i], colour:"#FD6441/*red*/"});
+    if (newWord[i].letter != '_') newWord[i].colour = "#FD6441/*red*/";
   }
   console.log(newWord);
   for (var i = 0; i < newWord.length && !doNotMark; i++) {
@@ -105,9 +113,6 @@ else {
  *           childOf - in welchem welches HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
  */
   function addElement(attr, elm, childOf, asElement) {
-    // var newElement = document.createElement(/*'p'*/elm);
-    // document.body.appendChild(newElement);
-    // newElement.setAttribute("id", "word " + wordCounter);
       var newElement = document.createElement(/*'span'*/elm);
       if (childOf && !asElement) document.getElementById(childOf).appendChild(newElement);
       else if (childOf) childOf.appendChild(newElement);
@@ -115,8 +120,6 @@ else {
       for (var i = 0; i < Object.keys(attr).length; i++) {
         if (Object.keys(attr)[i] == 'innerText') newElement.innerText = attr[Object.keys(attr)[i]];
         else newElement.setAttribute(Object.keys(attr)[i]/*'style'*/, /*'color:' + word[i].colour*/attr[Object.keys(attr)[i]]);
-        // styleArgument.setAttribute('color', word[i].color);
-        // newElement.setAttribute('innerHTML', word[i].letter);
       }
     }
 
