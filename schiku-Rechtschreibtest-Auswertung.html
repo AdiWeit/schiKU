@@ -1,4 +1,5 @@
-<select id="textSelctor" onchange="wordsNeeded = words['kreisUnna'][value]; console.log(window.getSelection())">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<select id="textSelctor" onchange="neededTest = words['kreisUnna'][value]; console.log(window.getSelection())">
   <option value="1">Test 1</option>
   <option value="2">Test 2</option>
   <option value="3">Test 3</option>
@@ -12,21 +13,21 @@
   var words = {kreisUnna: [{kathegorien: ["ku", "2-silben", "3-silben"], words: ["Lama", "Nase", "Hupe", "Rose", "Faden", "Hose", "Hafen", "Salami", "Finale", "Domino", "Kanone", "Pedalen", "Tapete", "Kusine", "Rakete"]}, {kathegorien: ["au", "ei", "sch", "2-silben", "3-silben"], words: ["Haufen", "Anteil", "Ofen", "Einkauf", "Dusche", "Pirat", "Reifen", "Auslauf", "Schein", "Kamin", "Raupe", "Umtausch", "Eisen", "Maschine", "Ende"]}, {kathegorien: ["au", "ei", "ö", "w", "er", "el", "2-silben", "3-silben", "4-silben"], words: ["Wein", "Reiter", "Ampel", "Nadel", "Eimer", "Ausweis", "Döner", "Schönheit", "Alter", "Lederhose", "Melonenschale", "Nudelsalat", "Modenschau", "Kilometer", "Möwenfeder"]}, {kathegorien: ["au", "ei", "ö", "ü", "g", "b", "er", "2-silben", "3-silben", "4-silben"], words: ["Geige", "Bauer", "Eule", "Segel", "Biber", "Beutel", "Gabel", "Gemüse", "Scheunentor", "Geheimtür", "Möbelwagen", "Bügeleisen", "Lebewesen", "Gemeinheit", "Ofenfeuer"]}, {kathegorien: [], words: ["Badewanne", "Regenmantel", "Perlenkette", "Hasenfelle", "Waschbecken", "Rabenfeder", "Melonenkerne", "Waffeleisen", "Lassowerfer", "Möbelpacker",
 "Scherbenhaufen", "Lebewesen", "Kellerecke", "Tafellappen", "Lampenschalter"]}, {kathegorien: [], words: ["Hinweisschilder", "Lieferwagen", "Winterwetter", "Schiebetür", "Gewitterhimmel",
 "Wickeltisch", "Geheimnisse", "Tintenkiller", "Liegewiese", "Unterkiefer", "Rinderherde", "Liebeslieder", "Regenrinne", "Kinderwippe"]}, {kathegorien: [], words: ["Sonderangebote", "Hundefutter", "Soldatenrufe", "Kartoffelsorte", "Buckelwale", "Butterdose", "Eisscholle", "Regentonne", "Schulterwunde", "Nudelsuppe", "Wintersocken", "Fischkutter"]}, {kathegorien: [], words: ["Salatschüssel", "Raketenböller", "Körperteil", "Regenwürmer", "Hundehütte", "Kamelhöcker", "Dönerbude", "Suppenlöffel", "Damenhüte", "Füllertinte", "Schülerwünsche", "Wörterliste", "Rückennummer", "Löwenköpfe"]}]};
-var wordsNeeded = words['kreisUnna'][0];
+var neededTest = words['kreisUnna'][0];
 var pupils = 0;
-/*
- * PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
- */
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
+/*
+* PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
+*/
 function addPupil() {
   pupils++;
   addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
   addElement({placeholder: 'Name Schüler'}, 'input', 'pupilSheet' + pupils);
   addElement({placeholder: 'Klasse'}, 'input', 'pupilSheet' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
-  for (var i = 0; i < wordsNeeded.words.length; i++) {
-    addElement({innerText: wordsNeeded.words[i], id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
-    addElement({id: 'pupilsWriting ' + (i + 1), placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
+  for (var i = 0; i < neededTest.words.length; i++) {
+    addElement({innerText: neededTest.words[i], id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
+    addElement({id: 'pupilsWriting ' + (i + 1), class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
     addElement({id: 'correction ' + (i + 1)}, 'div', 'pupilSheet' + pupils);
 
     addElement({}, 'br', 'pupilSheet' + pupils);
@@ -118,9 +119,9 @@ else {
     addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'span', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (!doNotMark && graphemFeler > 0) {
-    addElement({value: correct.length - graphemFeler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: correct.length - graphemFeler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
-    addElement({value: correct.length, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: correct.length, id: 'graphemtrefferPossible', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     findChild(selectedElementId.parent, id).style.backgroundColor = "red";
   }
   else {
@@ -129,15 +130,29 @@ else {
     findChild(selectedElementId.parent, id).style.backgroundColor = "green";
   }
   getAllGraphemtreffer(doNotMark, graphemFeler, correct);
-  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible;
 }
-function getAllGraphemtreffer(doNotMark, graphemFeler, correct) {
+function getAllGraphemtreffer(/*doNotMark, graphemFeler, correct*/) {
   auswertung.allGraphemtreffer.possible = 0;
   auswertung.allGraphemtreffer.got = 0;
   for (var i = 0; i < document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent)).length; i++) {
     auswertung.allGraphemtreffer.possible += JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
     auswertung.allGraphemtreffer.got += JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
   }
+  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible;
+}
+function getEveryCategory() {
+  for (var i = 0; i < neededTest.kathegorien.length; i++) {
+    auswertung[neededTest.kathegorien[i]] = {got: 0, possible: 0};
+    if (neededTest.kathegorien[i].includes('silben')) {
+      for (var i1 = 0; i1 <  document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent)).length; i1++) {
+        if (new_count(neededTest.words[i1]) == neededTest.kathegorien[i].replace('-silben', '') && neededTest.words[i1].toLowerCase() == document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i1].value.toLowerCase()) {
+          auswertung[neededTest.kathegorien[i]].got++;
+        }
+        auswertung[neededTest.kathegorien[i]].possible++;
+      }
+    }
+  }
+  console.log(auswertung);
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -172,5 +187,50 @@ function capitalizeFirstLetter(string) {
        findChild(selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
      }, 10);
    }
+}
+function addChart(texte, data, canvas) {
+  var data = {
+    labels: texte,//["b statt d", "h weggelassen", "t statt l"],
+    datasets: [{
+      label: "richtige",
+      backgroundColor: 'rgba(0, 255, 0, 0.7)',
+      borderColor: 'rgba(0, 255, 0, 1)',
+      fill: true,
+      data: data.right,//[5,3,7],
+      stack:'stack0'
+    }, {
+      label: "falsche",
+      backgroundColor: 'rgba(255, 0, 0, 0.7)',
+      borderColor: 'rgba(255, 0, 0, 1))',
+      fill: true,
+      data: data.wrong,
+      stack:'stack0'
+    }
+    ]
+  }
+  var options = {
+    maintainAspectRatio: false,
+    scales: {
+      xAxes: [{
+        stacked: true
+      }],
+      yAxes: [{
+        stacked: true,
+        ticks: {
+          beginAtZero: true
+        }
+      }],
+    },
+    // legend: { display: false },
+      title: {
+        display: true,
+        text: 'Schüler Test'
+      }
+  }
+  var myBarChart = new Chart(canvas, {
+    type: 'horizontalBar',
+    data: data,
+    options: options
+});
 }
 </script>
