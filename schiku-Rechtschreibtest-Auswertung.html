@@ -1,5 +1,6 @@
+<meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
-<select id="textSelctor" onchange="neededTest = words['kreisUnna'][value]; console.log(window.getSelection())">
+<select id="textSelctor" onchange="neededTest = words['kreisUnna'][value - 1]; console.log(window.getSelection())">
   <option value="1">Test 1</option>
   <option value="2">Test 2</option>
   <option value="3">Test 3</option>
@@ -10,23 +11,25 @@
 <br>
 <button type="button" id="addPupil" onclick="addPupil();" name="button">Schüler hinzufügen</button>
 <script>
-  var words = {kreisUnna: [{kathegorien: ["ku", "2-silben", "3-silben"], words: ["Lama", "Nase", "Hupe", "Rose", "Faden", "Hose", "Hafen", "Salami", "Finale", "Domino", "Kanone", "Pedalen", "Tapete", "Kusine", "Rakete"]}, {kathegorien: ["au", "ei", "sch", "2-silben", "3-silben"], words: ["Haufen", "Anteil", "Ofen", "Einkauf", "Dusche", "Pirat", "Reifen", "Auslauf", "Schein", "Kamin", "Raupe", "Umtausch", "Eisen", "Maschine", "Ende"]}, {kathegorien: ["au", "ei", "ö", "w", "er", "el", "2-silben", "3-silben", "4-silben"], words: ["Wein", "Reiter", "Ampel", "Nadel", "Eimer", "Ausweis", "Döner", "Schönheit", "Alter", "Lederhose", "Melonenschale", "Nudelsalat", "Modenschau", "Kilometer", "Möwenfeder"]}, {kathegorien: ["au", "ei", "ö", "ü", "g", "b", "er", "2-silben", "3-silben", "4-silben"], words: ["Geige", "Bauer", "Eule", "Segel", "Biber", "Beutel", "Gabel", "Gemüse", "Scheunentor", "Geheimtür", "Möbelwagen", "Bügeleisen", "Lebewesen", "Gemeinheit", "Ofenfeuer"]}, {kathegorien: [], words: ["Badewanne", "Regenmantel", "Perlenkette", "Hasenfelle", "Waschbecken", "Rabenfeder", "Melonenkerne", "Waffeleisen", "Lassowerfer", "Möbelpacker",
-"Scherbenhaufen", "Lebewesen", "Kellerecke", "Tafellappen", "Lampenschalter"]}, {kathegorien: [], words: ["Hinweisschilder", "Lieferwagen", "Winterwetter", "Schiebetür", "Gewitterhimmel",
-"Wickeltisch", "Geheimnisse", "Tintenkiller", "Liegewiese", "Unterkiefer", "Rinderherde", "Liebeslieder", "Regenrinne", "Kinderwippe"]}, {kathegorien: [], words: ["Sonderangebote", "Hundefutter", "Soldatenrufe", "Kartoffelsorte", "Buckelwale", "Butterdose", "Eisscholle", "Regentonne", "Schulterwunde", "Nudelsuppe", "Wintersocken", "Fischkutter"]}, {kathegorien: [], words: ["Salatschüssel", "Raketenböller", "Körperteil", "Regenwürmer", "Hundehütte", "Kamelhöcker", "Dönerbude", "Suppenlöffel", "Damenhüte", "Füllertinte", "Schülerwünsche", "Wörterliste", "Rückennummer", "Löwenköpfe"]}]};
+  var words = {kreisUnna: [{kathegorien: ["ku", "2-silben", "3-silben"], words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]}, {kathegorien: ["au", "ei", "sch", "2-silben", "3-silben"], words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]}, {kathegorien: ["au", "ei", "ö", "w", "er", "el", "2-silben", "3-silben", "4-silben"], words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]}, {kathegorien: ["au", "ei", "ö", "ü", "g", "b", "er", "2-silben", "3-silben", "4-silben"], words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]}, {kathegorien: [], words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
+"Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"]}, {kathegorien: [], words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
+"Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"]}, {kathegorien: [], words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]}, {kathegorien: [], words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te", "Rü-cken-num-mer", "Lö-wen-köp-fe"]}]};
 var neededTest = words['kreisUnna'][0];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 /*
 * PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
 */
+document.getElementById('addPupil').style.left = 300 + "px";
+document.getElementById('addPupil').style.position = 'fixed'
 function addPupil() {
   pupils++;
   addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
-  addElement({placeholder: 'Name Schüler'}, 'input', 'pupilSheet' + pupils);
-  addElement({placeholder: 'Klasse'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Name Schüler', id: 'name', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Klasse', id: 'class' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
   for (var i = 0; i < neededTest.words.length; i++) {
-    addElement({innerText: neededTest.words[i], id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
+    addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
     addElement({id: 'pupilsWriting ' + (i + 1), class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
     addElement({id: 'correction ' + (i + 1)}, 'div', 'pupilSheet' + pupils);
 
@@ -44,13 +47,48 @@ function findChild(idOfElement, idOfChild, elementNotId){
   return element.querySelector('[id="' + idOfChild + '"]');
 }
 function pupilsWritingFinished(id) {
-  if (document.getElementById(id).value == "r") {
-    document.getElementById(id).value = findChild(selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
-    markErrors(id, "pupilSheet1", true);
+  if (findChild(selectedElementId.parent, id).value == "r") {
+    findChild(selectedElementId.parent, id).value = findChild(selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
+    markErrors(id, selectedElementId.parent, true);
 }
 }
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}};
+var inputs = {};
+if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+else localStorage.setItem('inputsSchiku', 'undefined');
+for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
+  var testAktuell = Object.keys(inputs)[i3];
+  neededTest = words['kreisUnna'][testAktuell.replace('Test ', '') - 1];
+  textSelctor.value = testAktuell.replace('Test ', '');
+for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
+  addPupil();
+  var sheetAktuell = Object.keys(inputs[testAktuell])[i];
+  var minusI = 0;
+  for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
+    var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
+    if (idAktuell.includes('pupilsWriting')) {
+    findChild(sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
+    markErrors(idAktuell, sheetAktuell);
+    pupilsWritingFinished(idAktuell);
+  }
+  else {
+    findChild(sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
+    minusI++;
+  }
+  }
+}
+}
+function dataChanged(id, value) {
+  if (!inputs['Test ' + textSelctor.value]) inputs['Test ' + textSelctor.value] = {};
+  if (!inputs['Test ' + textSelctor.value][selectedElementId.parent]) inputs['Test ' + textSelctor.value][selectedElementId.parent] = {};
+  inputs['Test ' + textSelctor.value][selectedElementId.parent][id] = value;
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+}
 function markErrors(id, parentId, doNotMark) {
+  if (!inputs['Test ' + textSelctor.value]) inputs['Test ' + textSelctor.value] = {};
+  if (!inputs['Test ' + textSelctor.value][parentId]) inputs['Test ' + textSelctor.value][parentId] = {};
+  inputs['Test ' + textSelctor.value][parentId][id] = findChild(selectedElementId.parent, id).value;
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   selectedElementId = {parent: parentId, element: id};
   var correct = findChild(selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild(selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
@@ -118,6 +156,7 @@ else {
   for (var i = 0; i < newWord.length && !doNotMark && graphemFeler > 0; i++) {
     addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'span', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
+  if (correct.length - graphemFeler < 0) graphemFeler = correct.length;
   if (!doNotMark && graphemFeler > 0) {
     addElement({value: correct.length - graphemFeler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
@@ -145,10 +184,10 @@ function getEveryCategory() {
     auswertung[neededTest.kathegorien[i]] = {got: 0, possible: 0};
     if (neededTest.kathegorien[i].includes('silben')) {
       for (var i1 = 0; i1 <  document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent)).length; i1++) {
-        if (new_count(neededTest.words[i1]) == neededTest.kathegorien[i].replace('-silben', '') && neededTest.words[i1].toLowerCase() == document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i1].value.toLowerCase()) {
+        if (neededTest.words[i1].toString().split('-').length == neededTest.kathegorien[i].replace('-silben', '') && replaceAll(neededTest.words[i1], '-', '').toLowerCase() == document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i1].value.toLowerCase()) {
           auswertung[neededTest.kathegorien[i]].got++;
         }
-        auswertung[neededTest.kathegorien[i]].possible++;
+        if (neededTest.words[i1].toString().split('-').length == neededTest.kathegorien[i].replace('-silben', '')) auswertung[neededTest.kathegorien[i]].possible++;
       }
     }
   }
@@ -184,9 +223,13 @@ function capitalizeFirstLetter(string) {
  document.onkeydown = function(event) {
    if (event.key == 'Tab' && document.getElementById(selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1))) {
      setTimeout(function () {
-       findChild(selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
+       if (selectedElementId.element.includes('pupilsWriting')) findChild(selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
+
      }, 10);
    }
+}
+function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(find, 'g'), replace);
 }
 function addChart(texte, data, canvas) {
   var data = {
