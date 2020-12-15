@@ -38,7 +38,8 @@ function addPupil() {
   }
   addElement({id: 'allGraphemes' + pupils, style: 'font-size: 30'}, 'a', 'pupilSheet' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
-  addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'pupilSheet' + pupils);
+  addElement({id: 'divGraph' + pupils}, 'div', 'pupilSheet' + pupils);
+  addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
 }
 function findChild(idOfElement, idOfChild, elementNotId){
@@ -253,6 +254,7 @@ function addChart(texte, data, canvas) {
   }
   var options = {
     maintainAspectRatio: false,
+    responsive: true,
     scales: {
       xAxes: [{
         stacked: true
@@ -275,5 +277,12 @@ function addChart(texte, data, canvas) {
     data: data,
     options: options
 });
+myBarChart.canvas.parentNode.style.height = 1;
+for (var graphBottom = /*texturpupilSheet1.getBoundingClientRect().bottom*/divGraph1.getBoundingClientRect().bottom; document.getElementById('pupilSheet1').getBoundingClientRect().bottom > graphBottom; graphBottom++) {
+  myBarChart.canvas.parentNode.style.height = JSON.parse(myBarChart.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
 }
+console.log(myBarChart.canvas.parentNode.style.height);
+}
+// TODO: document.getElementById('pupilsWriting 1').getBoundingClientRect()
+// addChart(['b korrekt', 'h korrekt', 'r korrekt'], {wrong: [1, 1, 1], right: [2, 2, 2]}, texturpupilSheet1);
 </script>
