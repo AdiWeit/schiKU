@@ -51,9 +51,10 @@ function pupilsWritingFinished(id) {
   if (findChild(selectedElementId.parent, id).value == "r") {
     findChild(selectedElementId.parent, id).value = findChild(selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true);
+  }
 }
-}
-var auswertung = {allGraphemtreffer: {possible: 0, got: 0}};
+// TODO: Bei anderem Test pupilSheet wieder auf 1
+var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}};
 var inputs = {};
 if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 else localStorage.setItem('inputsSchiku', 'undefined');
@@ -97,7 +98,7 @@ function markErrors(id, parentId, doNotMark) {
   var newWord = [];
   var addI = 0;
   var doubleError = 0;
-  var graphemFeler = 0;
+  var graphemFehler = 0;
   var wordCorrectionChild = findChild(selectedElementId.parent, 'correction ' + id.replace('pupilsWriting ', ''));
   for (var i = 0; findChild(wordCorrectionChild, 'correctionLetter', true); i++) {
     findChild(wordCorrectionChild, 'correctionLetter', true).remove();
@@ -113,7 +114,13 @@ function markErrors(id, parentId, doNotMark) {
   for (var i = 0; i < correct.length && wrong[i]; i++) {
     // check letter difference
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
-      if ((/*wrong[wrongI] == wrong[wrongI].toLowerCase() || */correct[i].toLowerCase() != wrong[wrongI].toLowerCase()/*capitalizeFirstLetter(correct[i]) == correct[i]*/)/* && !(capitalizeFirstLetter(correct[i]) == correct[i] && correct[i].toLowerCase() == wrong[wrongI].toLowerCase())*/) graphemFeler++;
+      if ((/*wrong[wrongI] == wrong[wrongI].toLowerCase() || */correct[i].toLowerCase() != wrong[wrongI].toLowerCase()/*capitalizeFirstLetter(correct[i]) == correct[i]*/)/* && !(capitalizeFirstLetter(correct[i]) == correct[i] && correct[i].toLowerCase() == wrong[wrongI].toLowerCase())*/) {
+        graphemFehler++;
+        if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+        if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+        /*if (!auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]]) */auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]] = 0;
+        auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]]++;
+      }
       console.log(correct[i] + " before " + wrong[wrongI]);
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI].toLowerCase() != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) {
@@ -131,7 +138,7 @@ function markErrors(id, parentId, doNotMark) {
 else {
   newWord.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
   addI++;
-  // graphemFeler++;
+  // graphemFehler++;
 }
     }
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
@@ -146,32 +153,45 @@ else {
   // check end missing
   for (var i = i; newWord.length - doubleError < correct.length; i++) {
     newWord.push({letter: '_', colour: "white"});
-    graphemFeler++;
+    graphemFehler++;
+    if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+    if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+    /*if (!auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]]) */auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]] = 0;
+    auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]]++;
   }
   // check too much in the end
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     console.log("remove " + wrong[i]);
-    if (newWord[i].letter != '_') {newWord[i].colour = "#FD6441/*red*/"; graphemFeler++;}
+    if (newWord[i].letter != '_') {
+      newWord[i].colour = "#FD6441/*red*/";
+      graphemFehler++;
+      if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+      if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+      /*if (!auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]]) */auswertung.wrongLetters[selectedElementId.parent][correct][correct[i]] = 0;
+      auswertung.wrongLetters[selectedElementId.parent][correct][newWord[i]]++;
+    }
   }
   console.log(newWord);
-  for (var i = 0; i < newWord.length && !doNotMark && graphemFeler > 0; i++) {
-    addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'span', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+  for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
+    addElement({id: 'correctionLetter', innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';'/* + id.replace('pupilsWriting ', '')*/}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
-  if (correct.length - graphemFeler < 0) graphemFeler = correct.length;
-  if (!doNotMark && graphemFeler > 0) {
-    addElement({value: correct.length - graphemFeler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+  if (correct.length - graphemFehler < 0) graphemFehler = correct.length;
+  if (!doNotMark && graphemFehler > 0) {
+    addElement({value: correct.length - graphemFehler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
     addElement({value: correct.length, id: 'graphemtrefferPossible', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     findChild(selectedElementId.parent, id).style.backgroundColor = "red";
   }
   else {
-    addElement({style: 'display: none;', value: correct.length - graphemFeler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
+    addElement({style: 'display: none;', value: correct.length - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     addElement({style: 'display: none;', value: correct.length, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     findChild(selectedElementId.parent, id).style.backgroundColor = "green";
   }
-  getAllGraphemtreffer(doNotMark, graphemFeler, correct);
+  if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+  if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+  getAllGraphemtreffer(doNotMark, graphemFehler, correct);
 }
-function getAllGraphemtreffer(/*doNotMark, graphemFeler, correct*/) {
+function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/) {
   auswertung.allGraphemtreffer.possible = 0;
   auswertung.allGraphemtreffer.got = 0;
   for (var i = 0; i < document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent)).length; i++) {
@@ -183,8 +203,8 @@ function getAllGraphemtreffer(/*doNotMark, graphemFeler, correct*/) {
 function getEveryCategory() {
   for (var i = 0; i < neededTest.kathegorien.length; i++) {
     auswertung[neededTest.kathegorien[i]] = {got: 0, possible: 0};
-    if (neededTest.kathegorien[i].includes('silben')) {
-      for (var i1 = 0; i1 <  document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent)).length; i1++) {
+      for (var i1 = 0; i1 < document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent)).length; i1++) {
+        if (neededTest.kathegorien[i].includes('silben')) {
         if (neededTest.words[i1].toString().split('-').length == neededTest.kathegorien[i].replace('-silben', '') && replaceAll(neededTest.words[i1], '-', '').toLowerCase() == document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i1].value.toLowerCase()) {
           auswertung[neededTest.kathegorien[i]].got++;
         }
@@ -192,7 +212,29 @@ function getEveryCategory() {
       }
     }
   }
+  auswertung.letter[selectedElementId.parent] = {};
+  for (var i = 0; i < neededTest.words.length; i++) {
+    var wordNow = replaceAll(neededTest.words[i], '-', '');
+      var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
+      console.log(wordNow);
+      for (var i1 = 0; i1 < wordNow.length; i1++) {
+        if (!auswertung.letter[selectedElementId.parent][wordNow[i1]]) auswertung.letter[selectedElementId.parent][wordNow[i1]] = {possible: 0, got: 0};
+        auswertung.letter[selectedElementId.parent][wordNow[i1]].possible++;
+        if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || !auswertung.wrongLetters[selectedElementId.parent][wordNow][wordNow[i1]]) {
+          auswertung.letter[selectedElementId.parent][wordNow[i1]].got++;
+      }
+      if (auswertung.wrongLetters[selectedElementId.parent][wordNow] && auswertung.wrongLetters[selectedElementId.parent][wordNow][wordNow[i1]]) auswertung.wrongLetters[selectedElementId.parent][wordNow][wordNow[i1]]--;
+    }
+    auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
+  }
   console.log(auswertung);
+  var wrongList = [];
+  var rightList = [];
+  for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
+    wrongList.push(auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].possible - auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].got);
+    rightList.push(auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].got);
+  }
+  addChart(Object.keys(auswertung.letter[selectedElementId.parent]), {wrong: wrongList, right: rightList}, texturpupilSheet1);
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -277,7 +319,21 @@ function addChart(texte, data, canvas) {
     data: data,
     options: options
 });
+canvas.onclick = function(evt) {
+  console.log("chart");
+  var activePoints = myBarChart.getElementsAtEvent(evt);
+  if (activePoints[0]) {
+    var chartData = activePoints[0]['_chart'].config.data;
+    var idx = activePoints[0]['_index'];
+
+    var label = chartData.labels[idx];
+    var right = chartData.datasets[0].data[idx];
+    var wrong = chartData.datasets[1].data[idx];
+    console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
+  }
+};
 myBarChart.canvas.parentNode.style.height = 1;
+// TODO: nicht nur für pupil 1
 for (var graphBottom = /*texturpupilSheet1.getBoundingClientRect().bottom*/divGraph1.getBoundingClientRect().bottom; document.getElementById('pupilSheet1').getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   myBarChart.canvas.parentNode.style.height = JSON.parse(myBarChart.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
 }
