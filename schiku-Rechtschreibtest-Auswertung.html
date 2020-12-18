@@ -32,7 +32,7 @@ function addPupil() {
   for (var i = 0; i < neededTest.words.length; i++) {
     addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
     addElement({id: 'pupilsWriting ' + (i + 1), class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
-    addElement({id: 'correction ' + (i + 1)}, 'div', 'pupilSheet' + pupils);
+    addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
 
     addElement({}, 'br', 'pupilSheet' + pupils);
 
@@ -59,7 +59,8 @@ function pupilsWritingFinished(id, restoringData) {
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}};
 var inputs = {};
 if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
-else localStorage.setItem('inputsSchiku', 'undefined');
+else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
+else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
   var testAktuell = Object.keys(inputs)[i3];
   neededTest = words['kreisUnna'][testAktuell.replace('Test ', '') - 1];
@@ -70,6 +71,7 @@ for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
   var minusI = 0;
   for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
     var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
+    if (!(idAktuell.includes('mirror'))) {
     if (idAktuell.includes('pupilsWriting')) {
     findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
     markErrors(idAktuell, sheetAktuell);
@@ -79,12 +81,20 @@ for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
     findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
     minusI++;
   }
-  }
   pupilsWritingFinished(idAktuell);
 }
 }
-neededTest = words['kreisUnna'][0];
-selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
+for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
+  for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)].length; i4++) {
+    if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)][i4])
+    // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]);
+    findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = '#00BFFF';
+  }
+}
+}
+}
+// neededTest = words['kreisUnna'][0];
+// selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 function dataChanged(id, value) {
   if (!inputs['Test ' + textSelctor.value]) inputs['Test ' + textSelctor.value] = {};
   if (!inputs['Test ' + textSelctor.value][selectedElementId.parent]) inputs['Test ' + textSelctor.value][selectedElementId.parent] = {};
@@ -229,7 +239,7 @@ function getEveryCategory() {
         var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
         console.log(wordNow);
         for (var i1 = 0; i1 < wordNow.length; i1++) {
-          if (!auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()]) auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()] = {possible: 0, got: 0};
+          if ( !auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()]) auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()] = {possible: 0, got: 0};
           auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()].possible++;
           if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || !auswertung.wrongLetters[selectedElementId.parent][wordNow][wordNow[i1].toLowerCase()]) {
             auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()].got++;
@@ -259,8 +269,20 @@ function getEveryCategory() {
     }
     addChart(cathegoryList, {wrong: wrongList, right: rightList});
 }
-function changeMirror(index, wordNumber) {
-  findChild('class',  findChild('id', selectedElementId.parent, wordNumber.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = '#00BFFF'/*blue*/;
+function changeMirror(index, wordId) {
+  var word = replaceAll(neededTest.words[wordId.replace('pupilsWriting ', '') - 1], '-', '');
+  if (!inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror) inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror = {};
+  if (!inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word]) {
+    inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word] = [];
+  }
+  if (!inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index]) {
+    inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
+    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = '#00BFFF'/*blue*/;
+  }
+  else {
+  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index];
+  inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index] = undefined;
+}
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -364,25 +386,27 @@ function addChart(texte, data) {
     data: data,
     options: options
 });
+console.log("selectedElementId: " + selectedElementId.parent);
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   console.log("chart");
   var activePoints = myBarChart.getElementsAtEvent(evt);
   if (activePoints[0]) {
     var chartData = activePoints[0]['_chart'].config.data;
     var idx = activePoints[0]['_index'];
-
+    var pupilSheet = myBarChart.canvas.id.replace('textur', '');
     var label = chartData.labels[idx];
     var right = chartData.datasets[0].data[idx];
     var wrong = chartData.datasets[1].data[idx];
     console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
+    console.log("selectedElementId: " + pupilSheet);
       for (var i = 0; i < neededTest.words.length; i++) {
-        findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.outlineStyle = "";
-        if (label.length == 1 && neededTest.words[i].toLowerCase().includes(label.toLowerCase()) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) {
-          findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.outlineColor = "red";
-          if ((!auswertung.wrongLetters[selectedElementId.parent][replaceAll(neededTest.words[i], '-', '')] || !auswertung.wrongLetters[selectedElementId.parent][replaceAll(neededTest.words[i], '-', '')][label]) && !(label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.outlineColor = "green";
-          findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.outlineStyle = "outset";
-          findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[i].getBoundingClientRect().right + 3;
-          if (findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', selectedElementId.parent, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+        findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
+        if ((label.length == 1 && neededTest.words[i].toLowerCase().includes(label.toLowerCase()) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "red";
+          if ((!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')] || !auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label]) && !(label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
+          if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
         }
     }
   }
