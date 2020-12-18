@@ -49,50 +49,51 @@ function findChild(childType, idOfElement, idOfChild, elementNotId){
   return element.querySelector('[' + childType + '="' + idOfChild + '"]');
 }
 function pupilsWritingFinished(id, restoringData) {
-  if (findChild('id', selectedElementId.parent, id).value == "r") {
+  if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true);
   }
   if (!restoringData) getEveryCategory();
 }
-// TODO: Bei anderem Test pupilSheet wieder auf 1
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}};
 var inputs = {};
-if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
-else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
-else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
-for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
-  var testAktuell = Object.keys(inputs)[i3];
-  neededTest = words['kreisUnna'][testAktuell.replace('Test ', '') - 1];
-  textSelctor.value = testAktuell.replace('Test ', '');
-for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
-  addPupil();
-  var sheetAktuell = Object.keys(inputs[testAktuell])[i];
-  var minusI = 0;
-  for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
-    var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
-    if (!(idAktuell.includes('mirror'))) {
-    if (idAktuell.includes('pupilsWriting')) {
-    findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
-    markErrors(idAktuell, sheetAktuell);
+  if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+  else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
+  else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+  for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
+    var testAktuell = Object.keys(inputs)[i3];
+    neededTest = words['kreisUnna'][testAktuell.replace('Test ', '') - 1];
+    textSelctor.value = testAktuell.replace('Test ', '');
+  for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
+    addPupil();
+    var sheetAktuell = Object.keys(inputs[testAktuell])[i];
+    var minusI = 0;
+    for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
+      var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
+      if (!(idAktuell.includes('mirror'))) {
+      if (idAktuell.includes('pupilsWriting')) {
+      findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
+      markErrors(idAktuell, sheetAktuell);
+      pupilsWritingFinished(idAktuell, true);
+    }
+    else {
+      findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
+      minusI++;
+    }
     pupilsWritingFinished(idAktuell, true);
   }
-  else {
-    findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
-    minusI++;
+  }
+  for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
+    for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]].length; i4++) {
+      if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]][i4]) {
+      // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2][i2]);
+      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = '#00BFFF';
+    }
+    }
   }
   pupilsWritingFinished(idAktuell);
-}
-}
-for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
-  for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)].length; i4++) {
-    if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)][i4])
-    // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]);
-    findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = '#00BFFF';
   }
-}
-}
-}
+  }
 // neededTest = words['kreisUnna'][0];
 // selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 function dataChanged(id, value) {
@@ -136,10 +137,10 @@ function markErrors(id, parentId, doNotMark) {
         if (!auswertung.wrongLetters[selectedElementId.parent][correct][correct[i].toLowerCase()]) auswertung.wrongLetters[selectedElementId.parent][correct][correct[i].toLowerCase()] = 0;
         auswertung.wrongLetters[selectedElementId.parent][correct][correct[i].toLowerCase()]++;
       }
-      console.log(correct[i] + " before " + wrong[wrongI]);
+      // console.log(correct[i] + " before " + wrong[wrongI]);
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI].toLowerCase() != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) {
-        console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
+        // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
         if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
         wrongI++;
 
@@ -158,7 +159,7 @@ else {
     }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
-      console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
+      // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
       newWord[wrongI + addI].colour = "#FD6441/*red*/";
       doubleError++;
       i--;
@@ -181,7 +182,7 @@ else {
   }
   // check too much in the end
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
-    console.log("remove " + wrong[i]);
+    // console.log("remove " + wrong[i]);
     if (newWord[i].letter != '_') {
       newWord[i].colour = "#FD6441/*red*/";
       graphemFehler++;
@@ -191,9 +192,9 @@ else {
       // auswertung.wrongLetters[selectedElementId.parent][correct][newWord[i].toLowerCase()]++;
     }
   }
-  console.log(newWord);
+  // console.log(newWord);
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (correct.length - graphemFehler < 0) graphemFehler = correct.length;
   if (!doNotMark && graphemFehler > 0) {
@@ -237,7 +238,7 @@ function getEveryCategory() {
       try {
       var wordNow = replaceAll(neededTest.words[i], '-', '');
         var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
-        console.log(wordNow);
+        // console.log(wordNow);
         for (var i1 = 0; i1 < wordNow.length; i1++) {
           if ( !auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()]) auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()] = {possible: 0, got: 0};
           auswertung.letter[selectedElementId.parent][wordNow[i1].toLowerCase()].possible++;
@@ -251,9 +252,10 @@ function getEveryCategory() {
        console.log('not filled already');
      }
     }
-    console.log(auswertung);
+    // console.log(auswertung);
     var wrongList = [];
     var rightList = [];
+    var mirrorList = [];
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     var cathegoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
@@ -267,7 +269,27 @@ function getEveryCategory() {
         rightList.push(auswertung[Object.keys(auswertung)[i]].got);
       }
     }
-    addChart(cathegoryList, {wrong: wrongList, right: rightList});
+    for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
+      mirrorList.push(0);
+    }
+    for (var i2 = 0; inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror && i2 < Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror).length; i2++) {
+      for (var i4 = 0; i4 < inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2]].length; i4++) {
+        console.log("Test");
+        if (inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2]][i4]) {
+          for (var i = 0; i < cathegoryList.length; i++) {
+            if (cathegoryList[i] == Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase()) {
+              mirrorList[i]++;
+              i = cathegoryList.length;
+            }
+          }
+          if (i != cathegoryList.length + 1) {
+            cathegoryList.push(Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
+            mirrorList[i]++;
+          }
+        }
+      }
+      }
+    addChart(cathegoryList, {wrong: wrongList, right: rightList, mirror: mirrorList});
 }
 function changeMirror(index, wordId) {
   var word = replaceAll(neededTest.words[wordId.replace('pupilsWriting ', '') - 1], '-', '');
@@ -283,6 +305,7 @@ function changeMirror(index, wordId) {
   findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index];
   inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index] = undefined;
 }
+localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -354,9 +377,16 @@ function addChart(texte, data) {
     }, {
       label: "falsche",
       backgroundColor: 'rgba(255, 0, 0, 0.7)',
-      borderColor: 'rgba(255, 0, 0, 1))',
+      borderColor: 'rgba(255, 0, 0, 1)',
       fill: true,
       data: data.wrong,
+      stack:'stack0'
+    }, {
+      label: "spiegelverkehrt",
+      backgroundColor: '#00BFFF',
+      borderColor: '#00BFFF',
+      fill: true,
+      data: data.mirror,
       stack:'stack0'
     }
     ]
