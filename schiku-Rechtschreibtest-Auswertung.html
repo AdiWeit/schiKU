@@ -17,6 +17,7 @@
 var neededTest = words['kreisUnna'][0];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
+var myBarChart = [];
 /*
 * PURPOSE : fügt die Elemente für einen neuen Schüler hinzu
 */
@@ -26,22 +27,22 @@ function addPupil() {
   pupils++;
   addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
   addElement({placeholder: 'Name Schüler', id: 'name', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-  addElement({placeholder: 'Klasse', id: 'class' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-  addElement({placeholder: 'Datum', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
+  addElement({}, 'br', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Datum', style: 'width: 226;', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Anmerkungen', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
+  addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 'div', 'pupilSheet' + pupils);
+  addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
   for (var i = 0; i < neededTest.words.length; i++) {
     addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1)}, 'a', 'pupilSheet' + pupils);
-    addElement({id: 'pupilsWriting ' + (i + 1), class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korregiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können sie die Anzahl der Graphemtreffer korregieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
+    addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können Sie die Anzahl der Graphemtreffer korrigieren.\nWenn der Schüler das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
     addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
-
-    addElement({}, 'br', 'pupilSheet' + pupils);
-
+    if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
   }
   addElement({id: 'allGraphemes' + pupils, style: 'font-size: 30'}, 'a', 'pupilSheet' + pupils);
-  addElement({}, 'br', 'pupilSheet' + pupils);
-  addElement({id: 'divGraph' + pupils}, 'div', 'pupilSheet' + pupils);
-  addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
-  addElement({}, 'br', 'pupilSheet' + pupils);
+  // addElement({}, 'br', 'pupilSheet' + pupils);
+  // addElement({}, 'br', 'pupilSheet' + pupils);
 }
 function findChild(childType, idOfElement, idOfChild, elementNotId){
   if (!elementNotId) var element = document.getElementById(idOfElement);
@@ -51,14 +52,14 @@ function findChild(childType, idOfElement, idOfChild, elementNotId){
 function pupilsWritingFinished(id, restoringData) {
   if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
-    markErrors(id, selectedElementId.parent, true);
+    markErrors(id, selectedElementId.parent, true, restoringData);
   }
   if (!restoringData) getEveryCategory();
 }
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}};
 var inputs = {};
-  if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen sie zuletzt ausgefüllten Tests wiederherstellen? Wenn sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
-  else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
+  if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+  else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
   else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
@@ -73,7 +74,7 @@ var inputs = {};
       if (!(idAktuell.includes('mirror'))) {
       if (idAktuell.includes('pupilsWriting')) {
       findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
-      markErrors(idAktuell, sheetAktuell);
+      markErrors(idAktuell, sheetAktuell, undefined, true);
       pupilsWritingFinished(idAktuell, true);
     }
     else {
@@ -92,7 +93,17 @@ var inputs = {};
     }
   }
   pupilsWritingFinished(idAktuell);
+    makeTextboxBigger();
   }
+  }
+
+  function makeTextboxBigger() {
+    findChild('id', selectedElementId.parent, 'comment').scroll(0, 1000);
+    while (findChild('id', selectedElementId.parent, 'comment').scrollTop > 0) {
+      findChild('id', selectedElementId.parent, 'comment').style.height = JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace('px', '')) + 1 + 'px';
+      document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.top = JSON.parse(document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.top.replace('px', '')) + 1 + 'px';
+      document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height = JSON.parse(document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height.replace('px', '')) - 1 + 'px';
+    }
   }
 // neededTest = words['kreisUnna'][0];
 // selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
@@ -101,18 +112,24 @@ function dataChanged(id, value) {
   if (!inputs['Test ' + textSelctor.value][selectedElementId.parent]) inputs['Test ' + textSelctor.value][selectedElementId.parent] = {};
   inputs['Test ' + textSelctor.value][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+  if (id == "comment") {
+    makeTextboxBigger();
+  }
 }
 function addWrongLetter(correct, i) {
-  var currentLetter = correct[i].toLowerCase();
-  if (currentLetter == "e" && i == correct.length - 1) currentLetter = '<' + currentLetter + '>';
-  if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
-  if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
-  if (!auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter]) auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter] = 0;
-  auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter]++;
-  graphemFehler++;
+  try {
+    graphemFehler++;
+    var currentLetter = correct[i].toLowerCase();
+    if (currentLetter == "e" && i == correct.length - 1) currentLetter = '<' + currentLetter + '>';
+    if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+    if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+    if (!auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter]) auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter] = 0;
+    auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter]++;
+  } catch (e) {}
 }
 var graphemFehler = 0;
-function markErrors(id, parentId, doNotMark) {
+window.scroll(0, 10000);
+function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   if (!inputs['Test ' + textSelctor.value]) inputs['Test ' + textSelctor.value] = {};
   if (!inputs['Test ' + textSelctor.value][parentId]) inputs['Test ' + textSelctor.value][parentId] = {};
   inputs['Test ' + textSelctor.value][parentId][id] = findChild('id', selectedElementId.parent, id).value;
@@ -121,6 +138,7 @@ function markErrors(id, parentId, doNotMark) {
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
   var wrongI = 0;
+  if (!doNotResetMirror && inputs['Test ' + textSelctor.value] && inputs['Test ' + textSelctor.value][selectedElementId.parent] && inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror) inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
   var newWord = [];
   var addI = 0;
@@ -138,7 +156,7 @@ function markErrors(id, parentId, doNotMark) {
   for (var i = 0; i < wrong.length; i++) {
     newWord.push({letter: wrong[i], colour: "white"});
   }
-  for (var i = 0; i < correct.length && wrong[i]; i++) {
+  for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
     // check letter difference: following letter wrong
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       if ((/*wrong[wrongI] == wrong[wrongI].toLowerCase() || */correct[i].toLowerCase() != wrong[wrongI].toLowerCase()/*capitalizeFirstLetter(correct[i]) == correct[i]*/)/* && !(capitalizeFirstLetter(correct[i]) == correct[i] && correct[i].toLowerCase() == wrong[wrongI].toLowerCase())*/) {
@@ -197,7 +215,7 @@ else {
   }
   // console.log(newWord);
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (correct.length - graphemFehler < 0) graphemFehler = correct.length;
   if (!doNotMark && graphemFehler > 0) {
@@ -279,7 +297,6 @@ function getEveryCategory() {
     }
     for (var i2 = 0; inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror && i2 < Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror).length; i2++) {
       for (var i4 = 0; i4 < inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2]].length; i4++) {
-        console.log("Test");
         if (inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2]][i4]) {
           for (var i = 0; i < cathegoryList.length; i++) {
             if (cathegoryList[i] == Object.keys(inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase()) {
@@ -311,6 +328,7 @@ function changeMirror(index, wordId) {
   inputs['Test ' + textSelctor.value][selectedElementId.parent].mirror[word][index] = undefined;
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+getEveryCategory();
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -359,9 +377,9 @@ return sorted;
    if (event.key == 'Tab' && document.getElementById(selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1))) {
      setTimeout(function () {
        if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
-
      }, 10);
    }
+   if (event.key == "p" && event.ctrlKey) alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm, oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht.');
 }
 function replaceAll(str, find, replace) {
     return str.replace(new RegExp(find, 'g'), replace);
@@ -410,25 +428,23 @@ function addChart(texte, data) {
         }
       }],
     },
-    // legend: { display: false },
-      title: {
-        display: true,
-        text: 'Schüler Test'
-      }
   }
-  var myBarChart = new Chart(document.getElementById('textur' + selectedElementId.parent), {
+  myBarChart[selectedElementId.parent.replace('pupilSheet', '')] = new Chart(document.getElementById('textur' + selectedElementId.parent), {
     type: 'horizontalBar',
     data: data,
     options: options
 });
 console.log("selectedElementId: " + selectedElementId.parent);
+var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   console.log("chart");
-  var activePoints = myBarChart.getElementsAtEvent(evt);
+  selectedElementId.parent = evt.path[0].id.replace('textur', '');
+  var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
+  var activePoints = chartNow.getElementsAtEvent(evt);
   if (activePoints[0]) {
     var chartData = activePoints[0]['_chart'].config.data;
     var idx = activePoints[0]['_index'];
-    var pupilSheet = myBarChart.canvas.id.replace('textur', '');
+    var pupilSheet = chartNow.canvas.id.replace('textur', '');
     var label = chartData.labels[idx];
     var right = chartData.datasets[0].data[idx];
     var wrong = chartData.datasets[1].data[idx];
@@ -439,15 +455,15 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
         findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
         if ((label.replace('>', '').replace('<', '').length == 1 && (neededTest.words[i].toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
-          if (label != '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e") {
+          if (label == 'e' && neededTest.words[i][neededTest.words[i].length - 1] == "e") {
             result = neededTest.words[i].split('');
             result.pop();
           }
-          if ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e")) {
+          if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e"))) {
 // ((label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e") || (label != '<e>' && neededTest.words[i][neededTest.words[i].length - 1] != "e"))
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "red";
           // TODO: <e>
-          if ((!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')] || !auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label]) && !(label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
+          if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
           if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
@@ -456,12 +472,24 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     }
   }
 };
-myBarChart.canvas.parentNode.style.height = 1;
 // TODO: nicht nur für pupil 1
-for (var graphBottom = /*texturpupilSheet1.getBoundingClientRect().bottom*/document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
-  myBarChart.canvas.parentNode.style.height = JSON.parse(myBarChart.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
+var mostLeft = 0;
+for (var i = 0; i < document.getElementsByClassName('writingPupilSheet1').length; i++) {
+  if (document.getElementsByClassName('writingPupilSheet1')[i].getBoundingClientRect().right > mostLeft) mostLeft = document.getElementsByClassName('writingPupilSheet1')[i].getBoundingClientRect().right;
 }
-console.log(myBarChart.canvas.parentNode.style.height);
+chartNow.canvas.parentNode.style.right = -20//(window.innerWidth - pupilSheet1.getBoundingClientRect().right);
+chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - pupilSheet1.getBoundingClientRect().right);
+chartNow.canvas.parentNode.style.height = 1;
+chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
+for (var graphBottom = /*texturpupilSheet1.getBoundingClientRect().bottom*/document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
+  chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
+}
+findChild('id', selectedElementId.parent, 'comment').style.width = window.innerWidth - mostLeft - 65- (window.innerWidth - pupilSheet1.getBoundingClientRect().right);
+findChild('id', selectedElementId.parent, 'comment').style.height = 10;
+makeTextboxBigger();
+// chartNow.canvas.parentNode.style.right = (window.innerWidth - pupilSheet1.getBoundingClientRect().right)*2;
+
+console.log(chartNow.canvas.parentNode.style.height);
 }
 // TODO: document.getElementById('pupilsWriting 1').getBoundingClientRect()
 // addChart(['b korrekt', 'h korrekt', 'r korrekt'], {wrong: [1, 1, 1], right: [2, 2, 2]}, texturpupilSheet1);
