@@ -36,9 +36,10 @@
 <button type="button" style="width: 175" onclick="saveAndCloseEditor();" name="button">auf dem Gerät speichern und verlassen</button>
 </div>
 <script>
-  var officialData = {"Kreis Unna": {"Test 1": {kathegorien: ["ku", "2 Silben", "3 Silben"], words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]}, "Test 2": {kathegorien: ["au", "ei", "sch", "2 Silben", "3 Silben"], words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]}, "Test 3": {kathegorien: ["au", "ei", "ö", "w", "er", "el", "2 Silben", "3 Silben", "4 Silben"], words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]}, "Test 4": {kathegorien: ["au", "ei", "ö", "ü", "g", "b", "er", "2 Silben", "3 Silben", "4 Silben"], words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]}, "Test 5": {kathegorien: [], words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
-"Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"]}, "Test 6": {kathegorien: [], words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
-"Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"]}, "Test 7": {kathegorien: [], words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]}, "Test 8": {kathegorien: [], words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te", "Rü-cken-num-mer", "Lö-wen-köp-fe"]}}};
+  // TODO: einzele pupilsheet zähler für verschiedene Tests
+  var officialData = {"Kreis Unna": {"Test 1": {words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]}, "Test 2": {kathegorien: {"Zwielaut/Diphthong": ["au", "ei"], sonstige: ["sch"]}, words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]}, "Test 3": {kathegorien: {"Zwielaut/Diphthong": ["au", "ei"], Vokale: ["ö"], Konsonanten: ["w"], sonstige: ["er", "el"]}, words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]}, "Test 4": {kathegorien: {"Zwielaut/Diphthong": ["au", "ei"], Vokale: ["ö", "ü"], sonstige: ["er"]}, words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]}, "Test 5": {kathegorien: {}, words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
+"Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"]}, "Test 6": {kathegorien: {}, words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
+"Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"]}, "Test 7": {kathegorien: {}, words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]}, "Test 8": {kathegorien: {}, words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te", "Rü-cken-num-mer", "Lö-wen-köp-fe"]}}};
 var words = officialData;
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
@@ -65,7 +66,7 @@ if (testTypeSelector.value == "newTestType" || testSelctor.value == "newTest") a
 function saveAndCloseEditor() {
   if (!words[nameType.value][nameTest.value]) nameTest.value = nameTest.value;
   if (!words[nameType.value]) words[nameType.value] = {};
-  words[nameType.value][nameTest.value] = {words: [], kathegorien: []};
+  words[nameType.value][nameTest.value] = {words: [], kathegorien: {}};
   for (var i = 0; i < document.getElementsByClassName("word").length; i++) {
     words[nameType.value][nameTest.value].words.push(document.getElementsByClassName("word")[i].value);
   }
@@ -175,7 +176,7 @@ function syncWithOfficialData(sync) {
   }
   localStorage.setItem('words', JSON.stringify(words));
 }
-var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}};
+var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}, categories: {}, byCategories: {}};
 var inputs = {};
 if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
   var wordsInport = JSON.parse(localStorage.getItem('words'));
@@ -256,8 +257,13 @@ function dataChanged(id, value) {
 }
 function addWrongLetter(correct, i) {
   try {
-    graphemFehler++;
     var currentLetter = correct[i].toLowerCase();
+    for (var i = 0; i < Object.keys(letterList).length; i++) {
+      if (letterList[Object.keys(letterList)[i]] && letterList[Object.keys(letterList)[i]][currentLetter]) {
+        letterList[Object.keys(letterList)[i]][currentLetter] = false;
+      }
+    }
+    graphemFehler++;
     if (currentLetter == "e" && i == correct.length - 1) currentLetter = '<' + currentLetter + '>';
     if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
     if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -267,6 +273,53 @@ function addWrongLetter(correct, i) {
 }
 var graphemFehler = 0;
 window.scroll(0, 10000);
+var possibleGraphemtreffer;
+var letterList;
+var letterCounter;
+function checkCategory(correct, i) {
+  possibleGraphemtreffer = correct.length;
+  if (i == 0) var firstLetter = correct[0];
+  for (var i1 = 0; neededTest.kathegorien && i1 < Object.keys(neededTest.kathegorien).length; i1++) {
+    var category = Object.keys(neededTest.kathegorien)[i1];
+    for (var i2 = 0; i2 < neededTest.kathegorien[category].length; i2++) {
+      var letterString = neededTest.kathegorien[category][i2];
+      if (correct.toLowerCase().includes(letterString)) {
+      for (var i3 = 0; i3 < letterString.length - 1; i3++) {
+        possibleGraphemtreffer--;
+      }
+      if (!letterList[letterString]) letterList[letterString] = {};
+      if (!letterCounter[letterString]) letterCounter[letterString] = [];
+      if (letterCounter[letterString].length == letterString.length) {
+        var string = Object.keys(letterList[letterString]).toString().replace(',', '');
+        if (string == letterString) {
+          if (!auswertung.categories[correct][category]) auswertung.categories[correct][category] = {got: 0, possible: 0};
+          if (!auswertung.categories[correct][category][letterString]) auswertung.categories[correct][category][letterString] = {possible: 0, got: 0};
+          auswertung.categories[correct][category][letterString].possible++;
+          auswertung.categories[correct][category].possible++;
+        var firstOne = false;
+        var graphemFehlerBefore = graphemFehler;
+        for (var i3 = 0; i3 < Object.keys(letterList[letterString]).length; i3++) {
+          if (!letterList[letterString][Object.keys(letterList[letterString])[i3]] && !firstOne) {
+            firstOne = true;
+          }
+          else if (!letterList[letterString][Object.keys(letterList[letterString])[i3]]) {
+            graphemFehler--;
+          }
+        }
+        if (graphemFehlerBefore == graphemFehler && !firstOne) {
+          auswertung.categories[correct][category][letterString].got++;
+          auswertung.categories[correct][category].got++;
+        }
+      }
+        delete letterList[letterString][letterCounter[letterString][0]];
+        letterCounter[letterString].shift();
+      }
+      letterList[letterString][correct[i].toLowerCase()] = true;
+      letterCounter[letterString].push(correct[i].toLowerCase());
+    }
+  }
+}
+}
 function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   if (!inputs[/*'Test ' + */testSelctor.value]) inputs[/*'Test ' + */testSelctor.value] = {};
   if (!inputs[/*'Test ' + */testSelctor.value][parentId]) inputs[/*'Test ' + */testSelctor.value][parentId] = {};
@@ -278,10 +331,13 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   var wrongI = 0;
   if (!doNotResetMirror && inputs[/*'Test ' + */testSelctor.value] && inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent] && inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror) inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+  auswertung.categories[correct] = {};
   var newWord = [];
   var addI = 0;
   var doubleError = 0;
   graphemFehler = 0;
+  letterList = {};
+  letterCounter = {};
   var wordCorrectionChild = findChild('id', selectedElementId.parent, 'correction ' + id.replace('pupilsWriting ', ''));
   for (var i = 0; findChild('id', wordCorrectionChild, 'correctionLetter', true); i++) {
     findChild('id', wordCorrectionChild, 'correctionLetter', true).remove();
@@ -295,6 +351,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
     newWord.push({letter: wrong[i], colour: "white"});
   }
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
+    checkCategory(correct, i);
     // check letter difference: following letter wrong
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       if ((/*wrong[wrongI] == wrong[wrongI].toLowerCase() || */correct[i].toLowerCase() != wrong[wrongI].toLowerCase()/*capitalizeFirstLetter(correct[i]) == correct[i]*/)/* && !(capitalizeFirstLetter(correct[i]) == correct[i] && correct[i].toLowerCase() == wrong[wrongI].toLowerCase())*/) {
@@ -334,11 +391,25 @@ else {
     }
     if (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1].toLowerCase() == correct[i + 1])) wrongI++;
   }
+  checkCategory(correct, 0);
   // check end missing
+  // if (newWord.length - doubleError < correct.length) {
+    // var wasMissung = true
+    // checkCategory(correct, i);
+  // }
   for (var i = i; newWord.length - doubleError < correct.length; i++) {
     newWord.push({letter: '_', colour: "white"});
+    checkCategory(correct, newWord.length - 1);
     addWrongLetter(correct, newWord.length - 1);
   }
+  // if (wasMissung) {
+    // for (var i2 = 0; i2 < Object.keys(neededTest.kathegorien).length; i2++) {
+    // for (var i1 = 0; i1 < neededTest.kathegorien[Object.keys(neededTest.kathegorien)[i2]].length; i1++) {
+    //   if (letterList[neededTest.kathegorien[Object.keys(neededTest.kathegorien)[i2]][i1]]) letterList[neededTest.kathegorien[Object.keys(neededTest.kathegorien)[i2]][i1]][correct[i - 1]] = false;
+    // }
+    // }
+    // checkCategory(correct, 0);
+  // }
   // check too much in the end
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     // console.log("remove " + wrong[i]);
@@ -355,16 +426,16 @@ else {
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
     addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
-  if (correct.length - graphemFehler < 0) graphemFehler = correct.length;
+  if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
   if (!doNotMark && graphemFehler > 0) {
-    addElement({value: correct.length - graphemFehler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
-    addElement({value: correct.length, id: 'graphemtrefferPossible', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     findChild('id', selectedElementId.parent, id).style.backgroundColor = "red";
   }
   else {
-    addElement({style: 'display: none;', value: correct.length - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    addElement({style: 'display: none;', value: correct.length, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
+    addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
+    addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     findChild('id', selectedElementId.parent, id).style.backgroundColor = "green";
   }
   if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
@@ -381,75 +452,171 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/) {
   document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible;
 }
 function getEveryCategory() {
-    for (var i = 0; i < neededTest.kathegorien.length; i++) {
-      auswertung[neededTest.kathegorien[i]] = {got: 0, possible: 0};
-        for (var i1 = 0; i1 < document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent)).length; i1++) {
-          if (neededTest.kathegorien[i].includes('Silben')) {
-          if (neededTest.words[i1].toString().split('-').length == neededTest.kathegorien[i].replace(' Silben', '') && replaceAll(neededTest.words[i1], '-', '').toLowerCase() == document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i1].value.toLowerCase()) {
-            auswertung[neededTest.kathegorien[i]].got++;
-          }
-          if (neededTest.words[i1].toString().split('-').length == neededTest.kathegorien[i].replace(' Silben', '')) auswertung[neededTest.kathegorien[i]].possible++;
-        }
-      }
+  for (var i = 0; i < Object.keys(auswertung).length; i++) {
+    if (Object.keys(auswertung)[i].includes("Silben")/* != "letter" && Object.keys(auswertung)[i] != "allGraphemtreffer" && Object.keys(auswertung)[i] != "wrongLetters"*/) {
+      delete auswertung[Object.keys(auswertung)[i]];
+      i--;
     }
-    auswertung.letter[selectedElementId.parent] = {};
-    for (var i = 0; i < neededTest.words.length; i++) {
-      try {
-      var wordNow = replaceAll(neededTest.words[i], '-', '');
-        var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
-        // console.log(wordNow);
-        for (var i1 = 0; i1 < wordNow.length; i1++) {
-          var letterNow = wordNow[i1].toLowerCase();
-          if (i1 == wordNow.length - 1 && letterNow == "e")  letterNow = '<' + letterNow + '>';
-          if ( !auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
-          auswertung.letter[selectedElementId.parent][letterNow].possible++;
-          if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || (!auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow])) {
-            auswertung.letter[selectedElementId.parent][letterNow].got++;
-        }
-        if (auswertung.wrongLetters[selectedElementId.parent][wordNow] && auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]) auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]--;
+  }
+  // for (var i = 1; Object.keys(auswertung).some(x => x.includes("Silben")); i++) {
+  //   if (auswertung[i + " Silben"]) delete auswertung[i + " Silben"];
+  // }
+  auswertung.letter[selectedElementId.parent] = {};
+  for (var i = 0; i < neededTest.words.length; i++) {
+    var inputValue = document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i].value.toLowerCase();
+    // for (var i1 = 0; neededTest.kathegorien && i1 < Object.keys(neededTest.kathegorien).length; i1++) {
+    //   // if (i == 0 && inputValue.some(x => x.includes(neededTest[Object.keys(neededTest.kathegorien)[i1]]))) auswertung[Object.keys(neededTest.kathegorien)[i1]] = {got: 0, possible: 0};
+    //   var letterList = [];
+    //   var category = Object.keys(neededTest.kathegorien)[i1];
+    //   for (var i3 = 0; i3 < neededTest.kathegorien[category].length; i3++) {
+    //     for (var i4 = 0; i4 < neededTest.words[i].length; i4++) {
+    //       if (neededTest.words[i][i4] == "-") i4++;
+    //       letterList.push(neededTest.words[i][i4]);
+    //         if (letterList.length > neededTest.kathegorien[category][i3].length) letterList.shift();
+    //       // console.log(letterList);
+    //       if (replaceAll(letterList.toString(), ',', '') == neededTest.kathegorien[category][i3]) {
+    //         if (!auswertung[category]) auswertung[category] = {possible: 0, got: 0, letters: {}};
+    //         auswertung[category].possible++;
+    //         if (!auswertung[category].letters[replaceAll(letterList.toString(), ',', '')]) auswertung[category].letters[replaceAll(letterList.toString(), ',', '')] = {got: 0, possible: 0};
+    //         auswertung[category].letters[replaceAll(letterList.toString(), ',', '')].possible++;
+    //       }
+    //     }
+    //   }
+    // }
+    // Auswertung Silben
+    var label = neededTest.words[i].toString().split('-').length + ' Silben';
+    if (!auswertung[label]) auswertung[label] = {possible: 0, got: 0};
+    auswertung[label].possible++;
+    if (replaceAll(neededTest.words[i], '-', '').toLowerCase() == inputValue) auswertung[label].got++;
+
+    // Auswertung Buchstaben
+    try {
+    var wordNow = replaceAll(neededTest.words[i], '-', '');
+      var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
+      // console.log(wordNow);
+      for (var i1 = 0; i1 < wordNow.length; i1++) {
+        var letterNow = wordNow[i1].toLowerCase();
+        if (i1 == wordNow.length - 1 && letterNow == "e")  letterNow = '<' + letterNow + '>';
+        if ( !auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
+        auswertung.letter[selectedElementId.parent][letterNow].possible++;
+        if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || (!auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow])) {
+          auswertung.letter[selectedElementId.parent][letterNow].got++;
       }
-      auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
-     } catch (e) {
-       console.log('not filled already');
-     }
+      if (auswertung.wrongLetters[selectedElementId.parent][wordNow] && auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]) auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]--;
     }
+    auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
+   } catch (e) {
+     console.log('not filled already');
+   }
+  }
+
+    // auswertung.letter[selectedElementId.parent] = {};
+    // for (var i = 0; i < neededTest.words.length; i++) {
+    //   try {
+    //   var wordNow = replaceAll(neededTest.words[i], '-', '');
+    //     var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
+    //     // console.log(wordNow);
+    //     for (var i1 = 0; i1 < wordNow.length; i1++) {
+    //       var letterNow = wordNow[i1].toLowerCase();
+    //       if (i1 == wordNow.length - 1 && letterNow == "e")  letterNow = '<' + letterNow + '>';
+    //       if ( !auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
+    //       auswertung.letter[selectedElementId.parent][letterNow].possible++;
+    //       if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || (!auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow])) {
+    //         auswertung.letter[selectedElementId.parent][letterNow].got++;
+    //     }
+    //     if (auswertung.wrongLetters[selectedElementId.parent][wordNow] && auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]) auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]--;
+    //   }
+    //   auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
+    //  } catch (e) {
+    //    console.log('not filled already');
+    //  }
+    // }
     // console.log(auswertung);
     var wrongList = [];
     var rightList = [];
     var mirrorList = [];
+
+
+    // Umschreibung in kategorien
+    auswertung.byCategories = {};
+    for (var i1 = 0; i1 < Object.keys(auswertung.categories).length; i1++) {
+      var word = Object.keys(auswertung.categories)[i1];
+      for (var i2 = 0; i2 < Object.keys(auswertung.categories[word]).length; i2++) {
+        var category = Object.keys(auswertung.categories[word])[i2];
+        for (var i3 = 0; i3 < Object.keys(auswertung.categories[word][category]).length; i3++) {
+          var objKeyName = Object.keys(auswertung.categories[word][category])[i3];
+          if (!auswertung.byCategories[category]) auswertung.byCategories[category] = {possible: 0, got: 0};
+          if (objKeyName != "got" && objKeyName != "possible") {
+            if (!auswertung.byCategories[category][objKeyName]) auswertung.byCategories[category][objKeyName] = {possible: 0, got: 0};
+          auswertung.byCategories[category][objKeyName].possible += auswertung.categories[word][category][objKeyName].possible;
+          auswertung.byCategories[category][objKeyName].got += auswertung.categories[word][category][objKeyName].got;
+        }
+          else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[word][category].possible;
+          else {
+          auswertung.byCategories[category].got += auswertung.categories[word][category].got;
+          }
+        }
+      }
+    }
+
+  // zur Liste nach Kathegorien und Alphabet geordnet hinzufügen
+  var letterList = [];
+  var categoryList = [];
+  auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
+  for (var i = 0; i < Object.keys(auswertung.byCategories).length; i++) {
+    var category = Object.keys(auswertung.byCategories)[i];
+    categoryList.push(category);
+    rightList.push(0/*auswertung.byCategories[category].got*/)
+    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+    for (var i1 = 0; i1 < Object.keys(auswertung.byCategories[category]).length; i1++) {
+      var objKeyName = Object.keys(auswertung.byCategories[category])[i1];
+      if (objKeyName != "got" && objKeyName != "possible") {
+        letterList.push(objKeyName);
+        categoryList.push(objKeyName);
+        rightList.push(auswertung.byCategories[category][objKeyName].got);
+        wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
+      }
+    }
+  }
+
+
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
-    var cathegoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
+    // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
-      wrongList.push(auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].possible - auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].got);
-      rightList.push(auswertung.letter[selectedElementId.parent][Object.keys(auswertung.letter[selectedElementId.parent])[i]].got);
+      var letter = Object.keys(auswertung.letter[selectedElementId.parent])[i];
+      if (!(letterList.includes(letter[0]))) {
+        categoryList.push(letter);
+        wrongList.push(auswertung.letter[selectedElementId.parent][letter].possible - auswertung.letter[selectedElementId.parent][letter].got);
+        rightList.push(auswertung.letter[selectedElementId.parent][letter].got);
+      }
     }
     for (var i = 0; i < Object.keys(auswertung).length; i++) {
       if (Object.keys(auswertung)[i].includes('Silben')) {
-        cathegoryList.push(Object.keys(auswertung)[i]);
+        categoryList.push(Object.keys(auswertung)[i]);
         wrongList.push(auswertung[Object.keys(auswertung)[i]].possible - auswertung[Object.keys(auswertung)[i]].got);
         rightList.push(auswertung[Object.keys(auswertung)[i]].got);
       }
     }
-    for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
+    for (var i = 0; i < categoryList.length; i++) {
       mirrorList.push(0);
     }
     for (var i2 = 0; inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror).length; i2++) {
-      for (var i4 = 0; i4 < inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2]].length; i4++) {
+      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2].length; i4++) {
         if (inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2]][i4]) {
-          for (var i = 0; i < cathegoryList.length; i++) {
-            if (cathegoryList[i] == Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase()) {
+          for (var i = 0; i < categoryList.length; i++) {
+            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase()) {
               mirrorList[i]++;
-              i = cathegoryList.length;
+              i = categoryList.length;
             }
           }
-          if (i != cathegoryList.length + 1) {
-            cathegoryList.push(Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
+          if (i != categoryList.length + 1) {
+            categoryList.push(Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
             mirrorList[i]++;
           }
         }
       }
       }
-    addChart(cathegoryList, {wrong: wrongList, right: rightList, mirror: mirrorList});
+    addChart(categoryList, {wrong: wrongList, right: rightList, mirror: mirrorList});
 }
 function changeMirror(index, wordId) {
   var word = replaceAll(neededTest.words[wordId.replace('pupilsWriting ', '') - 1], '-', '');
@@ -471,7 +638,7 @@ getEveryCategory();
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-function sortObjectByKey(obj) {
+function sortObjectByKey(obj, categories) {
   var keys = [],
   k, i, len;
 for (k in obj) {
@@ -484,7 +651,8 @@ len = keys.length;
 var sorted = {}
 for (i = 0; i < len; i++) {
   k = keys[i];
-  sorted[k] = obj[k]
+  if (!categories) sorted[k + "/" + k.toUpperCase()] = obj[k];
+  else sorted[k] = obj[k];
 }
 return sorted;
 }
@@ -576,6 +744,7 @@ console.log("selectedElementId: " + selectedElementId.parent);
 var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   console.log("chart");
+  // TODO: klein/groß: vorher nur klein --> /groß ignorieren
   selectedElementId.parent = evt.path[0].id.replace('textur', '');
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
   var activePoints = chartNow.getElementsAtEvent(evt);
@@ -584,6 +753,8 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     var idx = activePoints[0]['_index'];
     var pupilSheet = chartNow.canvas.id.replace('textur', '');
     var label = chartData.labels[idx];
+    if (label.includes("/") && label.length == 3) label = label[0];
+    if (label == "<e>/<E>") label = "<e>";
     var right = chartData.datasets[0].data[idx];
     var wrong = chartData.datasets[1].data[idx];
     console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
@@ -600,11 +771,29 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e"))) {
 // ((label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e") || (label != '<e>' && neededTest.words[i][neededTest.words[i].length - 1] != "e"))
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "red";
-          // TODO: <e>
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
           if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+        }
+      }
+    }
+    if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
+      for (var i = 0; i < Object.keys(auswertung.categories).length; i++) {
+        var wordNow = Object.keys(auswertung.categories)[i];
+        findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
+        for (var i1 = 0; i1 < Object.keys(auswertung.categories[wordNow]).length; i1++) {
+          var category = Object.keys(auswertung.categories[wordNow])[i1];
+          for (var i2 = 0; i2 < Object.keys(auswertung.categories[wordNow][category]).length; i2++) {
+            var letter = Object.keys(auswertung.categories[wordNow][category])[i2];
+            if (auswertung.categories[wordNow][category][letter].possible && letter == label) {
+              findChild('word', pupilSheet, wordNow).style.outlineColor = "red";
+              if (auswertung.categories[wordNow][category][letter].possible == auswertung.categories[wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
+              findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
+              findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
+              if (Object.keys(auswertung.wrongLetters[selectedElementId.parent][wordNow]).length == 0 && auswertung.categories[wordNow][category][letter].possible == auswertung.categories[wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+            }
+          }
         }
       }
     }
