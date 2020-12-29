@@ -52,16 +52,16 @@ function editTest() {
   }
   tests.style.display = "none";
   editor.style.display = "inline";
-  for (var i = 0;  testTypeSelector.value != "newTestType" && testSelctor.value != "newTest" && i < neededTest.words.length; i++) {
+  for (var i = 0;  testTypeSelector.value != "newTestType" && selectedTest != "newTest" && i < neededTest.words.length; i++) {
     addWord(neededTest.words[i], i);
   }
 if (testTypeSelector.value != "newTestType") {
   nameType.value = testTypeSelector.value;
-  if (testSelctor.value != "newTest") {
-    nameTest.value = testSelctor.value;
+  if (selectedTest != "newTest") {
+    nameTest.value = selectedTest;
   }
 }
-if (testTypeSelector.value == "newTestType" || testSelctor.value == "newTest") addWord('', 0);
+if (testTypeSelector.value == "newTestType" || selectedTest == "newTest") addWord('', 0);
 }
 function saveAndCloseEditor() {
   if (!words[nameType.value][nameTest.value]) nameTest.value = nameTest.value;
@@ -198,12 +198,21 @@ if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku')
 else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
 else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 recreatePupils();
+function refreshNeededTest() {
+  for (var i = 0; i < Object.keys(inputs).length; i++) {
+    if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent)) {
+      selectedTest = Object.keys(inputs)[i];
+      neededTest = words['Kreis Unna'][selectedTest];
+    }
+  }
+}
 function recreatePupils() {
   selectedElementId.parent = 'pupilSheet1';
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
+    // TODO: HAT ZEIT Kreis Unna ersetzen
     neededTest = words['Kreis Unna'][testAktuell];
-    testSelctor.value = testAktuell;//.replace('Test ', '');
+    selectedTest = testAktuell;//.replace('Test ', '');
   for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
     addPupil();
     var sheetAktuell = Object.keys(inputs[testAktuell])[i];
@@ -245,9 +254,9 @@ function recreatePupils() {
     }
   }
 function dataChanged(id, value) {
-  if (!inputs[/*'Test ' + */testSelctor.value]) inputs[/*'Test ' + */testSelctor.value] = {};
-  if (!inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent]) inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent] = {};
-  inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent][id] = value;
+  if (!inputs[/*'Test ' + */selectedTest]) inputs[/*'Test ' + */selectedTest] = {};
+  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent]) inputs[/*'Test ' + */selectedTest][selectedElementId.parent] = {};
+  inputs[/*'Test ' + */selectedTest][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   if (id == "comment") {
     makeTextboxBigger();
@@ -256,9 +265,9 @@ function dataChanged(id, value) {
 function addWrongLetter(correct, i) {
   try {
     var currentLetter = correct[i].toLowerCase();
-    for (var i = 0; i < Object.keys(letterList).length; i++) {
-      if (letterList[Object.keys(letterList)[i]] && letterList[Object.keys(letterList)[i]][currentLetter]) {
-        letterList[Object.keys(letterList)[i]][currentLetter] = false;
+    for (var i1 = 0; i1 < Object.keys(letterList).length; i1++) {
+      if (letterList[Object.keys(letterList)[i1]] && letterList[Object.keys(letterList)[i1]][currentLetter]) {
+        letterList[Object.keys(letterList)[i1]][currentLetter] = false;
       }
     }
     graphemFehler++;
@@ -274,6 +283,7 @@ window.scroll(0, 10000);
 var possibleGraphemtreffer;
 var letterList;
 var letterCounter;
+var selectedTest;
 function checkCategory(correct, i) {
   possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
@@ -319,15 +329,18 @@ function checkCategory(correct, i) {
 }
 }
 function markErrors(id, parentId, doNotMark, doNotResetMirror) {
-  if (!inputs[/*'Test ' + */testSelctor.value]) inputs[/*'Test ' + */testSelctor.value] = {};
-  if (!inputs[/*'Test ' + */testSelctor.value][parentId]) inputs[/*'Test ' + */testSelctor.value][parentId] = {};
-  inputs[/*'Test ' + */testSelctor.value][parentId][id] = findChild('id', selectedElementId.parent, id).value;
-  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+  // TODO: HAT ZEIT: statdessen auswertung.categories für jedes pupilSheet
+  if (selectedElementId.parent != parentId) auswertung.categories = {};
   selectedElementId = {parent: parentId, element: id};
+  refreshNeededTest();
+  if (!inputs[/*'Test ' + */selectedTest]) inputs[/*'Test ' + */selectedTest] = {};
+  if (!inputs[/*'Test ' + */selectedTest][parentId]) inputs[/*'Test ' + */selectedTest][parentId] = {};
+  inputs[/*'Test ' + */selectedTest][parentId][id] = findChild('id', selectedElementId.parent, id).value;
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
   var wrongI = 0;
-  if (!doNotResetMirror && inputs[/*'Test ' + */testSelctor.value] && inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent] && inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror) inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[correct] = [];
+  if (!doNotResetMirror && inputs[/*'Test ' + */selectedTest] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
   auswertung.categories[correct] = {};
   var newWord = [];
@@ -544,17 +557,17 @@ function getEveryCategory() {
     for (var i = 0; i < categoryList.length; i++) {
       mirrorList.push(0);
     }
-    for (var i2 = 0; inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror).length; i2++) {
-      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2].length; i4++) {
-        if (inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2]][i4]) {
+    for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
+      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2].length; i4++) {
+        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]][i4]) {
           for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
+            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
               mirrorList[i]++;
               i = categoryList.length;
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(Object.keys(inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
+            categoryList.push(Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
             mirrorList[i]++;
           }
         }
@@ -564,17 +577,17 @@ function getEveryCategory() {
 }
 function changeMirror(index, wordId) {
   var word = replaceAll(neededTest.words[wordId.replace('pupilsWriting ', '') - 1], '-', '');
-  if (!inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror) inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror = {};
-  if (!inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word]) {
-    inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word] = [];
+  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror = {};
+  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word]) {
+    inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word] = [];
   }
-  if (!inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word][index]) {
-    inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
+  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
+    inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
     findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = '#00BFFF'/*blue*/;
   }
   else {
-  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word][index];
-  inputs[/*'Test ' + */testSelctor.value][selectedElementId.parent].mirror[word][index] = undefined;
+  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
+  inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 getEveryCategory();
@@ -689,6 +702,7 @@ var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   console.log("chart");
   selectedElementId.parent = evt.path[0].id.replace('textur', '');
+  refreshNeededTest();
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
   var activePoints = chartNow.getElementsAtEvent(evt);
   if (activePoints[0]) {
