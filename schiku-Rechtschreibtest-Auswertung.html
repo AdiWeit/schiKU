@@ -196,6 +196,9 @@ document.getElementById('addPupil').style.left = 300 + "px";
 document.getElementById('addPupil').style.position = 'fixed'
 function addPupil() {
   pupils++;
+  if (!inputs[/*'Test ' + */testTypeSelector.value]) inputs[/*'Test ' + */testTypeSelector.value] = {};
+  if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils]) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils] = {};
+  if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName = testSelector.value;
   addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
   addElement({placeholder: 'Name Schüler', id: 'name', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
   addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
@@ -223,7 +226,11 @@ function pupilsWritingFinished(id, restoringData) {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true, restoringData);
   }
-  if (!restoringData) getEveryCategory();
+  if (!restoringData) {
+    setTimeout(function () {
+      getEveryCategory();
+    }, 50);
+  }
 }
 function syncWithOfficialData(sync) {
   for (var i = 0; i < Object.keys(officialData).length; i++) {
@@ -264,8 +271,9 @@ function refreshNeededTest() {
   for (var i = 0; i < Object.keys(inputs).length; i++) {
     if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent)) {
       selectedTest = Object.keys(inputs)[i];
-      // TODO: auch spezifischen Test herrausfinden
-      neededTest = words['Kreis Unna'][testSelector.value];
+      for (var i1 = 0; i1 < Object.keys(inputs[selectedTest]).length; i1++) {
+        if (Object.keys(inputs[selectedTest])[i1] == selectedElementId.parent) neededTest = words['Kreis Unna'][inputs[selectedTest][Object.keys(inputs[selectedTest])[i1]].testName];
+      }
     }
   }
 }
@@ -273,12 +281,12 @@ function recreatePupils() {
   selectedElementId.parent = 'pupilSheet1';
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
-    // TODO: HAT ZEIT Kreis Unna ersetzen
-    neededTest = words['Kreis Unna'][testAktuell];
     selectedTest = testAktuell;//.replace('Test ', '');
   for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
-    addPupil();
     var sheetAktuell = Object.keys(inputs[testAktuell])[i];
+    // TODO: HAT ZEIT Kreis Unna ersetzen
+    neededTest = words['Kreis Unna'][inputs[testAktuell][sheetAktuell].testName];
+    addPupil();
     var minusI = 0;
     for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
       var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
@@ -303,7 +311,8 @@ function recreatePupils() {
     }
     }
   }
-  pupilsWritingFinished(idAktuell);
+  pupilsWritingFinished(idAktuell, true);
+  getEveryCategory();
     makeTextboxBigger();
   }
   }
@@ -396,8 +405,6 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   if (selectedElementId.parent != parentId) auswertung.categories = {};
   selectedElementId = {parent: parentId, element: id};
   refreshNeededTest();
-  if (!inputs[/*'Test ' + */selectedTest]) inputs[/*'Test ' + */selectedTest] = {};
-  if (!inputs[/*'Test ' + */selectedTest][parentId]) inputs[/*'Test ' + */selectedTest][parentId] = {};
   inputs[/*'Test ' + */selectedTest][parentId][id] = findChild('id', selectedElementId.parent, id).value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -594,8 +601,11 @@ function getEveryCategory() {
       }
     }
   }
-
-
+  if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
+    categoryList.push('sonstige');
+    rightList.push(0/*auswertung.byCategories[category].got*/)
+    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+  }
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
