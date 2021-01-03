@@ -314,7 +314,7 @@ function syncWithOfficialData(sync) {
   }
   localStorage.setItem('words', JSON.stringify(words));
 }
-var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}, categories: {}, byCategories: {}};
+var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}, categories: {}, byCategories: {}, doNotCount: {}};
 var inputs = {};
 // eigen hinzugefügte Tests oder Test Typen, die nich vorprogrammiert sind werden hinzugefügt
 if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
@@ -374,6 +374,14 @@ function recreatePupils() {
     else if (findChild('id', sheetAktuell, idAktuell)) {
       findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
       minusI++;
+    }
+    else if (idAktuell == "Graphemtreffer") {
+      for (var i2 = 0; i2 < Object.keys(inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell]).length; i2++) {
+        var wordNow = Object.keys(inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell])[i2];
+        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell][wordNow].got;
+        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell][wordNow].possible;
+        getAllGraphemtreffer(true, wordNow, sheetAktuell);
+      }
     }
     pupilsWritingFinished(idAktuell, true);
   }
@@ -455,10 +463,12 @@ function checkCategory(correct, i) {
       if (letterCounter[letterString].length == letterString.length) {
         var string = Object.keys(letterList[letterString]).toString().replace(',', '');
         if (string == letterString) {
-          if (!auswertung.categories[correct][category]) auswertung.categories[correct][category] = {got: 0, possible: 0};
-          if (!auswertung.categories[correct][category][letterString]) auswertung.categories[correct][category][letterString] = {possible: 0, got: 0};
-          auswertung.categories[correct][category][letterString].possible++;
-          auswertung.categories[correct][category].possible++;
+          if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
+          if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
+          if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
+          if (!auswertung.categories[selectedElementId.parent][correct][category][letterString]) auswertung.categories[selectedElementId.parent][correct][category][letterString] = {possible: 0, got: 0};
+          auswertung.categories[selectedElementId.parent][correct][category][letterString].possible++;
+          auswertung.categories[selectedElementId.parent][correct][category].possible++;
         var firstOne = false;
         var graphemFehlerBefore = graphemFehler;
         for (var i3 = 0; i3 < Object.keys(letterList[letterString]).length; i3++) {
@@ -470,8 +480,8 @@ function checkCategory(correct, i) {
           }
         }
         if (graphemFehlerBefore == graphemFehler && !firstOne) {
-          auswertung.categories[correct][category][letterString].got++;
-          auswertung.categories[correct][category].got++;
+          auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
+          auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
       }
         delete letterList[letterString][letterCounter[letterString][0]];
@@ -491,7 +501,7 @@ function checkCategory(correct, i) {
  *            doNotResetMirror -
  */
 function markErrors(id, parentId, doNotMark, doNotResetMirror) {
-  // TODO: HAT ZEIT: statdessen auswertung.categories für jedes pupilSheet?
+  if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
   selectedElementId = {parent: parentId, element: id};
   refreshNeededTest();
   inputs[/*'Test ' + */selectedTest][parentId][id] = findChild('id', selectedElementId.parent, id).value;
@@ -501,7 +511,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   var wrongI = 0;
   if (!doNotResetMirror && inputs[/*'Test ' + */selectedTest] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
-  auswertung.categories[correct] = {};
+  if (auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent][correct] = {};
   var newWord = [];
   var addI = 0;
   var doubleError = 0;
@@ -516,6 +526,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
     findChild('id', wordCorrectionChild, 'graphemtrefferGot', true).remove();
     findChild('id', wordCorrectionChild, 'graphemtrefferPossible', true).remove();
     findChild('id', wordCorrectionChild, 'graphemtrefferSlash', true).remove();
+    findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + correct, true).remove();
   } catch (e) {console.log(e);}
   for (var i = 0; i < wrong.length; i++) {
     newWord.push({letter: wrong[i], colour: "white"});
@@ -591,9 +602,10 @@ else {
   }
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
   if (!doNotMark && graphemFehler > 0) {
-    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
-    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible', oninput: 'getAllGraphemtreffer();', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
     findChild('id', selectedElementId.parent, id).style.backgroundColor = "red";
   }
   else {
@@ -603,17 +615,41 @@ else {
   }
   if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
   if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
-  getAllGraphemtreffer(doNotMark, graphemFehler, correct);
+  getAllGraphemtreffer();
+}
+// setzt Graphemtreffer auf Auswertung des Programmes zurrück
+function resetGraphemtreffer(element, parent) {
+  for (var i = 0; i < auswertung.doNotCount[parent].length; i++) {
+    if (auswertung.doNotCount[parent][i] == findChild('id', parent, element.replace('pupilsWriting', 'word')).innerText) {
+      auswertung.doNotCount[parent].splice(i, 1);
+    }
+  }
+  delete inputs[selectedTest][parent].Graphemtreffer[findChild('id', parent, element.replace('pupilsWriting', 'word')).innerText]
+  markErrors(element, parent);
+  getEveryCategory();
 }
 // Zusammenzählen aller Graphemtreffer
-function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/) {
+function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser, correct, parent) {
+  if (parent) {
+    selectedElementId.parent = parent;
+    refreshNeededTest();
+    findChild('id', parent, 'automaticGraphemTreffer' + correct).style.display = 'inline';
+  }
   auswertung.allGraphemtreffer.possible = 0;
   auswertung.allGraphemtreffer.got = 0;
+  if (parent && !inputs[selectedTest][parent].Graphemtreffer) inputs[selectedTest][parent].Graphemtreffer = {};
   for (var i = 0; i < document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent)).length; i++) {
+    if (i == JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1 && changedByUser && !auswertung.doNotCount[selectedElementId.parent].includes(correct)) {
+      auswertung.doNotCount[selectedElementId.parent].push(correct);
+    }
     auswertung.allGraphemtreffer.possible += JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
     auswertung.allGraphemtreffer.got += JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
+    if (parent && replaceAll(neededTest.words[i], '-', '') == correct) {
+      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
+    }
   }
   document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible;
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen
@@ -626,30 +662,53 @@ function getEveryCategory() {
   }
   auswertung.letter[selectedElementId.parent] = {};
 
-  var minusList = {};
+  var minusList = {doNotCount: {}};
+  for (var i = 0; i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
+    for (var i1 = 0; i1 < auswertung.doNotCount[selectedElementId.parent][i].length; i1++) {
+      var letter = auswertung.doNotCount[selectedElementId.parent][i][i1].toLowerCase();
+      if (letter == "e" && i1 == auswertung.doNotCount[selectedElementId.parent][i].length - 1) letter = "<e>/<E>";
+      if (!minusList[letter]) minusList[letter] = {};
+      if (!minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]]) minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]] = 0;
+      minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]]++;
+    }
+  }
+  var doNotCountObj = JSON.parse(JSON.stringify(minusList));
+      doNotCountObj.laute = {};
   // Umschreibung in kategorien
   auswertung.byCategories = {};
-  for (var i1 = 0; i1 < Object.keys(auswertung.categories).length; i1++) {
-    var word = Object.keys(auswertung.categories)[i1];
-    for (var i2 = 0; i2 < Object.keys(auswertung.categories[word]).length; i2++) {
-      var category = Object.keys(auswertung.categories[word])[i2];
-      for (var i3 = 0; i3 < Object.keys(auswertung.categories[word][category]).length; i3++) {
-        var objKeyName = Object.keys(auswertung.categories[word][category])[i3];
+  for (var i1 = 0; auswertung.categories[selectedElementId.parent] && i1 < Object.keys(auswertung.categories[selectedElementId.parent]).length; i1++) {
+    var wordNow = Object.keys(auswertung.categories[selectedElementId.parent])[i1];
+    for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow]).length; i2++) {
+      var category = Object.keys(auswertung.categories[selectedElementId.parent][wordNow])[i2];
+      for (var i3 = 0; i3 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i3++) {
+        var objKeyName = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i3];
         if (!auswertung.byCategories[category]) auswertung.byCategories[category] = {possible: 0, got: 0};
         if (objKeyName != "got" && objKeyName != "possible") {
+          if (!auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
           if (!auswertung.byCategories[category][objKeyName]) auswertung.byCategories[category][objKeyName] = {possible: 0, got: 0};
-        auswertung.byCategories[category][objKeyName].possible += auswertung.categories[word][category][objKeyName].possible;
-        auswertung.byCategories[category][objKeyName].got += auswertung.categories[word][category][objKeyName].got;
+        auswertung.byCategories[category][objKeyName].possible += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
+        auswertung.byCategories[category][objKeyName].got += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].got;
+        }
+        else {
+          if (!doNotCountObj.laute[objKeyName]) doNotCountObj.laute[objKeyName] = 0;
+          doNotCountObj.laute[objKeyName]++;
+        }
         for (var i4 = 0; i4 < objKeyName.length; i4++) {
           if (!minusList[objKeyName[i4]]) minusList[objKeyName[i4]] = {};
-          if (!minusList[objKeyName[i4]][word]) minusList[objKeyName[i4]][word] = 0;
-          minusList[objKeyName[i4]][word] += auswertung.categories[word][category][objKeyName].possible;
-          // minusList[objKeyName[i4]].got += auswertung.categories[word][category][objKeyName].got;
+          if (!minusList[objKeyName[i4]][wordNow]) minusList[objKeyName[i4]][wordNow] = 0;
+          minusList[objKeyName[i4]][wordNow] += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
+
+          if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
+          if (!minusList.doNotCount[objKeyName[i4]]) minusList.doNotCount[objKeyName[i4]] = 0;//{};
+          // if (!minusList.doNotCount[objKeyName[i4]][wordNow]) minusList.doNotCount[objKeyName[i4]][wordNow] = 0;
+          minusList.doNotCount[objKeyName[i4]]/*[wordNow]*/ += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
+          // minusList[objKeyName[i4]].got += auswertung.categories[wordNow][category][objKeyName].got;
+        }
         }
       }
-        else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[word][category].possible;
+        else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[selectedElementId.parent][wordNow][category].possible;
         else {
-        auswertung.byCategories[category].got += auswertung.categories[word][category].got;
+        auswertung.byCategories[category].got += auswertung.categories[selectedElementId.parent][wordNow][category].got;
         }
       }
     }
@@ -686,9 +745,19 @@ function getEveryCategory() {
 
     // Auswertung Silben
     var label = neededTest.words[i].toString().split('-').length + ' Silben';
+    var wordWithoutSilben = replaceAll(neededTest.words[i], '-', '');
+    if (auswertung.doNotCount[selectedElementId.parent].includes(wordWithoutSilben)) {
+    if (!doNotCountObj[label]) doNotCountObj[label] = 0;//{};
+    // if (!doNotCountObj[label][wordWithoutSilben]) doNotCountObj[label][wordWithoutSilben] = 0;
+    doNotCountObj[label]/*[wordWithoutSilben]*/++;
+    // falls kein einziger auswertbar
     if (!auswertung[label]) auswertung[label] = {possible: 0, got: 0};
-    auswertung[label].possible++;
-    if (replaceAll(neededTest.words[i], '-', '').toLowerCase() == inputValue) auswertung[label].got++;
+  }
+    else {
+      if (!auswertung[label]) auswertung[label] = {possible: 0, got: 0};
+      auswertung[label].possible++;
+      if (wordWithoutSilben.toLowerCase() == inputValue) auswertung[label].got++;
+    }
 
     // Auswertung Buchstaben
     try {
@@ -697,13 +766,13 @@ function getEveryCategory() {
       for (var i1 = 0; i1 < wordNow.length; i1++) {
         var letterNow = wordNow[i1].toLowerCase();
         if (i1 == wordNow.length - 1 && letterNow == "e")  letterNow = '<' + letterNow + '>';
-        if ( !auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
+        if (!auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
         if (!minusList[letterNow] || !minusList[letterNow][wordNow] || minusList[letterNow][wordNow] == 0) auswertung.letter[selectedElementId.parent][letterNow].possible++;
         if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || (!auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow])) {
-          if (minusList[letterNow] && minusList[letterNow][wordNow] && minusList[letterNow][wordNow] > 0) minusList[letterNow][wordNow]--;
-          else auswertung.letter[selectedElementId.parent][letterNow].got++;
+          if (!(minusList[letterNow] && minusList[letterNow][wordNow] && minusList[letterNow][wordNow] > 0)) auswertung.letter[selectedElementId.parent][letterNow].got++;
       }
       if (auswertung.wrongLetters[selectedElementId.parent][wordNow] && auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]) auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow]--;
+      if (minusList[letterNow] && minusList[letterNow][wordNow] && minusList[letterNow][wordNow] > 0) minusList[letterNow][wordNow]--;
     }
     auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
    } catch (e) {
@@ -752,7 +821,44 @@ function getEveryCategory() {
         }
       }
       }
-    addChart(categoryList, {wrong: wrongList, right: rightList, mirror: mirrorList});
+      var doNotCountList = [];
+      for (var i = 0; i < categoryList.length; i++) {
+        // normaler Buchstabe: 3 Zeichen
+        if (Object.keys(doNotCountObj.laute).includes(categoryList[i])) {
+          console.log(doNotCountObj.laute[categoryList[i]]);
+          doNotCountList.push(doNotCountObj.laute[categoryList[i]]);
+        }
+        else if (categoryList[i] == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
+          console.log(categoryList[i]);
+          doNotCountList.push(0);
+          for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i]]).length; i1++) {
+            console.log(doNotCountList[doNotCountList.length - 1] + doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])]);
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])];
+          }
+        }
+        else if (Object.keys(doNotCountObj).includes(categoryList[i])) {
+          console.log(doNotCountObj[categoryList[i]]);
+          doNotCountList.push(doNotCountObj[categoryList[i]]);
+        }
+        else if ((categoryList[i].length != 3 || !Object.keys(doNotCountObj).includes(categoryList[i][0])) && categoryList[i] != "<e>/<E>") {
+          doNotCountList.push(0);
+        }
+        else if (categoryList[i].length == 3) {
+          doNotCountList.push(0);
+          // if (minusList.doNotCount[categoryList[i][0]] && minusList.doNotCount[categoryList[i][0]] != 0) {
+            /*minusList.doNotCount[categoryList[i][0]]*/if (minusList.doNotCount[categoryList[i][0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[categoryList[i][0]];
+          // }
+          // else {
+          console.log(categoryList[i] + " - " + doNotCountList[doNotCountList.length - 1]);
+          for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i][0]]).length; i1++) {
+            console.log(doNotCountList[doNotCountList.length - 1] + doNotCountObj[categoryList[i][0]][Object.keys(doNotCountObj[categoryList[i][0]])[i1]]);
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i][0]][Object.keys(doNotCountObj[categoryList[i][0]])[i1]];
+          }
+        // }
+        }
+        else doNotCountList.push(0);
+      }
+    addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList});
 }
 // Buchstaben, die grafisch gesehen falsch verschriftlicht wurden werden markiert oder abgewählt
 function changeMirror(index, wordId) {
@@ -852,6 +958,13 @@ function addChart(texte, data) {
       data: data.wrong,
       stack:'stack0'
     }, {
+      label: "nicht auswertbar",
+      backgroundColor: 'gray',
+      borderColor: 'gray',
+      fill: true,
+      data: data.doNotCount,
+      stack:'stack0'
+    }, {
       label: "spiegelverkehrt",
       backgroundColor: '#00BFFF',
       borderColor: '#00BFFF',
@@ -901,10 +1014,10 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
     console.log("selectedElementId: " + pupilSheet);
     var possibleLetterList = [];
-    for (var i1 = 0; i1 < Object.keys(auswertung.byCategories).length; i1++) {
-      var category = Object.keys(auswertung.byCategories)[i1];
-      for (var i2 = 0; i2 < Object.keys(auswertung.byCategories[category]).length; i2++) {
-        var letter = Object.keys(auswertung.byCategories[category])[i2];
+    for (var i1 = 0; i1 < Object.keys(neededTest.Kategorien).length; i1++) {
+      var category = Object.keys(neededTest.Kategorien)[i1];
+      for (var i2 = 0; i2 < Object.keys(neededTest.Kategorien[category]).length; i2++) {
+        var letter = neededTest.Kategorien[category][i2];
         if (letter.includes(label) && letter != label && letter != "got" && letter != "possible") possibleLetterList.push(letter);
       }
     }
@@ -927,27 +1040,27 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "red";
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
+          if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
           if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
         }
         }
       }
-    }
-    if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
-      for (var i = 0; i < neededTest.words.length; i++) {
+      if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
         var wordNow = replaceAll(neededTest.words[i], '-', '');
         findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
-        for (var i1 = 0; i1 < Object.keys(auswertung.categories[wordNow]).length; i1++) {
-          var category = Object.keys(auswertung.categories[wordNow])[i1];
-          for (var i2 = 0; i2 < Object.keys(auswertung.categories[wordNow][category]).length; i2++) {
-            var letter = Object.keys(auswertung.categories[wordNow][category])[i2];
-            if (auswertung.categories[wordNow][category][letter].possible && letter == label) {
+        for (var i1 = 0; i1 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow]).length; i1++) {
+          var category = Object.keys(auswertung.categories[selectedElementId.parent][wordNow])[i1];
+          for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i2++) {
+            var letter = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i2];
+            if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
               findChild('word', pupilSheet, wordNow).style.outlineColor = "red";
-              if (auswertung.categories[wordNow][category][letter].possible == auswertung.categories[wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
+              if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
+              if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
               findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
-              if (Object.keys(auswertung.wrongLetters[selectedElementId.parent][wordNow]).length == 0 && auswertung.categories[wordNow][category][letter].possible == auswertung.categories[wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+              if (Object.keys(auswertung.wrongLetters[selectedElementId.parent][wordNow]).length == 0 && auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
             }
           }
         }
