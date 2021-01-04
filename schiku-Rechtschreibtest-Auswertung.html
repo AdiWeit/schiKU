@@ -561,10 +561,8 @@ else {
   // graphemFehler++;
 }
     }
-    // markiere falsche groß-Kleinschreibung
-    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = "#FD6441/*red*/"
     // getauscht check
-    else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1]) {
+    else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
       graphemFehler++;
       newWord[wrongI + addI].colour = "#FD6441/*red*/";
       newWord[wrongI + 1 + addI].colour = "#FD6441/*red*/";
@@ -579,6 +577,8 @@ else {
       i--;
       graphemFehler++;
     }
+    // markiere falsche groß-Kleinschreibung
+    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
     if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
   }
   checkCategory(original.correct, 0);
@@ -663,6 +663,7 @@ function getEveryCategory() {
   auswertung.letter[selectedElementId.parent] = {};
 
   var minusList = {doNotCount: {}};
+  if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
   for (var i = 0; i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
     for (var i1 = 0; i1 < auswertung.doNotCount[selectedElementId.parent][i].length; i1++) {
       var letter = auswertung.doNotCount[selectedElementId.parent][i][i1].toLowerCase();
@@ -765,7 +766,10 @@ function getEveryCategory() {
       var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
       for (var i1 = 0; i1 < wordNow.length; i1++) {
         var letterNow = wordNow[i1].toLowerCase();
-        if (i1 == wordNow.length - 1 && letterNow == "e")  letterNow = '<' + letterNow + '>';
+        if (i1 == wordNow.length - 1 && letterNow == "e")  {
+          letterNow = "<e>";
+          minusList["<e>"] = minusList["<e>/<E>"];
+        }
         if (!auswertung.letter[selectedElementId.parent][letterNow]) auswertung.letter[selectedElementId.parent][letterNow] = {possible: 0, got: 0};
         if (!minusList[letterNow] || !minusList[letterNow][wordNow] || minusList[letterNow][wordNow] == 0) auswertung.letter[selectedElementId.parent][letterNow].possible++;
         if (!auswertung.wrongLetters[selectedElementId.parent][wordNow] || (!auswertung.wrongLetters[selectedElementId.parent][wordNow][letterNow])) {
