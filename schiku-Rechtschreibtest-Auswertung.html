@@ -1,15 +1,36 @@
 <meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+<div id="selections">
+<button type="button" onclick="settings.style.display = 'inline';" name="button">Optionen</button>
+<div id="settings" style="display: none;">
+  <br>
+  <input onchange="printMode(checked);" id="printerMode" type="checkbox"> Druckermodus
+  <br>
+  <input id="preview" type="checkbox"> Vorschau wenn Druckfarben geändert (braucht paar Sek.)
+  <br>
+  <select onchange="if (preview.checked) recreatePupils();" id="colourSelector">
+    <option value="colour">Farbdruck</option>
+    <option value="blackWhite">Schwarz-Weiß-Druck</option>
+  </select>
+  <br>
+  <input id="randDrucken" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
+  <br>
+  <button type="button" onclick="copyCode();" name="button">Code in die Zwischenablage kopieren</button>
+  <br>
+  <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.diplay = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
+  <br>
+  <input id="syncDataCheckbox" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
+  <input type="text" id="message" style="display: none">
+  <br>
+  <button type="button" onclick="settings.style.display = 'none';" name="button">schließen</button>
+</div>
+<br>
 <select id="testTypeSelector">
   <option value="Kreis Unna">Kreis Unna</option>
   <option value="newTestType">+ Test Typ</option>
 </select>
-<button type="button" onclick="copyCode();" name="button">Code in die Zwischenablage kopieren</button>
-<button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.diplay = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
-<input id="syncDataCheckbox" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
-<input type="text" id="message" style="display: none">
-<br>
+<!-- <br> -->
 <select id="testSelector" onchange="neededTest = words[testTypeSelector.value][value]; console.log(value)">
   <option value="Test 1">Test 1</option>
   <option value="Test 2">Test 2</option>
@@ -21,6 +42,7 @@
 </select>
 <button type="button" onclick="editTest();" name="button">edit</button>
 <br>
+</div>
 <div id="tests">
   <button type="button" id="addPupil" onclick="addPupil();" name="button">Schüler hinzufügen</button>
 </div>
@@ -110,11 +132,36 @@ var officialData = {
         einGraphemtreffer: ["ei"]
       }
     };
+    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FFFF00", wrong: {dark: "#8A0808", light: "#886A08"} , doNotCount: "black", spiegelverkehrt: "#FF00FF"}}
+    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FD0000", wrong: {dark: "#D40101", light: "#B40202"} , doNotCount: "black", spiegelverkehrt: "#490303"}}
+    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "black", wrong: {dark: "gray", light: "gray"} , doNotCount: "silver", spiegelverkehrt: "rgb(56,56,56)"}}
+    var colours = {colour: {right: {graph: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: {graph: "black", text: "black"}, wrong: {dark: "rgb(56,56,56)", light: "rgb(56,56,56)"} , doNotCount: "silver", spiegelverkehrt: "gray"}}
 var words = officialData;
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 var myBarChart = [];
+function printMode(checked) {
+  if (checked) {
+    alert("drücken sie Str und p, um die Website ausdrucken zu können. Die Optionen erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen der Seite wieder. Bevor sie die Tastenkombination drücken, warten sie jedoch bitte ab, bis die Optionen verschwunden sind. Wenn sie zuvor Druckeinstellungen aus den Optionen vornehmen wollen, tuen sie das bitte jetzt.");
+    setTimeout(function () {
+    selections.style.display = "none";
+    document.getElementById('addPupil').style.display = "none";
+  }, 3333);
+  }
+  else {
+    selections.style.display = "inline";
+    document.getElementById('addPupil').style.display = "inline";
+  }
+  setTimeout(function () {
+    // for (var i = 0; i < pupils; i++) {
+    //   selectedElementId.parent = "pupilSheet" + (i + 1);
+    //   refreshNeededTest();
+    //   getEveryCategory(true);
+    // }
+    recreatePupils(true);
+  }, 3333);
+}
   // öffnet Editor
 function editTest() {
   while (document.getElementsByClassName("Wort").length > 0) {
@@ -224,11 +271,6 @@ function refreshWords() {
   }
   addElement({value: 'newTestType', innerText: '+ Test Typ'}, 'option', 'testTypeSelector');
   addElement({value: 'newTest', innerText: '+ Test'}, 'option', 'testSelector');
-
-  while (pupils > 0) {
-    document.getElementById('pupilSheet' + pupils).remove();
-    pupils--;
-  }
   recreatePupils();
 }
 // kopiert den Code für die Tests, sodass ich be seriösen Quellen den Code direkt übernehmen kann
@@ -275,7 +317,9 @@ function addPupil() {
     addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
     if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
   }
-  addElement({id: 'allGraphemes' + pupils, style: 'font-size: 30'}, 'a', 'pupilSheet' + pupils);
+  addElement({id: 'allGraphemes' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
+  addElement({}, 'br', 'pupilSheet' + pupils);
+  addElement({id: 'allCorrect' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
 }
 // findet gesuchtes Unterelement, also Kind bzw. child
 // @param childType: Art des Attributes, wessen Inhalt gesucht wird
@@ -352,7 +396,11 @@ function refreshNeededTest() {
   }
 }
 // stellt gespeicherten Fortschritt wieder her
-function recreatePupils() {
+function recreatePupils(printMode) {
+  while (pupils > 0) {
+    document.getElementById('pupilSheet' + pupils).remove();
+    pupils--;
+  }
   selectedElementId.parent = 'pupilSheet1';
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
@@ -390,12 +438,13 @@ function recreatePupils() {
     for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]].length; i4++) {
       if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]][i4]) {
       // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2][i2]);
-      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = '#00BFFF';
+      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt;
+      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.color = "white";
     }
     }
   }
   pupilsWritingFinished(idAktuell, true);
-  getEveryCategory();
+  getEveryCategory(printMode);
     makeTextboxBigger();
   }
   }
@@ -545,7 +594,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])) {
         // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
+        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
         wrongI++;
 
         // check if doubleError: same letter 2 times in a row, on time false: understand, that it was not a replacement, but an added wrong letter
@@ -564,21 +613,21 @@ else {
     // getauscht check
     else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
       graphemFehler++;
-      newWord[wrongI + addI].colour = "#FD6441/*red*/";
-      newWord[wrongI + 1 + addI].colour = "#FD6441/*red*/";
+      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
+      newWord[wrongI + 1 + addI].colour = colours[colourSelector.value].wrong.dark
       i++;
       wrongI++;
     }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-      newWord[wrongI + addI].colour = "#FD6441/*red*/";
+      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
       doubleError++;
       i--;
       graphemFehler++;
     }
     // markiere falsche groß-Kleinschreibung
-    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = "#FD6441/*red*/";
+    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.light;
     if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
   }
   checkCategory(original.correct, 0);
@@ -592,13 +641,15 @@ else {
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     // console.log("remove " + wrong[i]);
     if (newWord[i].letter != '_') {
-      newWord[i].colour = "#FD6441/*red*/";
+      newWord[i].colour = colours[colourSelector.value].wrong.dark
       graphemFehler++;
     }
   }
   // console.log(newWord);
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';', title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    var textColour = "black";
+    if (newWord[i].colour != "white") textColour = "white";
+    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';' + "color:" + textColour, title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
   if (!doNotMark && graphemFehler > 0) {
@@ -606,12 +657,12 @@ else {
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
     addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = "red";
+    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].wrong.dark
   }
   else {
     addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = "green";
+    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].right.text//"green";
   }
   if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
   if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -648,12 +699,19 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
       inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
     }
   }
-  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible;
+  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + " Graphemtreffer";
+  // getAllCorrectWords
+  var correctWords = {possible: 0, got: 0};
+  for (var i = 0; i < neededTest.words.length; i++) {
+    correctWords.possible++;
+    if (replaceAll(neededTest.words[i], '-', '') == findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value) correctWords.got++;
+  }
+  document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + correctWords.got + '/' + correctWords.possible + " korrekte Wörter";
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen
-function getEveryCategory() {
+function getEveryCategory(printMode) {
   for (var i = 0; i < Object.keys(auswertung).length; i++) {
     if (Object.keys(auswertung)[i].includes("Silben")/* != "letter" && Object.keys(auswertung)[i] != "allGraphemtreffer" && Object.keys(auswertung)[i] != "wrongLetters"*/) {
       delete auswertung[Object.keys(auswertung)[i]];
@@ -862,7 +920,7 @@ function getEveryCategory() {
         }
         else doNotCountList.push(0);
       }
-    addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList});
+    addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList}, printMode);
 }
 // Buchstaben, die grafisch gesehen falsch verschriftlicht wurden werden markiert oder abgewählt
 function changeMirror(index, wordId) {
@@ -873,10 +931,12 @@ function changeMirror(index, wordId) {
   }
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
-    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = '#00BFFF'/*blue*/;
+    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt;
+    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
   }
   else {
   findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
+  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
@@ -933,15 +993,28 @@ return sorted;
        if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
      }, 10);
    }
-   if (event.key == "p" && event.ctrlKey) alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm, oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist verkleinern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht.');
+   if (event.key == "p" && event.ctrlKey) {
+     alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm, oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein. \n Der Druckermodus aus den Optionen wird empfohlen.');
+     setTimeout(function () {
+       selections.style.display = "inline";
+       document.getElementById('addPupil').style.display = "inline";
+       document.getElementById('settings').style.display = "none";
+       printMode.checked = false;
+       for (var i = 0; i < pupils; i++) {
+         selectedElementId.parent = "pupilSheet" + (i + 1);
+         refreshNeededTest();
+         getEveryCategory(true);
+       }
+     }, 333000);
+   }
 }
 function replaceAll(str, find, replace) {
-    return str.replace(new RegExp(find, 'g'), replace);
+  return str.replace(new RegExp(find, 'g'), replace);
 }
 // fügt einen neuen Graphem inzu bzw. aktuallisiert ihn
 // @param texte: Beschriftung des Graphen auf der y-Achse (Balkendiagramm)
 // @param data: Inhalte bzw. Daten für die Balken
-function addChart(texte, data) {
+function addChart(texte, data, printMode) {
   // to refresh size (not working otherwise)
   document.getElementById('textur' + selectedElementId.parent).remove();
   addElement({id: 'textur' + selectedElementId.parent}, 'canvas', 'divGraph' + selectedElementId.parent.replace('pupilSheet', ''));
@@ -949,29 +1022,29 @@ function addChart(texte, data) {
     labels: texte,//["b statt d", "h weggelassen", "t statt l"],
     datasets: [{
       label: "richtige",
-      backgroundColor: 'rgba(0, 255, 0, 0.7)',
-      borderColor: 'rgba(0, 255, 0, 1)',
+      backgroundColor: colours[colourSelector.value].right.graph,
+      borderColor: colours[colourSelector.value].right.graph,
       fill: true,
       data: data.right,//[5,3,7],
       stack:'stack0'
     }, {
       label: "falsche",
-      backgroundColor: 'rgba(255, 0, 0, 0.7)',
-      borderColor: 'rgba(255, 0, 0, 1)',
+      backgroundColor: colours[colourSelector.value].wrong.dark,
+      borderColor: colours[colourSelector.value].wrong.dark,
       fill: true,
       data: data.wrong,
       stack:'stack0'
     }, {
       label: "nicht auswertbar",
-      backgroundColor: 'gray',
-      borderColor: 'gray',
+      backgroundColor: colours[colourSelector.value].doNotCount,
+      borderColor: colours[colourSelector.value].doNotCount,
       fill: true,
       data: data.doNotCount,
       stack:'stack0'
     }, {
       label: "spiegelverkehrt",
-      backgroundColor: '#00BFFF',
-      borderColor: '#00BFFF',
+      backgroundColor: colours[colourSelector.value].spiegelverkehrt/*'#00BFFF'*/,
+      borderColor: colours[colourSelector.value].spiegelverkehrt,
       fill: true,
       data: data.mirror,
       stack:'stack0'
@@ -1042,7 +1115,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
           if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "red";
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = colours[colourSelector.value].wrong.dark
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
@@ -1059,7 +1132,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i2++) {
             var letter = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i2];
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
-              findChild('word', pupilSheet, wordNow).style.outlineColor = "red";
+              findChild('word', pupilSheet, wordNow).style.outlineColor = colours[colourSelector.value].wrong.dark
               if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
@@ -1079,14 +1152,15 @@ for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementI
 chartNow.canvas.parentNode.style.right = -20
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
-chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
+if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY + 40*(selectedElementId.parent.replace('pupilSheet', '') - 1);
+else chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
 for (var graphBottom = document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
 }
 findChild('id', selectedElementId.parent, 'comment').style.width = window.innerWidth - mostLeft - 65- (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 findChild('id', selectedElementId.parent, 'comment').style.height = 10;
 makeTextboxBigger();
-
+// findChild('id', selectedElementId.parent, 'comment').style.top = chartNow.canvas.parentNode.style.top.replace("px", "") - JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace("px", "")) - (1*(selectedElementId.parent.replace('pupilSheet', '') - 1)) + "px";
 console.log(chartNow.canvas.parentNode.style.height);
 }
 </script>
