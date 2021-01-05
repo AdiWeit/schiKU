@@ -1,5 +1,6 @@
 <meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.0/dist/patternomaly.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 <div id="selections">
 <button type="button" onclick="settings.style.display = 'inline';" name="button">Optionen</button>
@@ -9,10 +10,12 @@
   <br>
   <input id="preview" type="checkbox"> Vorschau wenn Druckfarben geändert (braucht paar Sek.)
   <br>
-  <select onchange="if (preview.checked) recreatePupils();" id="colourSelector">
+  <select onchange="selectColours(value)" id="colourSelector">
     <option value="colour">Farbdruck</option>
     <option value="blackWhite">Schwarz-Weiß-Druck</option>
   </select>
+  <br>
+  <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true"  onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck</a>
   <br>
   <input id="randDrucken" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
   <br>
@@ -79,68 +82,80 @@
   // TODO: einzele pupilsheet zähler für verschiedene Tests?
   // TODO: kategorien statt Kategorien
 var officialData = {
-      "Kreis Unna": {
-        "Test 1": {
-          words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]
-        },
-        "Test 2": {
-          Kategorien: {
-            "Zwielaut/Diphthong": ["au", "ei"],
-            sonstige: ["sch"]
-          },
-          words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]
-        },
-        "Test 3": {
-          Kategorien: {
-            "Zwielaut/Diphthong": ["au", "ei"],
-            Vokale: ["ö"],
-            Konsonanten: ["w"],
-            sonstige: ["er", "el"]
-          },
-          words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
-        },
-        "Test 4": {
-          Kategorien: {
-            "Zwielaut/Diphthong": ["au", "ei"],
-            Vokale: ["ö", "ü"],
-            sonstige: ["er"]
-          },
-          words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
-        },
-        "Test 5": {
-          Kategorien: {},
-          words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
-            "Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"
-          ]
-        },
-        "Test 6": {
-          Kategorien: {},
-          words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
-            "Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"
-          ]
-        },
-        "Test 7": {
-          Kategorien: {},
-          words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]
-        },
-        "Test 8": {
-          Kategorien: {},
-          words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te",
-            "Rü-cken-num-mer", "Lö-wen-köp-fe"
-          ]
-        },
-        einGraphemtreffer: ["ei"]
-      }
-    };
+  "Kreis Unna": {
+    "Test 1": {
+      words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]
+    },
+    "Test 2": {
+      Kategorien: {
+        "Zwielaut/Diphthong": ["au", "ei"],
+        sonstige: ["sch"]
+      },
+      words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]
+    },
+    "Test 3": {
+      Kategorien: {
+        "Zwielaut/Diphthong": ["au", "ei"],
+        Vokale: ["ö"],
+        Konsonanten: ["w"],
+        sonstige: ["er", "el"]
+      },
+      words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
+    },
+    "Test 4": {
+      Kategorien: {
+        "Zwielaut/Diphthong": ["au", "ei"],
+        Vokale: ["ö", "ü"],
+        sonstige: ["er"]
+      },
+      words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
+    },
+    "Test 5": {
+      Kategorien: {},
+      words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
+        "Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"
+      ]
+    },
+    "Test 6": {
+      Kategorien: {},
+      words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
+        "Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"
+      ]
+    },
+    "Test 7": {
+      Kategorien: {},
+      words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]
+    },
+    "Test 8": {
+      Kategorien: {},
+      words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te",
+        "Rü-cken-num-mer", "Lö-wen-köp-fe"
+      ]
+    },
+    einGraphemtreffer: ["ei"]
+  }
+};
     // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FFFF00", wrong: {dark: "#8A0808", light: "#886A08"} , doNotCount: "black", spiegelverkehrt: "#FF00FF"}}
     // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FD0000", wrong: {dark: "#D40101", light: "#B40202"} , doNotCount: "black", spiegelverkehrt: "#490303"}}
     // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "black", wrong: {dark: "gray", light: "gray"} , doNotCount: "silver", spiegelverkehrt: "rgb(56,56,56)"}}
-    var colours = {colour: {right: {graph: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: {graph: "black", text: "black"}, wrong: {dark: "rgb(56,56,56)", light: "rgb(56,56,56)"} , doNotCount: "silver", spiegelverkehrt: "gray"}}
+    // var colours = {colour: {right: {graph: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: {graph: "black", text: "black"}, wrong: {dark: "rgb(56,56,56)", light: "rgb(56,56,56)"} , doNotCount: "silver", spiegelverkehrt: "gray"}}
+    var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'silver'), text: "silver"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'gray'), text: "gray"}}}
 var words = officialData;
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 var myBarChart = [];
+function selectColours(value) {
+  if (value == "colour") showPatterns.style.display = "none";
+  else showPatterns.style.display = "inline";
+  if (preview.checked) recreatePupils();
+}
+var patterns = "chart";
+function patternSelected(checked) {
+  if (checked) patterns = "chart";
+  else patterns = "text";
+  if (preview.checked) recreatePupils();
+}
 function printMode(checked) {
   if (checked) {
     alert("drücken sie Str und p, um die Website ausdrucken zu können. Die Optionen erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen der Seite wieder. Bevor sie die Tastenkombination drücken, warten sie jedoch bitte ab, bis die Optionen verschwunden sind. Wenn sie zuvor Druckeinstellungen aus den Optionen vornehmen wollen, tuen sie das bitte jetzt.");
@@ -438,7 +453,7 @@ function recreatePupils(printMode) {
     for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]].length; i4++) {
       if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]][i4]) {
       // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2][i2]);
-      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt;
+      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt.text;
       findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.color = "white";
     }
     }
@@ -557,6 +572,12 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
+  findChild("id", parentId, id).style.width = wrong.length*8;
+  findChild("id", parentId, id).style.width = 1;
+  findChild("id", parentId, id).scroll(100, 0)
+  while (findChild("id", parentId, id).scrollLeft > 0) {
+    findChild("id", parentId, id).style.width = JSON.parse(findChild("id", parentId, id).style.width.replace("px", "")) + 1 + "px";
+  }
   var wrongI = 0;
   if (!doNotResetMirror && inputs[/*'Test ' + */selectedTest] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -594,7 +615,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])) {
         // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
+        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
         wrongI++;
 
         // check if doubleError: same letter 2 times in a row, on time false: understand, that it was not a replacement, but an added wrong letter
@@ -613,21 +634,21 @@ else {
     // getauscht check
     else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
       graphemFehler++;
-      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
-      newWord[wrongI + 1 + addI].colour = colours[colourSelector.value].wrong.dark
+      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
+      newWord[wrongI + 1 + addI].colour = colours[colourSelector.value].wrong.dark.text;
       i++;
       wrongI++;
     }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark
+      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
       doubleError++;
       i--;
       graphemFehler++;
     }
     // markiere falsche groß-Kleinschreibung
-    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.light;
+    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.light.text;
     if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
   }
   checkCategory(original.correct, 0);
@@ -641,7 +662,7 @@ else {
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     // console.log("remove " + wrong[i]);
     if (newWord[i].letter != '_') {
-      newWord[i].colour = colours[colourSelector.value].wrong.dark
+      newWord[i].colour = colours[colourSelector.value].wrong.dark.text;
       graphemFehler++;
     }
   }
@@ -657,7 +678,7 @@ else {
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
     addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].wrong.dark
+    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].wrong.dark.text;
   }
   else {
     addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
@@ -699,14 +720,14 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
       inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
     }
   }
-  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + " Graphemtreffer";
+  document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + "</strong> <a style='font-size:20'>Graphemtreffer</a>";
   // getAllCorrectWords
   var correctWords = {possible: 0, got: 0};
   for (var i = 0; i < neededTest.words.length; i++) {
     correctWords.possible++;
     if (replaceAll(neededTest.words[i], '-', '') == findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value) correctWords.got++;
   }
-  document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerText = 'gesamt ' + correctWords.got + '/' + correctWords.possible + " korrekte Wörter";
+  document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + correctWords.got + '/' + correctWords.possible + "</strong> <a style='font-size:20'>korrekte Wörter</a>";
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
@@ -887,19 +908,15 @@ function getEveryCategory(printMode) {
       for (var i = 0; i < categoryList.length; i++) {
         // normaler Buchstabe: 3 Zeichen
         if (Object.keys(doNotCountObj.laute).includes(categoryList[i])) {
-          console.log(doNotCountObj.laute[categoryList[i]]);
           doNotCountList.push(doNotCountObj.laute[categoryList[i]]);
         }
         else if (categoryList[i] == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
-          console.log(categoryList[i]);
           doNotCountList.push(0);
           for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i]]).length; i1++) {
-            console.log(doNotCountList[doNotCountList.length - 1] + doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])]);
             doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])];
           }
         }
         else if (Object.keys(doNotCountObj).includes(categoryList[i])) {
-          console.log(doNotCountObj[categoryList[i]]);
           doNotCountList.push(doNotCountObj[categoryList[i]]);
         }
         else if ((categoryList[i].length != 3 || !Object.keys(doNotCountObj).includes(categoryList[i][0])) && categoryList[i] != "<e>/<E>") {
@@ -911,9 +928,7 @@ function getEveryCategory(printMode) {
             /*minusList.doNotCount[categoryList[i][0]]*/if (minusList.doNotCount[categoryList[i][0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[categoryList[i][0]];
           // }
           // else {
-          console.log(categoryList[i] + " - " + doNotCountList[doNotCountList.length - 1]);
           for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i][0]]).length; i1++) {
-            console.log(doNotCountList[doNotCountList.length - 1] + doNotCountObj[categoryList[i][0]][Object.keys(doNotCountObj[categoryList[i][0]])[i1]]);
             doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i][0]][Object.keys(doNotCountObj[categoryList[i][0]])[i1]];
           }
         // }
@@ -931,7 +946,7 @@ function changeMirror(index, wordId) {
   }
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
-    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt;
+    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt.text;
     findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
   }
   else {
@@ -1022,29 +1037,29 @@ function addChart(texte, data, printMode) {
     labels: texte,//["b statt d", "h weggelassen", "t statt l"],
     datasets: [{
       label: "richtige",
-      backgroundColor: colours[colourSelector.value].right.graph,
-      borderColor: colours[colourSelector.value].right.graph,
+      backgroundColor: colours[colourSelector.value].right[patterns],
+      // borderColor: colours[colourSelector.value].right[patterns],
       fill: true,
       data: data.right,//[5,3,7],
       stack:'stack0'
     }, {
       label: "falsche",
-      backgroundColor: colours[colourSelector.value].wrong.dark,
-      borderColor: colours[colourSelector.value].wrong.dark,
+      backgroundColor: colours[colourSelector.value].wrong.dark[patterns],
+      // borderColor: colours[colourSelector.value].wrong.dark,
       fill: true,
       data: data.wrong,
       stack:'stack0'
     }, {
       label: "nicht auswertbar",
-      backgroundColor: colours[colourSelector.value].doNotCount,
-      borderColor: colours[colourSelector.value].doNotCount,
+      backgroundColor: colours[colourSelector.value].doNotCount[patterns],
+      // borderColor: colours[colourSelector.value].doNotCount,
       fill: true,
       data: data.doNotCount,
       stack:'stack0'
     }, {
       label: "spiegelverkehrt",
-      backgroundColor: colours[colourSelector.value].spiegelverkehrt/*'#00BFFF'*/,
-      borderColor: colours[colourSelector.value].spiegelverkehrt,
+      backgroundColor: colours[colourSelector.value].spiegelverkehrt[patterns]/*'#00BFFF'*/,
+      // borderColor: colours[colourSelector.value].spiegelverkehrt,
       fill: true,
       data: data.mirror,
       stack:'stack0'
@@ -1149,7 +1164,7 @@ var mostLeft = 0;
 for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementId.parent).length; i++) {
   if (document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right > mostLeft) mostLeft = document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right;
 }
-chartNow.canvas.parentNode.style.right = -20
+chartNow.canvas.parentNode.style.right = 27//-20;
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
 if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY + 40*(selectedElementId.parent.replace('pupilSheet', '') - 1);
