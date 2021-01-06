@@ -8,27 +8,33 @@
   <br>
   <input onchange="printMode(checked);" id="printerMode" type="checkbox"> Druckermodus
   <br>
-  <input id="preview" type="checkbox"> Vorschau wenn Druckfarben geändert (braucht paar Sek.)
+  <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Vorschau wenn Einstellungen geändert (braucht paar Sek.)
   <br>
   <select onchange="selectColours(value)" id="colourSelector">
     <option value="colour">Farbdruck</option>
     <option value="blackWhite">Schwarz-Weiß-Druck</option>
   </select>
   <br>
-  <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true"  onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck</a>
+  <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> wenn Druckermodus nicht aktiv immer farbig zeigen
   <br>
-  <input id="randDrucken" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
+  <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck</a>
+  <br>
+  <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
+  <br>
+  <br>
+  <input id="adaptInputs" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> Größe der Textboxen für Schreibung der schüler anpassen
+  <br>
+  <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext in Anmerkungen automatisch generieren
+  <br>
   <br>
   <button type="button" onclick="copyCode();" name="button">Code der Tests in die Zwischenablage kopieren</button> um ihn an <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a> zu schicken, welcher ihn bei Bedarf hinzufügt
   <br>
-  <input id="adaptInputs" checked="true" onchange="recreatePupils();" type="checkbox"> Textboxen für Schreibung dr schüler anpassen
   <br>
-  <input type="checkbox" checked="true" id="generateInfoText"> Infotext in Anmerkungen automatisch generieren
-  <br>
-  <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.diplay = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
+  <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
   <br>
   <input id="syncDataCheckbox" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
   <input type="text" id="message" style="display: none">
+  <br>
   <br>
   <button type="button" onclick="settings.style.display = 'none';" name="button">schließen</button>
 </div>
@@ -150,16 +156,23 @@ var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 var myBarChart = [];
+
+function settingChanged(id, attrs, refresh) {
+  inputs["1. settings"][id] = attrs;
+  if (preview.checked && refresh) recreatePupils();
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+}
 function selectColours(value) {
   if (value == "colour") showPatterns.style.display = "none";
   else showPatterns.style.display = "inline";
-  if (preview.checked) recreatePupils();
+  settingChanged("colourSelector", {value: value}, true);
+  settingChanged("showPatterns", {style: "display: " + showPatterns.style.display});
 }
 var patterns = "chart";
 function patternSelected(checked) {
   if (checked) patterns = "chart";
   else patterns = "text";
-  if (preview.checked) recreatePupils();
+  settingChanged("patterns", {checked: checked}, true);
 }
 function printMode(checked) {
   if (checked) {
@@ -399,14 +412,15 @@ recreatePupils();
 // aktuallisiert den Test, der aktuell genutzt wird
 function refreshNeededTest() {
   for (var i = 0; i < Object.keys(inputs).length; i++) {
-    if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent) && Object.keys(inputs)[i] != "settings") {
+    if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent) && Object.keys(inputs)[i] != "1. settings") {
       selectedTest = Object.keys(inputs)[i];
-      for (var i1 = 0; selectedTest != "settings" && i1 < Object.keys(inputs[selectedTest]).length; i1++) {
+      for (var i1 = 0; selectedTest != "1. settings" && i1 < Object.keys(inputs[selectedTest]).length; i1++) {
         if (Object.keys(inputs[selectedTest])[i1] == selectedElementId.parent) neededTest = words[selectedTest][inputs[selectedTest][Object.keys(inputs[selectedTest])[i1]].testName];
       }
     }
   }
 }
+var selectedColours = colours[colourSelector.value];
 // stellt gespeicherten Fortschritt wieder her
 function recreatePupils(printMode) {
   while (pupils > 0) {
@@ -414,12 +428,21 @@ function recreatePupils(printMode) {
     pupils--;
   }
   selectedElementId.parent = 'pupilSheet1';
+  inputs = sortObjectByKey(inputs, true);
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
     selectedTest = testAktuell;//.replace('Test ', '');
-  for (var i = 0; selectedTest != "settings" && i < Object.keys(inputs[testAktuell]).length; i++) {
+  for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
     var sheetAktuell = Object.keys(inputs[testAktuell])[i];
     selectedElementId.parent = sheetAktuell;
+    if (testAktuell == "1. settings") {
+      for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
+        document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
+      }
+    }
+    else {
+      selectedColours = colours[colourSelector.value];
+      if (!printMode && alwaysShowColoured.checked) selectedColours = colours.colour; // colourSelector.value = "colour";
     neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
     addPupil();
     // var minusI = 0;
@@ -433,6 +456,7 @@ function recreatePupils(printMode) {
     }
     else if (findChild('id', sheetAktuell, idAktuell)) {
       findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
+      if (idAktuell == "comment" && !generateInfoText.checked) findChild('id', sheetAktuell, idAktuell).value = findChild('id', sheetAktuell, idAktuell).value.replace(words[testAktuell].preComment, "");
       // minusI++;
     }
     else if (idAktuell == "Graphemtreffer") {
@@ -450,7 +474,7 @@ function recreatePupils(printMode) {
     for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]].length; i4++) {
       if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]][i4]) {
       // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2][i2]);
-      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt.text;
+      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
       findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.color = "white";
     }
     }
@@ -460,6 +484,7 @@ function recreatePupils(printMode) {
     makeTextboxBigger();
   }
   }
+}
 }
 // kontrolliert die Größe des Felder für Anmerkungen (wird je nach Bedarf größer und verkleinert Grafik)
 function makeTextboxBigger() {
@@ -478,9 +503,7 @@ function dataChanged(id, value) {
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent]) inputs[/*'Test ' + */selectedTest][selectedElementId.parent] = {};
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
-  if (id == "comment") {
-    makeTextboxBigger();
-  }
+  if (id == "comment") makeTextboxBigger();
 }
 // fügt der Auswertung die falsch geschriebenen Buchstaben hinzu
 function addWrongLetter(correct, i) {
@@ -615,7 +638,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])) {
         // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
+        if (newWord[wrongI + addI]) newWord[wrongI + addI].colour = selectedColours.wrong.dark.text;
         wrongI++;
 
         // check if doubleError: same letter 2 times in a row, on time false: understand, that it was not a replacement, but an added wrong letter
@@ -634,21 +657,21 @@ else {
     // getauscht check
     else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
       graphemFehler++;
-      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
-      newWord[wrongI + 1 + addI].colour = colours[colourSelector.value].wrong.dark.text;
+      newWord[wrongI + addI].colour = selectedColours.wrong.dark.text;
+      newWord[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
       i++;
       wrongI++;
     }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-      newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.dark.text;
+      newWord[wrongI + addI].colour = selectedColours.wrong.dark.text;
       doubleError++;
       i--;
       graphemFehler++;
     }
     // markiere falsche groß-Kleinschreibung
-    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = colours[colourSelector.value].wrong.light.text;
+    else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = selectedColours.wrong.light.text;
     if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
   }
   checkCategory(original.correct, 0);
@@ -662,7 +685,7 @@ else {
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
     // console.log("remove " + wrong[i]);
     if (newWord[i].letter != '_') {
-      newWord[i].colour = colours[colourSelector.value].wrong.dark.text;
+      newWord[i].colour = selectedColours.wrong.dark.text;
       graphemFehler++;
     }
   }
@@ -678,12 +701,12 @@ else {
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
     addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].wrong.dark.text;
+    findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.dark.text;
   }
   else {
     addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = colours[colourSelector.value].right.text//"green";
+    findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text//"green";
   }
   if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
   if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -946,7 +969,7 @@ function changeMirror(index, wordId) {
   }
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
-    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = colours[colourSelector.value].spiegelverkehrt.text;
+    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
     findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
   }
   else {
@@ -1037,29 +1060,29 @@ function addChart(texte, data, printMode) {
     labels: texte,//["b statt d", "h weggelassen", "t statt l"],
     datasets: [{
       label: "richtige",
-      backgroundColor: colours[colourSelector.value].right[patterns],
-      // borderColor: colours[colourSelector.value].right[patterns],
+      backgroundColor: selectedColours.right[patterns],
+      // borderColor: selectedColours.right[patterns],
       fill: true,
       data: data.right,//[5,3,7],
       stack:'stack0'
     }, {
       label: "falsche",
-      backgroundColor: colours[colourSelector.value].wrong.dark[patterns],
-      // borderColor: colours[colourSelector.value].wrong.dark,
+      backgroundColor: selectedColours.wrong.dark[patterns],
+      // borderColor: selectedColours.wrong.dark,
       fill: true,
       data: data.wrong,
       stack:'stack0'
     }, {
       label: "nicht auswertbar",
-      backgroundColor: colours[colourSelector.value].doNotCount[patterns],
-      // borderColor: colours[colourSelector.value].doNotCount,
+      backgroundColor: selectedColours.doNotCount[patterns],
+      // borderColor: selectedColours.doNotCount,
       fill: true,
       data: data.doNotCount,
       stack:'stack0'
     }, {
       label: "spiegelverkehrt",
-      backgroundColor: colours[colourSelector.value].spiegelverkehrt[patterns]/*'#00BFFF'*/,
-      // borderColor: colours[colourSelector.value].spiegelverkehrt,
+      backgroundColor: selectedColours.spiegelverkehrt[patterns]/*'#00BFFF'*/,
+      // borderColor: selectedColours.spiegelverkehrt,
       fill: true,
       data: data.mirror,
       stack:'stack0'
@@ -1130,7 +1153,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
           if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = colours[colourSelector.value].wrong.dark.text;
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
@@ -1147,12 +1170,12 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i2++) {
             var letter = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i2];
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
-              findChild('word', pupilSheet, wordNow).style.outlineColor = colours[colourSelector.value].wrong.dark.text;
+              findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.wrong.dark.text;
               if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
               findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
-              if (Object.keys(auswertung.wrongLetters[selectedElementId.parent][wordNow]).length == 0 && auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+              if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
             }
           }
         }
