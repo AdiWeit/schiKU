@@ -207,7 +207,7 @@ function editTest() {
     addTextbox(neededTest.words[i]/*, i*/, "Wort", "word");
   }
   for (var i = 0; words[testTypeSelector.value][testSelector.value].Kategorien && i < Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien).length; i++) {
-    addTextbox(Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien)[i], "Rubrik");
+    addTextbox(rubrik, "Rubrik");
   }
   for (var i = 0; i < words[testTypeSelector.value].einGraphemtreffer.length; i++) {
     addTextbox(words[testTypeSelector.value].einGraphemtreffer[i], "Wortlaut", "wortlaut");
@@ -283,11 +283,9 @@ function refreshWords() {
   while (document.getElementById('testSelector').options.length > 0) {
     document.getElementById('testSelector').options[0] = undefined;
   }
-  for (var i = 0; i < Object.keys(words).length; i++) {
-    var nameTypeNow = Object.keys(words)[i];
+  for (nameTypeNow of Object.keys(words)) {
     addElement({value: nameTypeNow, innerText: nameTypeNow}, 'option', 'testTypeSelector');
-    for (var i1 = 0; i1 < Object.keys(words[nameTypeNow]).length; i1++) {
-      var nameTestNow = Object.keys(words[nameTypeNow])[i1];
+    for (nameTestNow of Object.keys(words[nameTypeNow])) {
       if (nameTestNow != "einGraphemtreffer") {
       addElement({value: nameTestNow, innerText: nameTestNow}, 'option', 'testSelector');
     }
@@ -373,10 +371,8 @@ function pupilsWritingFinished(id, restoringData) {
 // synchronisation mit von mir hinzugefügten Tests
 // @param sync: wenn true wird sychronisiert, sonst erscheint nur ein Button dafür
 function syncWithOfficialData(sync) {
-  for (var i = 0; i < Object.keys(officialData).length; i++) {
-    var nameTypeNow = Object.keys(officialData)[i];
-    for (var i1 = 0; i1 < Object.keys(officialData[nameTypeNow]).length; i1++) {
-      var nameTestNow = Object.keys(officialData[nameTypeNow])[i1];
+  for (nameTypeNow of Object.keys(officialData)) {
+    for (nameTestNow of Object.keys(officialData[nameTypeNow])) {
       if (sync) words[nameTypeNow][nameTestNow] = officialData[nameTypeNow][nameTestNow];
       else if (!angular.equals(words[nameTypeNow][nameTestNow], officialData[nameTypeNow][nameTestNow])) syncWithOfficialDataButton.style.display = 'inline';
     }
@@ -388,11 +384,9 @@ var inputs = {};
 // eigen hinzugefügte Tests oder Test Typen, die nich vorprogrammiert sind werden hinzugefügt
 if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
   var wordsInport = JSON.parse(localStorage.getItem('words'));
-  for (var i = 0; i < Object.keys(words).length; i++) {
-    var nameTypeNow = Object.keys(words)[i];
+  for (nameTypeNow of Object.keys(words)) {
     if (!(Object.keys(wordsInport).includes(nameTypeNow))) wordsInport[nameTypeNow] = words[nameTypeNow];
-    for (var i1 = 0; i1 < Object.keys(words[nameTypeNow]).length; i1++) {
-      var nameTestNow = Object.keys(words[nameTypeNow])[i1];
+    for (nameTestNow of Object.keys(words[nameTypeNow])) {
       if (!(Object.keys(wordsInport[nameTypeNow]))) wordsInport[nameTypeNow][nameTest] = words[nameTypeNow][nameTestNow];
     }
   }
@@ -429,11 +423,9 @@ function recreatePupils(printMode) {
   }
   selectedElementId.parent = 'pupilSheet1';
   inputs = sortObjectByKey(inputs, true);
-  for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
-    var testAktuell = Object.keys(inputs)[i3];
+  for (testAktuell of Object.keys(inputs)) {
     selectedTest = testAktuell;//.replace('Test ', '');
-  for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
-    var sheetAktuell = Object.keys(inputs[testAktuell])[i];
+  for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     selectedElementId.parent = sheetAktuell;
     if (testAktuell == "1. settings") {
       for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
@@ -446,8 +438,7 @@ function recreatePupils(printMode) {
     neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
     addPupil();
     // var minusI = 0;
-    for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
-      var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
+    for (idAktuell of Object.keys(inputs[testAktuell][sheetAktuell])) {
       if (!(idAktuell.includes('mirror'))) {
       if (idAktuell.includes('pupilsWriting') && findChild('id', sheetAktuell, idAktuell)) {
       findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
@@ -460,10 +451,9 @@ function recreatePupils(printMode) {
       // minusI++;
     }
     else if (idAktuell == "Graphemtreffer") {
-      for (var i2 = 0; i2 < Object.keys(inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell]).length; i2++) {
-        var wordNow = Object.keys(inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell])[i2];
-        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell][wordNow].got;
-        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell][wordNow].possible;
+      for (wordNow of Object.keys(inputs[testAktuell][sheetAktuell][idAktuell])) {
+        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].got;
+        findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].possible;
         getAllGraphemtreffer(true, wordNow, sheetAktuell);
       }
     }
@@ -471,11 +461,12 @@ function recreatePupils(printMode) {
   }
   }
   for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
-    for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]].length; i4++) {
-      if (inputs[testAktuell][sheetAktuell].mirror[Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]][i4]) {
-      // findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2][i2]);
-      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
-      findChild('class', findChild('word', sheetAktuell, Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2]), 'correctionLetter' + i4, true).style.color = "white";
+    var wordsIn = Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2];
+    for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[wordsIn].length; i4++) {
+      if (inputs[testAktuell][sheetAktuell].mirror[wordsIn][i4]) {
+      // findChild('word', sheetAktuell,wordsIn);
+      findChild('class', findChild('word', sheetAktuell,wordsIn), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
+      findChild('class', findChild('word', sheetAktuell,wordsIn), 'correctionLetter' + i4, true).style.color = "white";
     }
     }
   }
@@ -509,9 +500,9 @@ function dataChanged(id, value) {
 function addWrongLetter(correct, i) {
   try {
     var currentLetter = correct[i].toLowerCase();
-    for (var i1 = 0; i1 < Object.keys(letterList).length; i1++) {
-      if (letterList[Object.keys(letterList)[i1]] && letterList[Object.keys(letterList)[i1]][currentLetter]) {
-        letterList[Object.keys(letterList)[i1]][currentLetter] = false;
+    for (lautNow of Object.keys(letterList)) {
+      if (letterList[lautNow] && letterList[lautNow][currentLetter]) {
+        letterList[lautNow][currentLetter] = false;
       }
     }
     graphemFehler++;
@@ -555,11 +546,11 @@ function checkCategory(correct, i) {
           auswertung.categories[selectedElementId.parent][correct][category].possible++;
         var firstOne = false;
         var graphemFehlerBefore = graphemFehler;
-        for (var i3 = 0; i3 < Object.keys(letterList[letterString]).length; i3++) {
-          if (!letterList[letterString][Object.keys(letterList[letterString])[i3]] && !firstOne) {
+        for (letterNow of Object.keys(letterList[letterString])) {
+          if (!letterList[letterString][letterNow] && !firstOne) {
             firstOne = true;
           }
-          else if (!letterList[letterString][Object.keys(letterList[letterString])[i3]] && words[testTypeSelector.value].einGraphemtreffer.includes(letterString)) {
+          else if (!letterList[letterString][letterNow] && words[testTypeSelector.value].einGraphemtreffer.includes(letterString)) {
             graphemFehler--;
           }
         }
@@ -756,9 +747,9 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen
 function getEveryCategory(printMode) {
-  for (var i = 0; i < Object.keys(auswertung).length; i++) {
-    if (Object.keys(auswertung)[i].includes("Silben")/* != "letter" && Object.keys(auswertung)[i] != "allGraphemtreffer" && Object.keys(auswertung)[i] != "wrongLetters"*/) {
-      delete auswertung[Object.keys(auswertung)[i]];
+  for (auswertungNow of Object.keys(auswertung)) {
+    if (auswertungNow.includes("Silben")/* != "letter" && auswertungNow != "allGraphemtreffer" && auswertungNow != "wrongLetters"*/) {
+      delete auswertung[auswertungNow];
       i--;
     }
   }
@@ -781,10 +772,8 @@ function getEveryCategory(printMode) {
   auswertung.byCategories = {};
   for (var i1 = 0; auswertung.categories[selectedElementId.parent] && i1 < Object.keys(auswertung.categories[selectedElementId.parent]).length; i1++) {
     var wordNow = Object.keys(auswertung.categories[selectedElementId.parent])[i1];
-    for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow]).length; i2++) {
-      var category = Object.keys(auswertung.categories[selectedElementId.parent][wordNow])[i2];
-      for (var i3 = 0; i3 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i3++) {
-        var objKeyName = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i3];
+    for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
+      for (objKeyName of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
         if (!auswertung.byCategories[category]) auswertung.byCategories[category] = {possible: 0, got: 0};
         if (objKeyName != "got" && objKeyName != "possible") {
           if (!auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
@@ -823,13 +812,11 @@ function getEveryCategory(printMode) {
   var letterList = [];
   var categoryList = [];
   auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
-  for (var i = 0; i < Object.keys(auswertung.byCategories).length; i++) {
-    var category = Object.keys(auswertung.byCategories)[i];
+  for (category of Object.keys(auswertung.byCategories)) {
     categoryList.push(category);
     rightList.push(0/*auswertung.byCategories[category].got*/)
     wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
-    for (var i1 = 0; i1 < Object.keys(auswertung.byCategories[category]).length; i1++) {
-      var objKeyName = Object.keys(auswertung.byCategories[category])[i1];
+    for (objKeyName of Object.keys(auswertung.byCategories[category])) {
       if (objKeyName != "got" && objKeyName != "possible") {
         letterList.push(objKeyName);
         categoryList.push(objKeyName);
@@ -889,8 +876,7 @@ function getEveryCategory(printMode) {
     // console.log(auswertung);
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
-    for (var i = 0; i < Object.keys(auswertung.letter[selectedElementId.parent]).length; i++) {
-      var letter = Object.keys(auswertung.letter[selectedElementId.parent])[i];
+    for (letter of Object.keys(auswertung.letter[selectedElementId.parent])) {
       if (!(letterList.includes(letter[0]))) {
         categoryList.push(letter);
         // if (Object.keys(minusList).includes(letter[0])) {
@@ -901,27 +887,27 @@ function getEveryCategory(printMode) {
         rightList.push(auswertung.letter[selectedElementId.parent][letter].got);
       }
     }
-    for (var i = 0; i < Object.keys(auswertung).length; i++) {
-      if (Object.keys(auswertung)[i].includes('Silben')) {
-        categoryList.push(Object.keys(auswertung)[i]);
-        wrongList.push(auswertung[Object.keys(auswertung)[i]].possible - auswertung[Object.keys(auswertung)[i]].got);
-        rightList.push(auswertung[Object.keys(auswertung)[i]].got);
+    for (auswertungNow of Object.keys(auswertung)) {
+      if (auswertungNow.includes('Silben')) {
+        categoryList.push(auswertungNow);
+        wrongList.push(auswertung[auswertungNow].possible - auswertung[auswertungNow].got);
+        rightList.push(auswertung[auswertungNow].got);
       }
     }
     for (var i = 0; i < categoryList.length; i++) {
       mirrorList.push(0);
     }
     for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
-      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2].length; i4++) {
-        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]][i4]) {
+      for (letterNow of Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]) {
+        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[letterNow]) {
           for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
+            if (categoryList[i][0] == letterNow.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
               mirrorList[i]++;
               i = categoryList.length;
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
+            categoryList.push(letterNow.toLowerCase());
             mirrorList[i]++;
           }
         }
@@ -951,8 +937,8 @@ function getEveryCategory(printMode) {
             /*minusList.doNotCount[categoryList[i][0]]*/if (minusList.doNotCount[categoryList[i][0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[categoryList[i][0]];
           // }
           // else {
-          for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i][0]]).length; i1++) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i][0]][Object.keys(doNotCountObj[categoryList[i][0]])[i1]];
+          for (wordNow of Object.keys(doNotCountObj[categoryList[i][0]])) {
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i][0]][wordNow[i1]];
           }
         // }
         }
@@ -1013,9 +999,9 @@ return sorted;
       if (childOf && !asElement) document.getElementById(childOf).appendChild(newElement);
       else if (childOf) childOf.appendChild(newElement);
       else tests.appendChild(newElement);
-      for (var i = 0; i < Object.keys(attr).length; i++) {
-        if (Object.keys(attr)[i] == 'innerText') newElement.innerText = attr[Object.keys(attr)[i]];
-        else newElement.setAttribute(Object.keys(attr)[i]/*'style'*/, /*'color:' + word[i].colour*/attr[Object.keys(attr)[i]]);
+      for (attrNow of Object.keys(attr)) {
+        if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
+        else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
       }
     }
 
@@ -1165,10 +1151,8 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
       if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
         var wordNow = replaceAll(neededTest.words[i], '-', '');
         findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
-        for (var i1 = 0; i1 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow]).length; i1++) {
-          var category = Object.keys(auswertung.categories[selectedElementId.parent][wordNow])[i1];
-          for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i2++) {
-            var letter = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i2];
+        for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
+          for (letter of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
               findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.wrong.dark.text;
               if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
