@@ -15,9 +15,9 @@
     <option value="blackWhite">Schwarz-Weiß-Druck</option>
   </select>
   <br>
-  <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> wenn Druckermodus nicht aktiv immer farbig zeigen
-  <br>
   <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck</a>
+  <br>
+  <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> wenn Druckermodus nicht aktiv immer farbig zeigen
   <br>
   <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
   <br>
@@ -146,11 +146,7 @@ var officialData = {
     preComment: 'Die einzelnen Buchstaben der Laute, die nicht unter "sonstige" stehen, werden dort auch nicht mitgezählt. Wenn es keine Rubriken gibt, wird zudem "sonstige" nicht angezeigt.'
   }
 };
-    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FFFF00", wrong: {dark: "#8A0808", light: "#886A08"} , doNotCount: "black", spiegelverkehrt: "#FF00FF"}}
-    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FD0000", wrong: {dark: "#D40101", light: "#B40202"} , doNotCount: "black", spiegelverkehrt: "#490303"}}
-    // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "black", wrong: {dark: "gray", light: "gray"} , doNotCount: "silver", spiegelverkehrt: "rgb(56,56,56)"}}
-    // var colours = {colour: {right: {graph: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: {graph: "black", text: "black"}, wrong: {dark: "rgb(56,56,56)", light: "rgb(56,56,56)"} , doNotCount: "silver", spiegelverkehrt: "gray"}}
-    var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'silver'), text: "silver"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'gray'), text: "gray"}}}
+    var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
 var words = officialData;
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
@@ -165,8 +161,8 @@ function settingChanged(id, attrs, refresh) {
 function selectColours(value) {
   if (value == "colour") showPatterns.style.display = "none";
   else showPatterns.style.display = "inline";
-  settingChanged("colourSelector", {value: value}, true);
   settingChanged("showPatterns", {style: "display: " + showPatterns.style.display});
+  settingChanged("colourSelector", {value: value}, true);
 }
 var patterns = "chart";
 function patternSelected(checked) {
@@ -428,13 +424,16 @@ function recreatePupils(printMode) {
   for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     selectedElementId.parent = sheetAktuell;
     if (testAktuell == "1. settings") {
-      for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
-        document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
+      for (param of Object.keys(inputs["1. settings"])) {
+        document.getElementById(sheetAktuell)[param] = inputs["1. settings"][param];
       }
     }
     else {
       selectedColours = colours[colourSelector.value];
-      if (!printMode && alwaysShowColoured.checked) selectedColours = colours.colour; // colourSelector.value = "colour";
+      if (!printMode && alwaysShowColoured.checked) {
+        selectedColours = colours.colour; // colourSelector.value = "colour";
+        patterns = "chart";
+      }
     neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
     addPupil();
     // var minusI = 0;
@@ -898,16 +897,16 @@ function getEveryCategory(printMode) {
       mirrorList.push(0);
     }
     for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
-      for (letterNow of Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]) {
-        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[letterNow]) {
+      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2].length; i4++) {
+        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]][i4]) {
           for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == letterNow.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
+            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
               mirrorList[i]++;
               i = categoryList.length;
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(letterNow.toLowerCase());
+            categoryList.push(Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
             mirrorList[i]++;
           }
         }
