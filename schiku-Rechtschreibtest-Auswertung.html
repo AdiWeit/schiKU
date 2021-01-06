@@ -19,7 +19,11 @@
   <br>
   <input id="randDrucken" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Graph angepasst)
   <br>
-  <button type="button" onclick="copyCode();" name="button">Code in die Zwischenablage kopieren</button>
+  <button type="button" onclick="copyCode();" name="button">Code der Tests in die Zwischenablage kopieren</button> um ihn an <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a> zu schicken, welcher ihn bei Bedarf hinzufügt
+  <br>
+  <input id="adaptInputs" checked="true" onchange="recreatePupils();" type="checkbox"> Textboxen für Schreibung dr schüler anpassen
+  <br>
+  <input type="checkbox" checked="true" id="generateInfoText"> Infotext in Anmerkungen automatisch generieren
   <br>
   <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.diplay = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
   <br>
@@ -132,7 +136,8 @@ var officialData = {
         "Rü-cken-num-mer", "Lö-wen-köp-fe"
       ]
     },
-    einGraphemtreffer: ["ei"]
+    einGraphemtreffer: ["ei"],
+    preComment: 'Die einzelnen Buchstaben der Laute, die nicht unter "sonstige" stehen, werden dort auch nicht mitgezählt. Wenn es keine Rubriken gibt, wird zudem "sonstige" nicht angezeigt.'
   }
 };
     // var colours = {colour: {right: "rgba(0, 255, 0, 1)", wrong: {dark: "red", light: "#FD6441"}, doNotCount: "gray", spiegelverkehrt: "#00BFFF"}, blackWhite: {right: "#FFFF00", wrong: {dark: "#8A0808", light: "#886A08"} , doNotCount: "black", spiegelverkehrt: "#FF00FF"}}
@@ -164,16 +169,7 @@ function printMode(checked) {
     document.getElementById('addPupil').style.display = "none";
   }, 3333);
   }
-  else {
-    selections.style.display = "inline";
-    document.getElementById('addPupil').style.display = "inline";
-  }
   setTimeout(function () {
-    // for (var i = 0; i < pupils; i++) {
-    //   selectedElementId.parent = "pupilSheet" + (i + 1);
-    //   refreshNeededTest();
-    //   getEveryCategory(true);
-    // }
     recreatePupils(true);
   }, 3333);
 }
@@ -321,8 +317,9 @@ function addPupil() {
   addElement({placeholder: 'Name Schüler', id: 'name', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
   addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
-  addElement({placeholder: 'Datum', style: 'width: 226;', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-  addElement({placeholder: 'Anmerkungen', innerText: 'Die einzelnen Buchstaben der Laute, die nicht unter "sonstige" stehen, werden dort auch nicht mitgezählt. Wenn es keine extra Rubriken gibt, wird zudem "sonstige" nicht angezeigt.', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Datum', style: 'width: 208;', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
+  addElement({placeholder: 'Anmerkungen', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
+  if (generateInfoText.checked) findChild("id", selectedElementId.parent, "comment").innerText = words[selectedTest].preComment;
   addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 'div', 'pupilSheet' + pupils);
   addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
   addElement({}, 'br', 'pupilSheet' + pupils);
@@ -402,9 +399,9 @@ recreatePupils();
 // aktuallisiert den Test, der aktuell genutzt wird
 function refreshNeededTest() {
   for (var i = 0; i < Object.keys(inputs).length; i++) {
-    if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent)) {
+    if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent) && Object.keys(inputs)[i] != "settings") {
       selectedTest = Object.keys(inputs)[i];
-      for (var i1 = 0; i1 < Object.keys(inputs[selectedTest]).length; i1++) {
+      for (var i1 = 0; selectedTest != "settings" && i1 < Object.keys(inputs[selectedTest]).length; i1++) {
         if (Object.keys(inputs[selectedTest])[i1] == selectedElementId.parent) neededTest = words[selectedTest][inputs[selectedTest][Object.keys(inputs[selectedTest])[i1]].testName];
       }
     }
@@ -420,12 +417,12 @@ function recreatePupils(printMode) {
   for (var i3 = 0; i3 < Object.keys(inputs).length; i3++) {
     var testAktuell = Object.keys(inputs)[i3];
     selectedTest = testAktuell;//.replace('Test ', '');
-  for (var i = 0; i < Object.keys(inputs[testAktuell]).length; i++) {
+  for (var i = 0; selectedTest != "settings" && i < Object.keys(inputs[testAktuell]).length; i++) {
     var sheetAktuell = Object.keys(inputs[testAktuell])[i];
     selectedElementId.parent = sheetAktuell;
     neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
     addPupil();
-    var minusI = 0;
+    // var minusI = 0;
     for (var i1 = 0; i1 < Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]]).length; i1++) {
       var idAktuell = Object.keys(inputs[testAktuell][ Object.keys(inputs[testAktuell])[i]])[i1];
       if (!(idAktuell.includes('mirror'))) {
@@ -436,7 +433,7 @@ function recreatePupils(printMode) {
     }
     else if (findChild('id', sheetAktuell, idAktuell)) {
       findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
-      minusI++;
+      // minusI++;
     }
     else if (idAktuell == "Graphemtreffer") {
       for (var i2 = 0; i2 < Object.keys(inputs[testAktuell][Object.keys(inputs[testAktuell])[i]][idAktuell]).length; i2++) {
@@ -572,12 +569,15 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
-  findChild("id", parentId, id).style.width = wrong.length*8;
+  // findChild("id", parentId, id).style.width = wrong.length*8;
+  if (adaptInputs.checked) {
   findChild("id", parentId, id).style.width = 1;
   findChild("id", parentId, id).scroll(100, 0)
   while (findChild("id", parentId, id).scrollLeft > 0) {
     findChild("id", parentId, id).style.width = JSON.parse(findChild("id", parentId, id).style.width.replace("px", "")) + 1 + "px";
   }
+  }
+  else findChild("id", parentId, id).style.width = 100;
   var wrongI = 0;
   if (!doNotResetMirror && inputs[/*'Test ' + */selectedTest] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -1009,7 +1009,7 @@ return sorted;
      }, 10);
    }
    if (event.key == "p" && event.ctrlKey) {
-     alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm, oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein. \n Der Druckermodus aus den Optionen wird empfohlen.');
+     alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein. \n Der Druckermodus aus den Optionen wird empfohlen.');
      setTimeout(function () {
        selections.style.display = "inline";
        document.getElementById('addPupil').style.display = "inline";
@@ -1106,7 +1106,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
     console.log("selectedElementId: " + pupilSheet);
     var possibleLetterList = [];
-    for (var i1 = 0; i1 < Object.keys(neededTest.Kategorien).length; i1++) {
+    for (var i1 = 0; neededTest.Kategorien && i1 < Object.keys(neededTest.Kategorien).length; i1++) {
       var category = Object.keys(neededTest.Kategorien)[i1];
       for (var i2 = 0; i2 < Object.keys(neededTest.Kategorien[category]).length; i2++) {
         var letter = neededTest.Kategorien[category][i2];
@@ -1130,7 +1130,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
           if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = colours[colourSelector.value].wrong.dark
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = colours[colourSelector.value].wrong.dark.text;
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
@@ -1147,7 +1147,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           for (var i2 = 0; i2 < Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category]).length; i2++) {
             var letter = Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])[i2];
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
-              findChild('word', pupilSheet, wordNow).style.outlineColor = colours[colourSelector.value].wrong.dark
+              findChild('word', pupilSheet, wordNow).style.outlineColor = colours[colourSelector.value].wrong.dark.text;
               if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
@@ -1160,7 +1160,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     }
   }
 };
-var mostLeft = 0;
+var mostLeft = 257;
 for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementId.parent).length; i++) {
   if (document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right > mostLeft) mostLeft = document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right;
 }
