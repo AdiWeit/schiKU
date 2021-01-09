@@ -91,10 +91,16 @@
   categories.style.left = 166 + 22;
   // TODO: einzele pupilsheet zähler für verschiedene Tests?
   // TODO: kategorien statt Kategorien
+  var officialCategories = {Vokale: ["a", "e", "i", "o", "u"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaut: ["ai", "ei", "eu", "äu", "ai", "ui"], Endungen: ["en", "<e>"] /*TODO*/};
 var officialData = {
   "Kreis Unna": {
     "Test 1": {
-      words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"]
+      words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"],
+      Kategorien: {
+        Vokale: officialCategories.Vokale,
+        Konsonanten: officialCategories.Konsonanten,
+        Endungen: officialCategories.Endungen
+      }
     },
     "Test 2": {
       Kategorien: {
