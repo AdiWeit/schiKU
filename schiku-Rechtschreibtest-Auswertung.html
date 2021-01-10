@@ -288,7 +288,7 @@ function refreshWords() {
   for (nameTypeNow of Object.keys(words)) {
     addElement({value: nameTypeNow, innerText: nameTypeNow}, 'option', 'testTypeSelector');
     for (nameTestNow of Object.keys(words[nameTypeNow])) {
-      if (nameTestNow != "einGraphemtreffer") {
+      if (nameTestNow != "einGraphemtreffer" && nameTestNow != "preComment") {
       addElement({value: nameTestNow, innerText: nameTestNow}, 'option', 'testSelector');
     }
   }
@@ -702,7 +702,8 @@ else {
   else {
     addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text//"green";
+    if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
+    else findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
   }
   if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
   if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
@@ -810,31 +811,10 @@ function getEveryCategory(printMode) {
       }
     }
   }
-  // zur Liste nach Kategorien und Alphabet geordnet hinzufügen
   var wrongList = [];
   var rightList = [];
   var mirrorList = [];
   var letterList = [];
-  var categoryList = [];
-  auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
-  for (category of Object.keys(auswertung.byCategories)) {
-    categoryList.push(category);
-    rightList.push(0/*auswertung.byCategories[category].got*/)
-    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
-    for (objKeyName of Object.keys(auswertung.byCategories[category])) {
-      if (objKeyName != "got" && objKeyName != "possible") {
-        letterList.push(objKeyName);
-        categoryList.push(objKeyName);
-        rightList.push(auswertung.byCategories[category][objKeyName].got);
-        wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
-      }
-    }
-  }
-  if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
-    categoryList.push('sonstige');
-    rightList.push(0/*auswertung.byCategories[category].got*/)
-    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
-  }
   for (var i = 0; i < neededTest.words.length; i++) {
     var inputValue = document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i].value.toLowerCase();
 
@@ -877,12 +857,38 @@ function getEveryCategory(printMode) {
      console.log('not filled already');
    }
   }
+  // <e> als Endung hinzufügen (steht immer am Ende)
+  if (neededTest.Kategorien && neededTest.Kategorien.Endungen && neededTest.Kategorien.Endungen.includes("<e>")) {
+    if (!auswertung.byCategories.Endungen) auswertung.byCategories.Endungen = {};
+    auswertung.byCategories.Endungen["<e>/<E>"] = auswertung.letter[selectedElementId.parent]["<e>"];
+  }
+  // zur Liste nach Kategorien und Alphabet geordnet hinzufügen
+  var categoryList = [];
+  auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
+  for (category of Object.keys(auswertung.byCategories)) {
+    categoryList.push(category);
+    rightList.push(0/*auswertung.byCategories[category].got*/)
+    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+    for (objKeyName of Object.keys(auswertung.byCategories[category])) {
+      if (objKeyName != "got" && objKeyName != "possible") {
+        letterList.push(objKeyName);
+        categoryList.push(objKeyName);
+        rightList.push(auswertung.byCategories[category][objKeyName].got);
+        wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
+      }
+    }
+  }
+  if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
+    categoryList.push('sonstige');
+    rightList.push(0/*auswertung.byCategories[category].got*/)
+    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+  }
 
     // console.log(auswertung);
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (letter of Object.keys(auswertung.letter[selectedElementId.parent])) {
-      if (!(letterList.includes(letter[0]))) {
+      if (!(letterList.includes(letter[0])) && (letter != "<e>/<E>" || (!auswertung.byCategories.Endungen || !Object.keys(auswertung.byCategories.Endungen).includes("<e>/<E>")))) {
         categoryList.push(letter);
         // if (Object.keys(minusList).includes(letter[0])) {
           // auswertung.letter[selectedElementId.parent][letter].possible -= minusList[letter[0]].possible;
