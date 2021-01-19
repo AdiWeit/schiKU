@@ -8,7 +8,7 @@
   <br>
   <input onchange="printMode(checked);" id="printerMode" type="checkbox"> Druckermodus
   <br>
-  <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Vorschau wenn Einstellungen geändert (braucht paar Sek.)
+  <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Vorschau wenn Einstellungen geändert und Optionen geschlossen (braucht paar Sek.)
   <br>
   <select onchange="selectColours(value)" id="colourSelector">
     <option value="colour">Farbdruck</option>
@@ -26,17 +26,19 @@
   <br>
   <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext in Anmerkungen automatisch generieren
   <br>
+  <input type="checkbox" id="countTogether" onchange="settingChanged(id, {checked: checked}, true);"> bei Kategorien auf denen kein Fokus liegt nur Zusammenzählen
+  <br>
   <br>
   <button type="button" onclick="copyCode();" name="button">Code der Tests in die Zwischenablage kopieren</button> um ihn an <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a> zu schicken, welcher ihn bei Bedarf hinzufügt
   <br>
   <br>
   <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
   <br>
-  <input id="syncDataCheckbox" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
+  <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
   <input type="text" id="message" style="display: none">
   <br>
   <br>
-  <button type="button" onclick="settings.style.display = 'none';" name="button">schließen</button>
+  <button type="button" onclick="settingsClosed();" name="button">schließen</button>
 </div>
 <br>
 <select id="testTypeSelector">
@@ -88,6 +90,8 @@
 <button type="button" style="width: 175" onclick="closeEditor();" name="button">abbrechen</button>
 </div>
 <script>
+  // TODO: nur für veraltete Version (später löschen)
+  if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")) localStorage.clear();
   categories.style.left = 166 + 22;
   // TODO: einzele pupilsheet zähler für verschiedene Tests?
   // TODO: kategorien statt Kategorien
@@ -100,14 +104,18 @@ var officialData = {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen
-      }
+      },
     },
     "Test 2": {
+      words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"],
       Kategorien: {
         "Zwielaut/Diphthong": ["au", "ei"],
-        sonstige: ["sch"]
+        sonstige: ["sch"],
+        Vokale: officialCategories.Vokale,
+        Konsonanten: officialCategories.Konsonanten,
+        Endungen: officialCategories.Endungen
       },
-      words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"]
+      countTogether: ["Vokale", "Konsonanten", "Endungen"]
     },
     "Test 3": {
       Kategorien: {
@@ -158,11 +166,20 @@ var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
 var myBarChart = [];
-
+var settingsChanged = false;
 function settingChanged(id, attrs, refresh) {
-  inputs["1. settings"][id] = attrs;
-  if (preview.checked && refresh) recreatePupils();
+  if (!inputs["1. settings"]) inputs["1. settings"] = {};
+  inputs["1. settings"][id] = {};
+  for (attr of Object.keys(attrs)) {
+    inputs["1. settings"][id][attr] = attrs[attr];
+  }
+  if (refresh) settingsChanged = true;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+}
+function settingsClosed() {
+  settings.style.display = 'none';
+  if (preview.checked && settingsChanged) recreatePupils();
+  settingsChanged = false;
 }
 function selectColours(value) {
   if (value == "colour") showPatterns.style.display = "none";
@@ -430,8 +447,8 @@ function recreatePupils(printMode) {
   for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     selectedElementId.parent = sheetAktuell;
     if (testAktuell == "1. settings") {
-      for (param of Object.keys(inputs["1. settings"])) {
-        document.getElementById(sheetAktuell)[param] = inputs["1. settings"][param];
+      for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
+        document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
       }
     }
     else {
@@ -860,15 +877,26 @@ function getEveryCategory(printMode) {
   // <e> als Endung hinzufügen (steht immer am Ende)
   if (neededTest.Kategorien && neededTest.Kategorien.Endungen && neededTest.Kategorien.Endungen.includes("<e>")) {
     if (!auswertung.byCategories.Endungen) auswertung.byCategories.Endungen = {};
-    auswertung.byCategories.Endungen["<e>/<E>"] = auswertung.letter[selectedElementId.parent]["<e>"];
+    if (auswertung.letter[selectedElementId.parent]["<e>"]) auswertung.byCategories.Endungen["<e>/<E>"] = auswertung.letter[selectedElementId.parent]["<e>"];
   }
   // zur Liste nach Kategorien und Alphabet geordnet hinzufügen
   var categoryList = [];
+  var wordsCountedTogether = [];
   auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
   for (category of Object.keys(auswertung.byCategories)) {
     categoryList.push(category);
-    rightList.push(0/*auswertung.byCategories[category].got*/)
-    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+  if (neededTest.countTogether && neededTest.countTogether.includes(category) && countTogether.checked) {
+    categoryList[categoryList.length - 1] = "zusammen " + categoryList[categoryList.length - 1];
+    rightList.push(auswertung.byCategories[category].got)
+    wrongList.push(auswertung.byCategories[category].possible - auswertung.byCategories[category].got);
+    for (letter of Object.keys(auswertung.byCategories[category])) {
+      if (letter != "<e>/<E>") wordsCountedTogether.push(letter + "/" + letter.toUpperCase());
+      else wordsCountedTogether.push(letter);
+    }
+  }
+  else {
+    rightList.push(0)
+    wrongList.push(0);
     for (objKeyName of Object.keys(auswertung.byCategories[category])) {
       if (objKeyName != "got" && objKeyName != "possible") {
         letterList.push(objKeyName);
@@ -878,6 +906,7 @@ function getEveryCategory(printMode) {
       }
     }
   }
+}
   if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
     categoryList.push('sonstige');
     rightList.push(0/*auswertung.byCategories[category].got*/)
@@ -888,7 +917,7 @@ function getEveryCategory(printMode) {
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (letter of Object.keys(auswertung.letter[selectedElementId.parent])) {
-      if (!(letterList.includes(letter[0])) && (letter != "<e>/<E>" || (!auswertung.byCategories.Endungen || !Object.keys(auswertung.byCategories.Endungen).includes("<e>/<E>")))) {
+      if (!wordsCountedTogether.includes(letter) && !(letterList.includes(letter[0])) && (letter != "<e>/<E>" || (!auswertung.byCategories.Endungen || !Object.keys(auswertung.byCategories.Endungen).includes("<e>/<E>")))) {
         categoryList.push(letter);
         // if (Object.keys(minusList).includes(letter[0])) {
           // auswertung.letter[selectedElementId.parent][letter].possible -= minusList[letter[0]].possible;
@@ -1091,12 +1120,17 @@ function addChart(texte, data, printMode) {
     responsive: true,
     scales: {
       xAxes: [{
-        stacked: true
+        stacked: true,
+        ticks: {
+          stepSize: 2,
+        }
+        // barPercentage: 0.4
       }],
       yAxes: [{
         stacked: true,
         ticks: {
-          beginAtZero: true
+          beginAtZero: true,
+          // stepSize: 2,
         }
       }],
     },
