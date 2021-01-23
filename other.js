@@ -4,6 +4,13 @@ if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined
   var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
   document.getElementById('addPupil').style.left = 300 + "px";
   document.getElementById('addPupil').style.position = 'fixed';
+  document.getElementById('testSelector').style.left = 388 + "px";
+  document.getElementById('testSelector').style.position = 'fixed';
+  document.getElementById('testTypeSelector').style.left = 300 + "px";
+  document.getElementById('testTypeSelector').style.position = 'fixed';
+  document.getElementById('openEditorB').style.left = 300 + "px";
+  document.getElementById('openEditorB').style.position = 'fixed';
+  window.scroll(0, 0);
 // TODO: einzele pupilsheet zähler für verschiedene Tests?
 // TODO: kategorien statt Kategorien
 var words = officialData;
@@ -29,12 +36,18 @@ document.getElementById("message").value = "Ein Fehler ist aufgetreten!!!"
 document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
-function addPupil() {
+function addPupil(selectedTestType, pSelectedTest) {
 pupils++;
 if (!inputs[/*'Test ' + */testTypeSelector.value]) inputs[/*'Test ' + */testTypeSelector.value] = {};
 if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils]) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils] = {};
 if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName = testSelector.value;
 addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
+addElement({id: 'testSelector' + pupils, onchange: 'inputs["' + testTypeSelector.value + '"]["pupilSheet' + pupils + '"]' + '.testName = value; recreatePupils();'}, 'select', 'pupilSheet' + pupils);
+addElement({}, 'br', 'pupilSheet' + pupils);
+for (test of Object.keys(words[selectedTestType])) {
+  if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
+}
+document.getElementById('testSelector' + pupils).value = pSelectedTest;
 addElement({placeholder: 'Name Schüler', id: 'name', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
 addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
@@ -42,6 +55,7 @@ addElement({placeholder: 'Datum', style: 'width: 208;', id: 'date' + pupils, oni
 addElement({placeholder: 'Anmerkungen', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
 if (generateInfoText.checked) findChild("id", selectedElementId.parent, "comment").innerText = words[selectedTest].preComment;
 addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 'div', 'pupilSheet' + pupils);
+addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
 for (var i = 0; i < neededTest.words.length; i++) {
@@ -116,6 +130,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
   if (testAktuell == "1. settings") {
     for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
       document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
+      if (sheetAktuell == "patterns" && param == "checked") patternSelected(inputs["1. settings"][sheetAktuell][param]);
     }
   }
   else {
@@ -125,7 +140,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
       patterns = "chart";
     }
   neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
-  addPupil();
+  addPupil(selectedTest, inputs[testAktuell][sheetAktuell].testName);
   // var minusI = 0;
   for (idAktuell of Object.keys(inputs[testAktuell][sheetAktuell])) {
     if (!(idAktuell.includes('mirror'))) {
@@ -188,12 +203,13 @@ document.onkeydown = function(event) {
      if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
    }, 10);
  }
- if (event.key == "p" && event.ctrlKey) {
-   alert('Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein. \n Der Druckermodus aus den Optionen wird empfohlen.');
+ if (event.key == "p" && event.ctrlKey && printerMode.checked) {
+   alert('Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern".\n Rand, damit ein Schüler pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
    setTimeout(function () {
      selections.style.display = "inline";
      document.getElementById('addPupil').style.display = "inline";
      document.getElementById('settings').style.display = "none";
+     document.getElementById('openEditorB').style.display = "inline";
      printMode.checked = false;
      for (var i = 0; i < pupils; i++) {
        selectedElementId.parent = "pupilSheet" + (i + 1);
@@ -202,4 +218,5 @@ document.onkeydown = function(event) {
      }
    }, 333000);
  }
+ else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. \nFalls sie dies tun, sollten sie das Fenster zum Drucken wieder schließen oder wenn der Optionsbutton weg ist eine Einstellung ändern, damit der Druckermodus in das Fenster zum Drucken aufgenommen wird.')) printMode(true);
 }

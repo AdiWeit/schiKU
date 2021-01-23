@@ -357,7 +357,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           }
           if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
-          if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "green";
+          if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
@@ -372,7 +372,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           for (letter of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
               findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.wrong.dark.text;
-              if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = "green";
+              if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.right.text;//"green";
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
               findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;

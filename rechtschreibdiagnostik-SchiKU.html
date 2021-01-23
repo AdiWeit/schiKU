@@ -3,10 +3,10 @@
 <script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.0/dist/patternomaly.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 <div id="selections">
-<button type="button" onclick="settings.style.display = 'inline';" name="button">Optionen</button>
+<button type="button" onclick="settings.style.display = 'inline';" name="button">Optionen (ducken, als PDF speichern, Grafikeinstellungen etc.)</button>
 <div id="settings" style="display: none;">
   <br>
-  <input onchange="printMode(checked);" id="printerMode" type="checkbox"> Druckermodus
+  <input onchange="printMode(checked);" id="printerMode" type="checkbox"> Druckermodus (auch zum Speichern)
   <br>
   <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Vorschau wenn Einstellungen geändert und Optionen geschlossen (braucht paar Sek.)
   <br>
@@ -55,12 +55,14 @@
   <option value="Test 6">Test 6</option>
   <option value="newTest">+ Test</option>
 </select>
-<button type="button" onclick="editTest();" name="button">edit</button>
 <br>
 </div>
 <div id="tests">
-  <button type="button" id="addPupil" onclick="addPupil();" name="button">Schüler hinzufügen</button>
+  <button type="button" id="addPupil" onclick="addPupil(testTypeSelector.value, testSelector.value);" name="button">Geschriebenes eingeben</button>
+  <br>
+  <button type="button" id="openEditorB" onclick="editTest();" name="button">bearbeiten</button>
 </div>
+<br>
 <div id="editor" style="display: none">
   <input type="text" id="nameType" placeholder="Name Testart">
   <input type="text" id="nameTest" placeholder="Name expliziter Test">

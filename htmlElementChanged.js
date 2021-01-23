@@ -30,6 +30,7 @@ function printMode(checked) {
     setTimeout(function () {
     selections.style.display = "none";
     document.getElementById('addPupil').style.display = "none";
+    document.getElementById('openEditorB').style.display = "none";
   }, 3333);
   }
   setTimeout(function () {
