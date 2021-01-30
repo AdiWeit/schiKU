@@ -13,7 +13,6 @@ if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined
   window.scroll(0, 0);
 // TODO: einzele pupilsheet zähler für verschiedene Tests?
 // TODO: kategorien statt Kategorien
-var words = officialData;
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
