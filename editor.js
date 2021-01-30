@@ -12,6 +12,9 @@ while (document.getElementsByClassName("Wortlaut").length > 0) {
   document.getElementsByClassName("Wortlaut")[0].remove();
   document.getElementsByClassName("brWortlaut")[0].remove();
 }
+while (document.getElementsByClassName("ownCategory").length > 0) {
+  document.getElementsByClassName("ownCategory")[0].remove();
+}
 tests.style.display = "none";
 editor.style.display = "inline";
 if (testTypeSelector.value != "newTestType" && testSelector.value != "newTest") {
@@ -19,7 +22,7 @@ for (var i = 0; i < neededTest.words.length; i++) {
   addTextbox(neededTest.words[i]/*, i*/, "Wort", "word");
 }
 for (var i = 0; words[testTypeSelector.value][testSelector.value].Kategorien && i < Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien).length; i++) {
-  addTextbox(rubrik, "Rubrik");
+  addTextbox(Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien)[i], "Rubrik", undefined);
 }
 for (var i = 0; i < words[testTypeSelector.value].einGraphemtreffer.length; i++) {
   addTextbox(words[testTypeSelector.value].einGraphemtreffer[i], "Wortlaut", "wortlaut");
@@ -48,8 +51,15 @@ for (var i = 0; i < document.getElementsByClassName("Wort").length; i++) {
 for (var i = 0; i < document.getElementsByClassName("Wortlaut").length; i++) {
   words[nameType.value].einGraphemtreffer.push(document.getElementsByClassName("Wortlaut")[i].value);
 }
+for (var i = 0; i < document.getElementsByClassName("ownCategoryDiv").length; i++) {
+  var newCategoryName = document.getElementsByClassName("ownCategoryDiv")[i].id.replace("ownCategory ", "");
+  myCategories[newCategoryName] = [];
+  for (elm of document.getElementsByClassName("laut " + newCategoryName)) {
+    myCategories[newCategoryName].push(elm.value);
+  }
+}
 for (var i = 0; i < document.getElementsByClassName("Rubrik").length; i++) {
-  words[nameType.value][nameTest.value].Kategorien[document.getElementsByClassName("Rubrik")[i].value] = {};
+  words[nameType.value][nameTest.value].Kategorien[document.getElementsByClassName("Rubrik")[i].value] = myCategories[document.getElementsByClassName("Rubrik")[i].value];
 }
 }
 editor.style.display = 'none';
@@ -72,16 +82,37 @@ addElement({class: type, value: value, title: 'Silben mit Bindestrich abtrennen.
 addElement({class: 'br' + type}, 'br', parent);
 }
 else {
-addElement({class: type, title: 'Silben mit Bindestrich abtrennen.'}, 'select', "rubrik");
-if (words[testTypeSelector.value][testSelector.value].Kategorien) var categories = Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien);
-for (var i = 0; categories && i < categories.length; i++) {
-  addElement({value: categories[i], innerText: categories[i]}, 'option', document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1], true);
+addElement({class: type, onchange: 'categorySelectionChanged(value, this)'}, 'select', "rubrik");
+for (var i = 0; i < Object.keys(myCategories).length; i++) {
+  addElement({value: Object.keys(myCategories)[i], innerText: Object.keys(myCategories)[i]}, 'option', document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1], true);
 }
-if (!categories || !categories.includes(value)) addElement({value: value, innerText: value}, 'option', document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1], true);
+if (!Object.keys(myCategories) || !Object.keys(myCategories).includes(value)) addElement({value: value, innerText: value}, 'option', document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1], true);
+addElement({value: "neue erstellen", innerText: "neue erstellen"}, 'option', document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1], true);
 document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1].value = value;
 addElement({class: 'br' + type}, 'br', "rubrik");
 }
 }
+function categorySelectionChanged(value, elm) {
+  if (value == "neue erstellen") {
+    // neue Rubrik hinzufügen
+    var newCategoryName = prompt("Wie soll die neue Rubrik heißen?");
+    addElement({value: newCategoryName, innerText: newCategoryName}, 'option', elm, true);
+    elm.value = newCategoryName;
+    addElement({class: "ownCategory"}, "br", "rubrik");
+    addElement({id: "ownCategory " + newCategoryName, class: "ownCategoryDiv"}, 'div', "rubrik");
+    addElement({placeholder: "laut", class: "laut " + newCategoryName}, 'input', "ownCategory " + newCategoryName);
+    addElement({class: "ownCategory", innerText: "+ Wortlaut", onclick: 'addElement({class: "ownCategory"}, "br", "ownCategory ' + newCategoryName + '"); addElement({placeholder: "laut", class: "laut ' + newCategoryName + '"}, "input", "ownCategory ' + newCategoryName + '");'}, 'button', "rubrik");
+    // addElement({class: "ownCategory", innerText: "bestätigen", onclick: 'newCategory("' + newCategoryName + '")'}, 'button', "rubrik");
+    addElement({class: "ownCategory"}, "br", "rubrik");
+    addElement({class: "ownCategory"}, "br", "rubrik");
+  }
+}
+// function newCategory(name) {
+//   myCategories[name] = [];
+//   for (elm of document.getElementsByClassName("ownCategory " + name)) {
+//     myCategories[name].push(elm.value);
+//   }
+// }
 // lösche Element in Editor
 function removeType(type) {
 document.getElementsByClassName(type)[document.getElementsByClassName(type).length - 1].remove();
