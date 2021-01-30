@@ -34,7 +34,7 @@
   <br>
   <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
   <br>
-  <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
+  <input id="syncDataCheckbox" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
   <input type="text" id="message" style="display: none">
   <br>
   <br>
@@ -73,7 +73,7 @@
   <br>
 </div>
 <button type="button" onclick="removeType('Rubrik');" name="button">X</button>
-<button type="button" onclick="addTextbox(prompt('wie soll die Rubrik heißen?'), 'Rubrik', 'rubrik')" name="button">+ Rubrik</button>
+<button type="button" onclick="addTextbox('bitte auswählen', 'Rubrik', 'rubrik')" name="button">+ Rubrik</button>
   <h2>ein Graphemtreffer (für gesamte Testart)</h2>
   <div id="wortlaut">
     <br>
