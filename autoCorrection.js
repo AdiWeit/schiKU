@@ -8,7 +8,7 @@ function addWrongLetter(correct, i) {
       }
     }
     graphemFehler++;
-    if (currentLetter == "e" && i == correct.length - 1) currentLetter = '<' + currentLetter + '>';
+    if (currentLetter == "e" && i == correct.length - 1) currentLetter = '<e>';
     if (!auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
     if (!auswertung.wrongLetters[selectedElementId.parent][correct]) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
     if (!auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter]) auswertung.wrongLetters[selectedElementId.parent][correct][currentLetter] = 0;
@@ -24,7 +24,7 @@ var selectedTest = "Kreis Unna";
 // überprüft Laute auf Richtigkeit und Anzahl
 // @param correct: korrekte Schreibweise
 //        i: aktueller Index (hier: Position im korrekten Wort)
-function checkCategory(correct, i) {
+function checkCategory(correct, i, last) {
   possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
   for (var i1 = 0; neededTest.Kategorien && i1 < Object.keys(neededTest.Kategorien).length; i1++) {
@@ -39,7 +39,15 @@ function checkCategory(correct, i) {
       if (!letterCounter[letterString]) letterCounter[letterString] = [];
       if (letterCounter[letterString].length == letterString.length) {
         var string = Object.keys(letterList[letterString]).toString().replace(',', '');
-        if (string == letterString) {
+        var letterInMultiple = false;
+        for (stringCompair of Object.keys(letterList)) {
+          var stringTogether = Object.keys(letterList[stringCompair]).toString().replace(',', '');
+          for (var i4 = i; i4 < i + stringCompair.length; i4++) {
+            if (correct[i4]) stringTogether += correct[i4];
+          }
+          if (stringCompair.includes(string) && string.length == 1 && stringCompair.length > 1 && stringTogether.includes(stringCompair)) letterInMultiple = true;
+        }
+        if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
           if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
@@ -121,6 +129,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   correct = correct.toLowerCase();
   wrong = wrong.toLowerCase();
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
+    var ausgetauscht = 0;
     checkCategory(original.correct, i);
     // check letter difference: following letter wrong
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
@@ -153,6 +162,7 @@ else {
       newWord[wrongI + addI].colour = selectedColours.wrong.dark.text;
       newWord[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
       i++;
+      ausgetauscht = 1;
       wrongI++;
     }
     // too much before end
@@ -167,12 +177,12 @@ else {
     else if (original.correct[i] != original.wrong[wrongI]) newWord[wrongI + addI].colour = selectedColours.wrong.light.text;
     if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
   }
-  checkCategory(original.correct, 0);
+  if (ausgetauscht) i--;
   // check end missing
-  for (var i = i; newWord.length - doubleError < correct.length; i++) {
+  for (var i = i; newWord.length - doubleError - ausgetauscht < correct.length; i++) {
     newWord.push({letter: '_', colour: "white"});
     checkCategory(original.correct, /*newWord.length - 1*/i);
-    addWrongLetter(original.correct, newWord.length - 1);
+    addWrongLetter(original.correct, /*newWord.length - 1 - ausgetauscht*/i);
   }
   // check too much in the end
   for (var i = wrongI + addI; i < newWord.length && i >= correct.length; i++) {
@@ -182,6 +192,7 @@ else {
       graphemFehler++;
     }
   }
+  checkCategory(original.correct, 0, true);
   // console.log(newWord);
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
     var textColour = "black";
@@ -202,7 +213,7 @@ else {
     if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
     else findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
   }
-  if ((doNotMark || correct == wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
-  if (doNotMark || correct == wrong) auswertung.wrongLetters[selectedElementId.parent][correct] = {};
+  if ((doNotMark || original.correct == original.wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+  if (doNotMark || original.correct == original.wrong) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
   getAllGraphemtreffer();
 }
