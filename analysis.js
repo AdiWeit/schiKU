@@ -1,4 +1,4 @@
-// Zusammenzählen aller Graphemtreffer
+// Zusammenzählen aller Graphemtreffer und korrekter Wörter
 function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser, correct, parent) {
   if (parent) {
     selectedElementId.parent = parent;
@@ -62,31 +62,22 @@ function getEveryCategory(printMode) {
         if (objKeyName != "got" && objKeyName != "possible") {
           if (!auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
           if (!auswertung.byCategories[category][objKeyName]) auswertung.byCategories[category][objKeyName] = {possible: 0, got: 0};
+          if (!minusList[objKeyName] || !minusList[objKeyName][wordNow]) {
         auswertung.byCategories[category][objKeyName].possible += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
         auswertung.byCategories[category][objKeyName].got += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].got;
+      }
+      else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
         }
         else {
           if (!doNotCountObj.laute[objKeyName]) doNotCountObj.laute[objKeyName] = 0;
           doNotCountObj.laute[objKeyName]++;
-        }
-        for (var i4 = 0; i4 < objKeyName.length; i4++) {
-          if (!minusList[objKeyName[i4]]) minusList[objKeyName[i4]] = {};
-          if (!minusList[objKeyName[i4]][wordNow]) minusList[objKeyName[i4]][wordNow] = 0;
-          minusList[objKeyName[i4]][wordNow] += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
-
-          if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
-          if (!minusList.doNotCount[objKeyName[i4]]) minusList.doNotCount[objKeyName[i4]] = 0;//{};
-          // if (!minusList.doNotCount[objKeyName[i4]][wordNow]) minusList.doNotCount[objKeyName[i4]][wordNow] = 0;
-          minusList.doNotCount[objKeyName[i4]]/*[wordNow]*/ += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
-          // minusList[objKeyName[i4]].got += auswertung.categories[wordNow][category][objKeyName].got;
-        }
         }
       }
         else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[selectedElementId.parent][wordNow][category].possible;
         else {
         auswertung.byCategories[category].got += auswertung.categories[selectedElementId.parent][wordNow][category].got;
         }
-      }
+    }
     }
   }
   var wrongList = [];
@@ -145,6 +136,7 @@ function getEveryCategory(printMode) {
   var wordsCountedTogether = [];
   auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
   for (category of Object.keys(auswertung.byCategories)) {
+    auswertung.byCategories[category] = sortObjectByKey(auswertung.byCategories[category], true);
     categoryList.push(category);
   if (neededTest.countTogether && neededTest.countTogether.includes(category) && countTogether.checked) {
     categoryList[categoryList.length - 1] = "zusammen " + categoryList[categoryList.length - 1];
@@ -315,7 +307,7 @@ function addChart(texte, data, printMode) {
 console.log("selectedElementId: " + selectedElementId.parent);
 var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
-  console.log("chart");
+  // TODO: Markierung: "te"/"et" bei "Tapete" (Überschneidung)
   selectedElementId.parent = evt.path[0].id.replace('textur', '');
   refreshNeededTest();
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
@@ -361,7 +353,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
-          if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', '')) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+          if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(neededTest.words[i], '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
         }
         }
       }
