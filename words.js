@@ -59,7 +59,10 @@ var officialData = {
         "Rü-cken-num-mer", "Lö-wen-köp-fe"
       ]
     },
+    // TODO: alle Zwielaute?
     einGraphemtreffer: ["ei"],
     preComment: 'Die einzelnen Buchstaben der Laute, die nicht unter "sonstige" stehen, werden dort auch nicht mitgezählt. Wenn es keine Rubriken gibt, wird zudem "sonstige" nicht angezeigt.'
   }
 };
+var words = officialData;
+var myCategories = officialCategories;
