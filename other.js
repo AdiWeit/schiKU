@@ -22,7 +22,7 @@ var settingsChanged = false;
 function copyCode() {
 document.getElementById('message').style.display = "inline";
 var copytext;
-document.getElementById("message").value = replaceAll( replaceAll( replaceAll( replaceAll( replaceAll(JSON.stringify(words), '"Kategorien"', 'Kategorien'), '"words"', 'words' ),  '"words"', 'words'),  ':', ': '), ',', ', ');
+document.getElementById("message").value = replaceAll( replaceAll( replaceAll( replaceAll( replaceAll(JSON.stringify(words), '"kategorien"', 'kategorien'), '"words"', 'words' ),  '"words"', 'words'),  ':', ': '), ',', ', ');
 copytext = document.getElementById("message")
 copytext.select();
 try{

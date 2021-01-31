@@ -27,10 +27,10 @@ var selectedTest = "Kreis Unna";
 function checkCategory(correct, i, last) {
   possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
-  for (var i1 = 0; neededTest.Kategorien && i1 < Object.keys(neededTest.Kategorien).length; i1++) {
-    var category = Object.keys(neededTest.Kategorien)[i1];
-    for (var i2 = 0; i2 < neededTest.Kategorien[category].length; i2++) {
-      var letterString = neededTest.Kategorien[category][i2];
+  for (var i1 = 0; neededTest.kategorien && i1 < Object.keys(neededTest.kategorien).length; i1++) {
+    var category = Object.keys(neededTest.kategorien)[i1];
+    for (var i2 = 0; i2 < neededTest.kategorien[category].length; i2++) {
+      var letterString = neededTest.kategorien[category][i2];
       if (correct.toLowerCase().includes(letterString)) {
       for (var i3 = 0; words[testTypeSelector.value].einGraphemtreffer.includes(letterString) && i3 < letterString.length - 1; i3++) {
         possibleGraphemtreffer--;

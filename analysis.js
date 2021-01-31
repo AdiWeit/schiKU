@@ -127,7 +127,7 @@ function getEveryCategory(printMode) {
    }
   }
   // <e> als Endung hinzufügen (steht immer am Ende)
-  if (neededTest.Kategorien && neededTest.Kategorien.Endungen && neededTest.Kategorien.Endungen.includes("<e>")) {
+  if (neededTest.kategorien && neededTest.kategorien.Endungen && neededTest.kategorien.Endungen.includes("<e>")) {
     if (!auswertung.byCategories.Endungen) auswertung.byCategories.Endungen = {};
     if (auswertung.letter[selectedElementId.parent]["<e>"]) auswertung.byCategories.Endungen["<e>/<E>"] = auswertung.letter[selectedElementId.parent]["<e>"];
   }
@@ -324,10 +324,10 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     console.log(label + ': ' + right + '/' + (wrong + right) + ' (' + wrong + ' wrong)');
     console.log("selectedElementId: " + pupilSheet);
     var possibleLetterList = [];
-    for (var i1 = 0; neededTest.Kategorien && i1 < Object.keys(neededTest.Kategorien).length; i1++) {
-      var category = Object.keys(neededTest.Kategorien)[i1];
-      for (var i2 = 0; i2 < Object.keys(neededTest.Kategorien[category]).length; i2++) {
-        var letter = neededTest.Kategorien[category][i2];
+    for (var i1 = 0; neededTest.kategorien && i1 < Object.keys(neededTest.kategorien).length; i1++) {
+      var category = Object.keys(neededTest.kategorien)[i1];
+      for (var i2 = 0; i2 < Object.keys(neededTest.kategorien[category]).length; i2++) {
+        var letter = neededTest.kategorien[category][i2];
         if (letter.includes(label) && letter != label && letter != "got" && letter != "possible") possibleLetterList.push(letter);
       }
     }

@@ -21,8 +21,8 @@ if (testTypeSelector.value != "newTestType" && testSelector.value != "newTest") 
 for (var i = 0; i < neededTest.words.length; i++) {
   addTextbox(neededTest.words[i]/*, i*/, "Wort", "word");
 }
-for (var i = 0; words[testTypeSelector.value][testSelector.value].Kategorien && i < Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien).length; i++) {
-  addTextbox(Object.keys(words[testTypeSelector.value][testSelector.value].Kategorien)[i], "Rubrik", undefined);
+for (var i = 0; words[testTypeSelector.value][testSelector.value].kategorien && i < Object.keys(words[testTypeSelector.value][testSelector.value].kategorien).length; i++) {
+  addTextbox(Object.keys(words[testTypeSelector.value][testSelector.value].kategorien)[i], "Rubrik", undefined);
 }
 for (var i = 0; i < words[testTypeSelector.value].einGraphemtreffer.length; i++) {
   addTextbox(words[testTypeSelector.value].einGraphemtreffer[i], "Wortlaut", "wortlaut");
@@ -44,7 +44,7 @@ function closeEditor(save) {
 if (save) {
 if (!words[nameType.value]) words[nameType.value] = {};
 words[nameType.value].einGraphemtreffer = [];
-words[nameType.value][nameTest.value] = {words: [], Kategorien: {}};
+words[nameType.value][nameTest.value] = {words: [], kategorien: {}};
 for (var i = 0; i < document.getElementsByClassName("Wort").length; i++) {
   words[nameType.value][nameTest.value].words.push(document.getElementsByClassName("Wort")[i].value);
 }
@@ -59,7 +59,7 @@ for (var i = 0; i < document.getElementsByClassName("ownCategoryDiv").length; i+
   }
 }
 for (var i = 0; i < document.getElementsByClassName("Rubrik").length; i++) {
-  words[nameType.value][nameTest.value].Kategorien[document.getElementsByClassName("Rubrik")[i].value] = myCategories[document.getElementsByClassName("Rubrik")[i].value];
+  words[nameType.value][nameTest.value].kategorien[document.getElementsByClassName("Rubrik")[i].value] = myCategories[document.getElementsByClassName("Rubrik")[i].value];
 }
 }
 editor.style.display = 'none';
