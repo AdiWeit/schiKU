@@ -20,22 +20,6 @@ for (i = 0; i < len; i++) {
 }
 return sorted;
 }
-/*
- * PURPOSE : generiert ein neues HTML Element
- *  PARAMS : attr - Attribute des Elements
- *           elm - Typ des Elements
- *           childOf - in welchem welches HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
- */
-  function addElement(attr, elm, childOf, asElement) {
-      var newElement = document.createElement(/*'span'*/elm);
-      if (childOf && !asElement) document.getElementById(childOf).appendChild(newElement);
-      else if (childOf) childOf.appendChild(newElement);
-      else tests.appendChild(newElement);
-      for (attrNow of Object.keys(attr)) {
-        if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
-        else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
-      }
-    }
     function replaceAll(str, find, replace) {
       return str.replace(new RegExp(find, 'g'), replace);
     }

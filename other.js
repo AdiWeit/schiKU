@@ -1,5 +1,5 @@
 // TODO: nur für veraltete Version (später löschen)
-if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")) localStorage.clear();
+if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
   categories.style.left = 166 + 22;
   var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
   document.getElementById('addPupil').style.left = 300 + "px";
@@ -12,7 +12,6 @@ if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined
   document.getElementById('openEditorB').style.position = 'fixed';
   window.scroll(0, 0);
 // TODO: einzele pupilsheet zähler für verschiedene Tests?
-// TODO: kategorien statt Kategorien
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
@@ -219,3 +218,19 @@ document.onkeydown = function(event) {
  }
  else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. \nFalls sie dies tun, sollten sie das Fenster zum Drucken wieder schließen oder wenn der Optionsbutton weg ist eine Einstellung ändern, damit der Druckermodus in das Fenster zum Drucken aufgenommen wird.')) printMode(true);
 }
+/*
+ * PURPOSE : generiert ein neues HTML Element
+ *  PARAMS : attr - Attribute des Elements
+ *           elm - Typ des Elements
+ *           childOf - in welchem welches HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
+ */
+  function addElement(attr, elm, childOf, asElement) {
+      var newElement = document.createElement(/*'span'*/elm);
+      if (childOf && !asElement) document.getElementById(childOf).appendChild(newElement);
+      else if (childOf) childOf.appendChild(newElement);
+      else tests.appendChild(newElement);
+      for (attrNow of Object.keys(attr)) {
+        if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
+        else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
+      }
+    }
