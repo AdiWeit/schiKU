@@ -24,24 +24,26 @@ function patternSelected(checked) {
   else patterns = "text";
   settingChanged("patterns", {checked: checked}, true);
 }
-function printMode(checked) {
+function printMode(checked, pressed) {
   if (checked) {
-    alert("drücken sie Str und p, um die Website ausdrucken zu können. Die Optionen erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen der Seite wieder. Bevor sie die Tastenkombination drücken, warten sie jedoch bitte ab, bis die Optionen verschwunden sind. Wenn sie zuvor Druckeinstellungen aus den Optionen vornehmen wollen, tuen sie das bitte jetzt.");
-    setTimeout(function () {
+    if (!pressed) alert("drücken sie Str und p, um die Website ausdrucken zu können. Die Optionen erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen der Seite wieder. Bevor sie die Tastenkombination drücken, warten sie jedoch bitte ab, bis die Optionen verschwunden sind.");
+    else {
+      alert('Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern".\n Rand, damit ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
+    }
     selections.style.display = "none";
     document.getElementById('addPupil').style.display = "none";
     document.getElementById('openEditorB').style.display = "none";
-  }, 3333);
   }
-  setTimeout(function () {
     recreatePupils(true);
-  }, 3333);
 }
 // wird aufgerufen, wenn Eingabe der Schreibweise des Schülers durch Abwählen der Textbox (onchange) beendet wurde..
 // falls nur ein "r" eigegeben wurde, wird das Wort als korrekt anerkannt.
 // @param id: id der bearbeiteten Textbox
        // restoringData: falls true werden die Eingaben des Lehrers wiederhergestellt, weshalb nicht nach jedem Wort die Grafik aktuallisiert wird.
 function pupilsWritingFinished(id, restoringData) {
+  document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "none";
+  document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "inline";
+  document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).innerText = document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).value;
   if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true, restoringData);
