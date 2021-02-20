@@ -32,3 +32,9 @@ return sorted;
       else var element = idOfElement;
       return element.querySelector('[' + childType + '="' + idOfChild + '"]');
     }
+    function sortByStringLength(array) {
+      return array.sort(function(b, a) {
+        return a.length - b.length || // sort by length, if equal then
+               a.localeCompare(b);    // sort by dictionary order
+      })
+    }
