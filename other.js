@@ -35,14 +35,15 @@ document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
 function addPupil(selectedTestType, pSelectedTest) {
+  neededTest = words[selectedTestType][pSelectedTest];
 if (document.getElementsByClassName('names').length == 0 || document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "") {
 pupils++;
-if (!inputs[/*'Test ' + */testTypeSelector.value]) inputs[/*'Test ' + */testTypeSelector.value] = {};
-if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils]) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils] = {};
-if (!inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName) inputs[/*'Test ' + */testTypeSelector.value]['pupilSheet' + pupils].testName = testSelector.value;
+if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
+if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils] = {};
+if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils].testName) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils].testName = pSelectedTest;
 addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
-addElement({id: 'testSelector' + pupils, onchange: 'inputs["' + testTypeSelector.value + '"]["pupilSheet' + pupils + '"]' + '.testName = value; recreatePupils();'}, 'select', 'pupilSheet' + pupils);
-addElement({id: 'testHeadline' + pupils, innerText: testSelector.value, style:'display:none'}, 'h3', 'pupilSheet' + pupils);
+addElement({id: 'testSelector' + pupils, onchange: 'inputs["' + selectedTestType + '"]["pupilSheet' + pupils + '"]' + '.testName = value; recreatePupils();'}, 'select', 'pupilSheet' + pupils);
+addElement({id: 'testHeadline' + pupils, innerText: pSelectedTest, style:'display:none'}, 'h3', 'pupilSheet' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
 for (test of Object.keys(words[selectedTestType])) {
   if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
@@ -64,6 +65,7 @@ for (var i = 0; i < neededTest.words.length; i++) {
   addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
   if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
 }
+addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'allGraphemes' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'allCorrect' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
@@ -227,7 +229,10 @@ document.onkeydown = function(event) {
      }
    }, 333000);
  }
- else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler/eine Schülerin pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. \nFalls sie dies tun, sollten sie das Fenster zum Drucken wieder schließen oder wenn der Optionsbutton weg ist eine Einstellung ändern, damit der Druckermodus in das Fenster zum Drucken aufgenommen wird.')) printMode(true);
+ else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler/eine Schülerin pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. Bitte warten sie nach ihrer Entscheidung darauf, dass das Fenster zum Drucken erscheint.')) {
+   printerMode.checked = true;
+   printMode(true, true);
+ }
 }
 /*
  * PURPOSE : generiert ein neues HTML Element
