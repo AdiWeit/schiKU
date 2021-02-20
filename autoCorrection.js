@@ -16,7 +16,6 @@ function addWrongLetter(correct, i) {
   } catch (e) {}
 }
 var graphemFehler = 0;
-window.scroll(0, 10000);
 var possibleGraphemtreffer;
 var letterList;
 var letterCounter;
@@ -25,19 +24,36 @@ var selectedTest = "Kreis Unna";
 // @param correct: korrekte Schreibweise
 //        i: aktueller Index (hier: Position im korrekten Wort)
 function checkCategory(correct, i, last) {
+  var editedCategories = JSON.parse(JSON.stringify(neededTest.kategorien));
+  var justOneGraphemtreffer = [];
+  for (laut of sortByStringLength(words[selectedTest].einGraphemtreffer)) {
+    var strings = [];
+    for (category of Object.keys(neededTest.kategorien)) {
+      for (string of neededTest.kategorien[category]) {
+        strings.push(string);
+      }
+    }
+    if (/*!strings.includes(laut) && */correct.toLowerCase().includes(laut) && !justOneGraphemtreffer.some(x => x.includes(laut))) {
+      if (!editedCategories["trigger"]) editedCategories["trigger"] = [];
+      editedCategories["trigger"].push(laut);
+      justOneGraphemtreffer.push(laut);
+    }
+  }
   possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
-  for (var i1 = 0; neededTest.kategorien && i1 < Object.keys(neededTest.kategorien).length; i1++) {
-    var category = Object.keys(neededTest.kategorien)[i1];
-    for (var i2 = 0; i2 < neededTest.kategorien[category].length; i2++) {
-      var letterString = neededTest.kategorien[category][i2];
+  if (Object.keys(editedCategories).length == 0) editedCategories["trigger"] = [];
+  for (var i1 = 0; editedCategories && i1 < Object.keys(editedCategories).length; i1++) {
+    var category = Object.keys(editedCategories)[i1];
+    for (var i2 = 0; i2 < editedCategories[category].length; i2++) {
+      var letterString = editedCategories[category][i2];
       if (correct.toLowerCase().includes(letterString)) {
-      for (var i3 = 0; words[testTypeSelector.value].einGraphemtreffer.includes(letterString) && i3 < letterString.length - 1; i3++) {
+        // TODO: nicht selector
+      for (var i3 = 0; justOneGraphemtreffer.includes(letterString) && category != "trigger" && i3 < letterString.length - 1; i3++) {
         possibleGraphemtreffer--;
       }
       if (!letterList[letterString]) letterList[letterString] = {};
       if (!letterCounter[letterString]) letterCounter[letterString] = [];
-      if (letterCounter[letterString].length == letterString.length) {
+      if (/*letterCounter*/Object.keys(letterList[letterString]).length == letterString.length) {
         var string = Object.keys(letterList[letterString]).toString().replace(',', '');
         var letterInMultiple = false;
         for (stringCompair of Object.keys(letterList)) {
@@ -48,23 +64,25 @@ function checkCategory(correct, i, last) {
           if (stringCompair.includes(string) && string.length == 1 && stringCompair.length > 1 && stringTogether.includes(stringCompair)) letterInMultiple = true;
         }
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
+          if (!justOneGraphemtreffer.includes(string)) {
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
           if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
           if (!auswertung.categories[selectedElementId.parent][correct][category][letterString]) auswertung.categories[selectedElementId.parent][correct][category][letterString] = {possible: 0, got: 0};
           auswertung.categories[selectedElementId.parent][correct][category][letterString].possible++;
           auswertung.categories[selectedElementId.parent][correct][category].possible++;
+        }
         var firstOne = false;
         var graphemFehlerBefore = graphemFehler;
         for (letterNow of Object.keys(letterList[letterString])) {
           if (!letterList[letterString][letterNow] && !firstOne) {
             firstOne = true;
           }
-          else if (!letterList[letterString][letterNow] && words[testTypeSelector.value].einGraphemtreffer.includes(letterString)) {
+          else if (!letterList[letterString][letterNow] && category != "trigger" && justOneGraphemtreffer.includes(letterString)) {
             graphemFehler--;
           }
         }
-        if (graphemFehlerBefore == graphemFehler && !firstOne) {
+        if (graphemFehlerBefore == graphemFehler && !firstOne && !justOneGraphemtreffer.includes(string)) {
           auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
@@ -72,6 +90,7 @@ function checkCategory(correct, i, last) {
         delete letterList[letterString][letterCounter[letterString][0]];
         letterCounter[letterString].shift();
       }
+      // TODO: Prblem: gleiche Buchstaben
       letterList[letterString][correct[i].toLowerCase()] = true;
       letterCounter[letterString].push(correct[i].toLowerCase());
     }
@@ -86,6 +105,7 @@ function checkCategory(correct, i, last) {
  *            doNotResetMirror -
  */
 function markErrors(id, parentId, doNotMark, doNotResetMirror) {
+  // TODO: Silben mit einbeziehen: siehe Eingabe "Dno"
   if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
   selectedElementId = {parent: parentId, element: id};
   refreshNeededTest();
@@ -197,7 +217,7 @@ else {
   for (var i = 0; i < newWord.length && !doNotMark && graphemFehler > 0; i++) {
     var textColour = "black";
     if (newWord[i].colour != "white") textColour = "white";
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';' + "color:" + textColour, title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: newWord[i].letter, style: 'background-color:' + newWord[i].colour + ';' + "color:" + textColour, title: 'klicken, um ' + newWord[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
   if (!doNotMark && graphemFehler > 0) {
