@@ -3,7 +3,7 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
   if (parent) {
     selectedElementId.parent = parent;
     refreshNeededTest();
-    findChild('id', parent, 'automaticGraphemTreffer' + correct).style.display = 'inline';
+    if (findChild('id', parent, 'automaticGraphemTreffer' + correct)) findChild('id', parent, 'automaticGraphemTreffer' + correct).style.display = 'inline';
   }
   auswertung.allGraphemtreffer.possible = 0;
   auswertung.allGraphemtreffer.got = 0;
@@ -69,8 +69,11 @@ function getEveryCategory(printMode) {
       else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
         }
         else {
+          // TODO: wenn keine Kathegorie vorhanden
           if (!doNotCountObj.laute[objKeyName]) doNotCountObj.laute[objKeyName] = 0;
-          doNotCountObj.laute[objKeyName]++;
+          if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
+          // TODO: Laute: einzelne Buchstaben übertragen (aus Anzahl kann aus auswertung.categories abgelesen werden)
+          else doNotCountObj.laute[objKeyName]++;
         }
       }
         else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[selectedElementId.parent][wordNow][category].possible;
@@ -209,8 +212,8 @@ function getEveryCategory(printMode) {
       var doNotCountList = [];
       for (var i = 0; i < categoryList.length; i++) {
         // normaler Buchstabe: 3 Zeichen
-        if (Object.keys(doNotCountObj.laute).includes(categoryList[i])) {
-          doNotCountList.push(doNotCountObj.laute[categoryList[i]]);
+        if (Object.keys(doNotCountObj.laute).includes(categoryList[i].split("/")[0])) {
+          doNotCountList.push(doNotCountObj.laute[categoryList[i].split("/")[0]]);
         }
         else if (categoryList[i] == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
           doNotCountList.push(0);
@@ -354,7 +357,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
-          // TODO: leere Felder beachten
+          // TODO: leere Felder beachten (Liste der Class und dann bei leeren Feldern was rein setzen?)
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
           if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(neededTest.words[i], '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
         }
@@ -386,7 +389,7 @@ for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementI
 chartNow.canvas.parentNode.style.right = 27//-20;
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
-if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY + 40*(selectedElementId.parent.replace('pupilSheet', '') - 1);
+if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 55 + scrollY + 22*(selectedElementId.parent.replace('pupilSheet', '') - 1);
 else chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
 for (var graphBottom = document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
