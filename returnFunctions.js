@@ -20,6 +20,10 @@ for (i = 0; i < len; i++) {
 }
 return sorted;
 }
+// Inhalte in Strings ersetzen
+// @param str: string
+//        find: was ersetzt werden soll
+//        replace: womit es ersetzt werden soll
     function replaceAll(str, find, replace) {
       return str.replace(new RegExp(find, 'g'), replace);
     }
@@ -32,6 +36,7 @@ return sorted;
       else var element = idOfElement;
       return element.querySelector('[' + childType + '="' + idOfChild + '"]');
     }
+    // sortiert eine Liste nach ihrer Länge
     function sortByStringLength(array) {
       return array.sort(function(b, a) {
         return a.length - b.length || // sort by length, if equal then
