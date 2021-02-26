@@ -1,4 +1,4 @@
-// öffnet Editor
+// öffnet Editor und erstellt falls test bearbeiten gedrückt wurde das bereits vorhandene der tests
 function editTest() {
 while (document.getElementsByClassName("Wort").length > 0) {
   document.getElementsByClassName("Wort")[0].remove();
@@ -92,6 +92,9 @@ document.getElementsByClassName(type)[document.getElementsByClassName(type).leng
 addElement({class: 'br' + type}, 'br', "rubrik");
 }
 }
+// Kategorieauswahl im Editor geändert
+// @param: value: Text
+//         elm: das Element, dessen Auswahl geändert wurde
 function categorySelectionChanged(value, elm) {
   if (value == "neue erstellen") {
     // neue Rubrik hinzufügen
