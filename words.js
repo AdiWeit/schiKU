@@ -1,4 +1,5 @@
-  var officialCategories = {Vokale: ["a", "e", "i", "o", "u"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaut: ["ai", "ei", "eu", "äu", "ai", "ui"], Endungen: ["en", "<e>"] /*TODO*/};
+// von mir eingebaute Tests und Kategorien
+var officialCategories = {Vokale: ["a", "e", "i", "o", "u"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaut: ["ai", "ei", "eu", "äu", "ai", "ui"], Endungen: ["en", "<e>"] /*TODO*/};
 var officialData = {
   // TODO: stattdessen SchiKU
   "Kreis Unna": {
@@ -24,18 +25,23 @@ var officialData = {
     "Test 3": {
       kategorien: {
         "Zwielaut/Diphthong": ["au", "ei"],
-        Vokale: ["ö"],
-        Konsonanten: ["w"],
-        sonstige: ["er", "el"]
+        sonstige: ["sch"],
+        Vokale: officialCategories.Vokale,
+        Konsonanten: officialCategories.Konsonanten,
+        Endungen: officialCategories.Endungen
       },
+      countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
     },
     "Test 4": {
       kategorien: {
         "Zwielaut/Diphthong": ["au", "ei"],
-        Vokale: ["ö", "ü"],
-        sonstige: ["er"]
+        sonstige: ["sch"],
+        Vokale: officialCategories.Vokale,
+        Konsonanten: officialCategories.Konsonanten,
+        Endungen: officialCategories.Endungen
       },
+      countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
     },
     "Test 5": {
