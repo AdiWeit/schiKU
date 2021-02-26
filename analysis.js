@@ -1,4 +1,5 @@
 // Zusammenzählen aller Graphemtreffer und korrekter Wörter
+// todo: klein + / + groß immer, also bei Rubriken hinzufügen
 function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser, correct, parent) {
   if (parent) {
     selectedElementId.parent = parent;
@@ -221,8 +222,12 @@ function getEveryCategory(printMode) {
             doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])];
           }
         }
-        else if (Object.keys(doNotCountObj).includes(categoryList[i])) {
-          doNotCountList.push(doNotCountObj[categoryList[i]]);
+        else if (Object.keys(doNotCountObj).includes(categoryList[i].split("/")[0])) {
+          var total = 0;
+          for (keyNow of Object.keys(doNotCountObj[categoryList[i].split("/")[0]])) {
+            total += doNotCountObj[categoryList[i].split("/")[0]][keyNow];
+          }
+          doNotCountList.push(total);
         }
         else if ((categoryList[i].length != 3 || !Object.keys(doNotCountObj).includes(categoryList[i][0])) && categoryList[i] != "<e>/<E>") {
           doNotCountList.push(0);
@@ -291,6 +296,7 @@ function addChart(texte, data, printMode) {
         stacked: true,
         ticks: {
           stepSize: 2,
+          fontSize: 17
         }
         // barPercentage: 0.4
       }],
@@ -299,6 +305,7 @@ function addChart(texte, data, printMode) {
         // barPercentage: 0.3,
         ticks: {
           beginAtZero: true,
+          fontSize: 20
           // stepSize: 2,
         }
       }],
@@ -311,6 +318,7 @@ function addChart(texte, data, printMode) {
 });
 console.log("selectedElementId: " + selectedElementId.parent);
 var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
+// Markierung der Wörter mit dem ausgewählten Kriterium bzw. Balken
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   // TODO: Markierung: "te"/"et" bei "Tapete" (Überschneidung)
   selectedElementId.parent = evt.path[0].id.replace('textur', '');
@@ -339,14 +347,16 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
       for (var i = 0; i < neededTest.words.length; i++) {
 
         findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
+        // Überprüfung, ob das Ausgewählte in dem Wort, das gerade überprüft wird, vorhanden ist
         if ((label.replace('>', '').replace('<', '').length == 1 && (neededTest.words[i].toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
           if (label == 'e' && neededTest.words[i][neededTest.words[i].length - 1] == "e") {
             result = neededTest.words[i].split('');
             result.pop();
           }
+          // Das angewälte, falls kein Laut (mit mehreren Buchstaben) markieren
           if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e"))) {
-          // check if letter is included in other category
+          // Überprüfung, ob
           var labelIncluded = false;
           var wordWithoutCategories = neededTest.words[i].toLowerCase();
           for (var i1 = 0; i1 < possibleLetterList.length; i1++) {
@@ -363,6 +373,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
         }
         }
       }
+      // Ausgewählte Kriterium ist in einer Kategorie vorhanden: Markierung des Wortes
       if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
         var wordNow = replaceAll(neededTest.words[i], '-', '');
         findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
@@ -386,10 +397,11 @@ var mostLeft = 257;
 for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementId.parent).length; i++) {
   if (document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right > mostLeft) mostLeft = document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right;
 }
+// Anpassung der Größe der Grafik und des Feldes für Anmerkungen
 chartNow.canvas.parentNode.style.right = 27//-20;
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
-if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 55 + scrollY + 22*(selectedElementId.parent.replace('pupilSheet', '') - 1);
+if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 55 + scrollY + 37*(selectedElementId.parent.replace('pupilSheet', '') - 1);
 else chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
 for (var graphBottom = document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
@@ -399,5 +411,4 @@ findChild('id', selectedElementId.parent, 'comment').style.height = 10;
 makeTextboxBigger();
 if (chartNow.canvas.parentNode.style.height.replace("px", "") > 50*texte.length) chartNow.canvas.parentNode.style.height = 50*texte.length + "px";
 // findChild('id', selectedElementId.parent, 'comment').style.top = chartNow.canvas.parentNode.style.top.replace("px", "") - JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace("px", "")) - (1*(selectedElementId.parent.replace('pupilSheet', '') - 1)) + "px";
-console.log(chartNow.canvas.parentNode.style.height);
 }
