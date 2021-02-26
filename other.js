@@ -61,7 +61,7 @@ addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
 for (var i = 0; i < neededTest.words.length; i++) {
   addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + pupils);
-  addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Die Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur Fehler enthalten sollte, können Sie die Anzahl der Graphemtreffer korrigieren.\nWenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!'}, 'input', 'pupilSheet' + pupils);
+  addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + pupils);
   addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
   if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
 }
@@ -137,6 +137,7 @@ for (testAktuell of Object.keys(inputs)) {
 for (sheetAktuell of Object.keys(inputs[testAktuell])) {
   selectedElementId.parent = sheetAktuell;
   if (testAktuell == "1. settings") {
+    // gespeicherte Einstellungen wiederherstellen
     for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
       document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
       if (sheetAktuell == "patterns" && param == "checked") patternSelected(inputs["1. settings"][sheetAktuell][param]);
@@ -164,6 +165,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     // minusI++;
   }
   else if (idAktuell == "Graphemtreffer") {
+    // manuell abgeänderte Graphemtrefferanzahl wiederherstellen
     for (wordNow of Object.keys(inputs[testAktuell][sheetAktuell][idAktuell])) {
       if (findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true)) {
       findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].got;
@@ -175,6 +177,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
   pupilsWritingFinished(idAktuell, true);
 }
 }
+// Die gespiegelten Bucstaben wiederherstellen
 for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
   var wordsIn = Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2];
   for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[wordsIn].length; i4++) {
