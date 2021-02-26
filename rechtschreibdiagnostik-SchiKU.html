@@ -11,7 +11,7 @@
   <br>
   <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Vorschau wenn Einstellungen geändert und Optionen geschlossen (braucht paar Sek.)
   <br>
-  <select onchange="selectColours(value)" id="colourSelector">
+  <select onchange="selectPrintColours(value)" id="colourSelector">
     <option value="colour">Farbdruck</option>
     <option value="blackWhite">Schwarz-Weiß-Druck</option>
   </select>
@@ -47,7 +47,7 @@
   <option value="newTestType">+ Test Typ</option>
 </select>
 <!-- <br> -->
-<select id="testSelector" onchange="neededTest = words[testTypeSelector.value][value]; console.log(value)">
+<select id="testSelector" title="Test für den nächsten Schüler" onchange="neededTest = words[testTypeSelector.value][value]; console.log(value)">
   <option value="Test 1">Test 1</option>
   <option value="Test 2">Test 2</option>
   <option value="Test 3">Test 3</option>
@@ -59,7 +59,7 @@
 <br>
 </div>
 <div id="tests">
-  <button type="button" id="addPupil" onclick="addPupil(testTypeSelector.value, testSelector.value);" name="button">Neuen Test eingeben</button>
+  <button type="button" id="addPupil" onclick="addPupil(testTypeSelector.value, testSelector.value);" title="Ein weiteres Blatt erstellen, wo sie die Schreibungen des nächsten Schülers eingeben werden kannen. " name="button">Neuen Test eingeben</button>
   <br>
   <button type="button" id="openEditorB" style="display:none" onclick="editTest();" name="button">bearbeiten</button>
 </div>
