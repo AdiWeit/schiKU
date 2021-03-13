@@ -28,8 +28,10 @@ for (var i = 0; i < words[testTypeSelector.value].einGraphemtreffer.length; i++)
   addTextbox(words[testTypeSelector.value].einGraphemtreffer[i], "Wortlaut", "wortlaut");
 }
 }
+preCommentInput.value = "";
 if (testTypeSelector.value != "newTestType") {
 nameType.value = testTypeSelector.value;
+if (words[testTypeSelector.value].preComment) preCommentInput.value = words[testTypeSelector.value].preComment;
 if (testSelector.value != "newTest") {
   nameTest.value = testSelector.value;
 }
@@ -122,7 +124,7 @@ document.getElementsByClassName(type)[document.getElementsByClassName(type).leng
 document.getElementsByClassName('br' + type)[document.getElementsByClassName('br' + type).length - 1].remove();
 }
 // aktuallisiert den Test, der aktuell genutzt wird
-function refreshWords() {
+function refreshWords(doNotRecreatePupils, showEditNotChecked) {
 while (document.getElementById('testTypeSelector').options.length > 0) {
   document.getElementById('testTypeSelector').options[0] = undefined;
 }
@@ -137,7 +139,9 @@ for (nameTypeNow of Object.keys(words)) {
   }
 }
 }
-addElement({value: 'newTestType', innerText: '+ Test Typ'}, 'option', 'testTypeSelector');
-addElement({value: 'newTest', innerText: '+ Test'}, 'option', 'testSelector');
-recreatePupils();
+if (!doNotRecreatePupils) {
+  addElement({value: 'newTestType', innerText: '+ Testverfahren'}, 'option', 'testTypeSelector');
+  addElement({value: 'newTest', innerText: '+ Test'}, 'option', 'testSelector');
+  if (!showEditNotChecked) recreatePupils();
+}
 }
