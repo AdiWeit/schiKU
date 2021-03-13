@@ -1,6 +1,7 @@
 function settingChanged(id, attrs, refresh) {
   if (!inputs["1. settings"]) inputs["1. settings"] = {};
   inputs["1. settings"][id] = {};
+  if (id == "showEdit") showEditorSelected(attrs.checked);
   for (attr of Object.keys(attrs)) {
     inputs["1. settings"][id][attr] = attrs[attr];
   }
@@ -31,7 +32,8 @@ function printMode(checked, pressed) {
   if (checked) {
     if (!pressed) alert("drücken sie Str und p, um die Website ausdrucken zu können. Die Optionen erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen der Seite wieder. Bevor sie die Tastenkombination drücken, warten sie jedoch bitte ab, bis die Optionen verschwunden sind.");
     else {
-      alert('Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Hochformat ist vorgesehen.\n Rand, damit ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
+       alert('Der Browser Chrome wird empfohlen. Bitte auchten Sie auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 3 Seiten sind "1-2" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für gelochte Din A4 Seiten werden links mindestens 15 mm Rand benötigt, wobei bei allen anderen Rändern kein Rand benötigt wird.');
+       alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite und letzten Seite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
     }
     selections.style.display = "none";
     document.getElementById('addPupil').style.display = "none";
@@ -92,7 +94,8 @@ function changeMirror(index, wordId) {
   }
   else {
   findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
-  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
+  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
+  if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] == "white") findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
