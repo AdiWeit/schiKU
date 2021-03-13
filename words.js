@@ -1,5 +1,5 @@
 // von mir eingebaute Tests und Kategorien
-var officialCategories = {Vokale: ["a", "e", "i", "o", "u"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaut: ["ai", "ei", "eu", "äu", "ai", "ui"], Endungen: ["en", "<e>"] /*TODO*/};
+var officialCategories = {Vokale: ["a", "e", "i", "o", "u"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaut: ["ai", "ei", "eu", "äu", "ai", "ui", "au"], Endungen: ["en", "<e>"] /*TODO*/};
 var officialData = {
   // TODO: stattdessen SchiKU
   "Kreis Unna": {
@@ -8,7 +8,8 @@ var officialData = {
       kategorien: {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
     },
     "Test 2": {
@@ -18,7 +19,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"]
     },
@@ -28,7 +30,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
@@ -39,7 +42,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
@@ -50,7 +54,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
@@ -63,7 +68,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
@@ -76,7 +82,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]
@@ -87,7 +94,8 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen
+        Endungen: officialCategories.Endungen,
+        "Zwielaut/Diphthong": officialCategories.Zwielaut
       },
       countTogether: ["Vokale", "Konsonanten", "Endungen"],
       words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te",
