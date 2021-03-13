@@ -67,7 +67,7 @@ function checkCategory(correct, i, last) {
           if (stringCompair.includes(string) && string.length == 1 && stringCompair.length > 1 && stringTogether.includes(stringCompair)) letterInMultiple = true;
         }
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
-          if (!justOneGraphemtreffer.includes(string)) {
+          if (category != "trigger"/* !justOneGraphemtreffer.includes(string)*/) {
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
           if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
@@ -85,7 +85,7 @@ function checkCategory(correct, i, last) {
             graphemFehler--;
           }
         }
-        if (graphemFehlerBefore == graphemFehler && !firstOne && !justOneGraphemtreffer.includes(string)) {
+        if (graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
           auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
@@ -121,6 +121,9 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
   // findChild("id", parentId, id).style.width = wrong.length*8;
+  for (var i = 0; i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
+    if (auswertung.doNotCount[selectedElementId.parent][i] == correct) auswertung.doNotCount[selectedElementId.parent].splice(i, 1);
+  }
   // Anpassung der Größe des Eingabefeldes falls in den Einstellungen aktiviert
   if (adaptInputs.checked) {
   findChild("id", parentId, id).style.width = 1;
@@ -210,7 +213,7 @@ else {
   }
   if (ausgetauscht) i--;
   // check end missing
-  for (var i = i; correctedString.length - doubleError - ausgetauscht < correct.length; i++) {
+  for (var i = i; correctedString.length - doubleError/* - ausgetauscht*/ < correct.length; i++) {
     correctedString.push({letter: '_', colour: "white"});
     checkCategory(original.correct, /*correctedString.length - 1*/i);
     addWrongLetter(original.correct, /*correctedString.length - 1 - ausgetauscht*/i);
