@@ -10,6 +10,11 @@ if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined
   document.getElementById('testTypeSelector').style.position = 'fixed';
   document.getElementById('openEditorB').style.left = 300 + "px";
   document.getElementById('openEditorB').style.position = 'fixed';
+  document.getElementById('settingsButton').style.left = 300 + "px";
+  document.getElementById('settingsButton').style.position = 'fixed';
+  document.getElementById('settings').style.left = 300 + "px";
+  document.getElementById('settings').style.top = 83 + "px";
+  document.getElementById('settings').style.position = 'fixed';
   window.scroll(0, 0);
 // TODO: einzele pupilsheet zähler für verschiedene Tests?
 var neededTest = words['Kreis Unna']["Test 1"];
@@ -141,6 +146,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
       document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
       if (sheetAktuell == "patterns" && param == "checked") patternSelected(inputs["1. settings"][sheetAktuell][param]);
+      if (sheetAktuell == "showEdit") showEditorSelected(inputs["1. settings"][sheetAktuell][param]);
     }
   }
   else {
@@ -195,6 +201,16 @@ getEveryCategory(printMode);
 }
 }
 }
+function showEditorSelected(checked) {
+  if (checked) {
+    openEditorB.style.display = "inline";
+    refreshWords(null, true);
+  }
+  else {
+    openEditorB.style.display = "none";
+    refreshWords(true, true);
+  }
+}
 // kontrolliert die Größe des Felder für Anmerkungen (wird je nach Bedarf größer und verkleinert Grafik)
 function makeTextboxBigger() {
 findChild('id', selectedElementId.parent, 'comment').scroll(0, 1000);
@@ -218,7 +234,8 @@ document.onkeydown = function(event) {
    }, 10);
  }
  if (event.key == "p" && event.ctrlKey && printerMode.checked) {
-   alert('Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern".\n Rand, damit ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm (reicht aus zum Lochen), oder\nlinks 20mm, oben > 21mm\nwenn Sie andere Maße wollen, scrollen Sie bei der Vorschau bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht.\nTipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
+   alert('Der Browser Chrome wird empfohlen. Bitte auchten Sie auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 3 Seiten sind "1-2" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für gelochte Din A4 Seiten werden links mindestens 15 mm Rand benötigt, wobei bei allen anderen Rändern kein Rand benötigt wird.');
+   alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite und letzten Seite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
    setTimeout(function () {
      selections.style.display = "inline";
      document.getElementById('addPupil').style.display = "inline";
