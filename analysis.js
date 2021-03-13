@@ -156,12 +156,18 @@ function getEveryCategory(printMode) {
     wrongList.push(0);
     for (objKeyName of Object.keys(auswertung.byCategories[category])) {
       if (objKeyName != "got" && objKeyName != "possible") {
-        letterList.push(objKeyName);
+        // letterList push weiter unten um Buchstaben, die in einer Kategorie sind aber in dem spezifisch gewählen Test nicht vorkommen abzufangen
+        // letterList.push(objKeyName);
         categoryList.push(objKeyName);
         rightList.push(auswertung.byCategories[category][objKeyName].got);
         wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
       }
     }
+  }
+}
+for (category of Object.keys(neededTest.kategorien)) {
+  for (laut of neededTest.kategorien[category]) {
+    letterList.push(laut);
   }
 }
   if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
@@ -174,7 +180,7 @@ function getEveryCategory(printMode) {
     auswertung.letter[selectedElementId.parent] = sortObjectByKey(auswertung.letter[selectedElementId.parent]);
     // categoryList = Object.keys(auswertung.letter[selectedElementId.parent]);
     for (letter of Object.keys(auswertung.letter[selectedElementId.parent])) {
-      if (!wordsCountedTogether.includes(letter) && !(letterList.includes(letter[0])) && (letter != "<e>/<E>" || (!auswertung.byCategories.Endungen || !Object.keys(auswertung.byCategories.Endungen).includes("<e>/<E>")))) {
+      if (!wordsCountedTogether.includes(letter) && !(letterList.includes(letter[0])) && letter[0] != "e" && (letter != "<e>/<E>" || (!auswertung.byCategories.Endungen || !Object.keys(auswertung.byCategories.Endungen).includes("<e>/<E>")))) {
         categoryList.push(letter);
         // if (Object.keys(minusList).includes(letter[0])) {
           // auswertung.letter[selectedElementId.parent][letter].possible -= minusList[letter[0]].possible;
@@ -194,17 +200,19 @@ function getEveryCategory(printMode) {
     for (var i = 0; i < categoryList.length; i++) {
       mirrorList.push(0);
     }
+    // TODO: <e> gespiegelt
+    // TODO: Buchstabe von gespiegel der, der angeklickt wurde und nicht der des korrekt geschriebenen Wortes an dem Index
     for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
-      for (var i4 = 0; i4 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2].length; i4++) {
+      for (var i4 = 0; i4 < inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]].length; i4++) {
         if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]][i4]) {
           for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
+            if (categoryList[i][0] == findChild("class", findChild("word", selectedElementId.parent, Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]), "correctionLetter" + i4, true).innerText.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
               mirrorList[i]++;
               i = categoryList.length;
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2][i4].toLowerCase());
+            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]), "correctionLetter" + i4, true).toLowerCase());
             mirrorList[i]++;
           }
         }
