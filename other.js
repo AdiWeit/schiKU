@@ -1,5 +1,5 @@
 // TODO: nur für veraltete Version (später löschen)
-if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
+// if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
   categories.style.left = 166 + 22;
   var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: "rgb(56,56,56)"} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
   document.getElementById('addPupil').style.left = 300 + "px";
@@ -16,7 +16,6 @@ if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined
   document.getElementById('settings').style.top = 83 + "px";
   document.getElementById('settings').style.position = 'fixed';
   window.scroll(0, 0);
-// TODO: einzele pupilsheet zähler für verschiedene Tests?
 var neededTest = words['Kreis Unna']["Test 1"];
 var pupils = 0;
 var selectedElementId = {parent: 'pupilSheet1', element: 'pupilsWriting 1'};
@@ -59,7 +58,7 @@ addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', on
 addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({placeholder: 'Datum', style: 'width: 208;', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
 addElement({placeholder: 'Anmerkungen', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
-if (generateInfoText.checked && words[selectedTest].preComment) findChild("id", selectedElementId.parent, "comment").innerText = words[selectedTest].preComment;
+if (generateInfoText.checked && words[selectedTestType].preComment) findChild("id", 'pupilSheet' + pupils, "comment").innerText = words[selectedTestType].preComment;
 addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 'div', 'pupilSheet' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
@@ -113,8 +112,8 @@ syncWithOfficialData(true);
 syncDataCheckbox.checked = true;
 }
 // Anfragen, ob gespeicherter Fortschritt wiederhergestellt werden soll
-if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
-else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
+if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie ihre zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken und bestätigen, wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken, gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
 else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 recreatePupils();
 // aktuallisiert den Test, der aktuell genutzt wird
@@ -141,7 +140,7 @@ for (testAktuell of Object.keys(inputs)) {
   selectedTest = testAktuell;//.replace('Test ', '');
 for (sheetAktuell of Object.keys(inputs[testAktuell])) {
   selectedElementId.parent = sheetAktuell;
-  if (testAktuell == "1. settings") {
+  if (testAktuell == "1. settings" && !printMode) {
     // gespeicherte Einstellungen wiederherstellen
     for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
       document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
@@ -149,7 +148,8 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
       if (sheetAktuell == "showEdit") showEditorSelected(inputs["1. settings"][sheetAktuell][param]);
     }
   }
-  else {
+  else if (testAktuell != "1. settings") {
+    // gespeicherte Eingaben der Schreibungen des Schülers wiederherstellen
     selectedColours = colours[colourSelector.value];
     if (!printMode && alwaysShowColoured.checked) {
       selectedColours = colours.colour; // colourSelector.value = "colour";
@@ -183,7 +183,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
   pupilsWritingFinished(idAktuell, true);
 }
 }
-// Die gespiegelten Bucstaben wiederherstellen
+// Die gespiegelten Buchstaben wiederherstellen
 for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
   var wordsIn = Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2];
   for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[wordsIn].length; i4++) {
@@ -201,6 +201,7 @@ getEveryCategory(printMode);
 }
 }
 }
+// Öffnen des Editors ermöglichen/verstecken bzw. vermeiden
 function showEditorSelected(checked) {
   if (checked) {
     openEditorB.style.display = "inline";
@@ -211,7 +212,7 @@ function showEditorSelected(checked) {
     refreshWords(true, true);
   }
 }
-// kontrolliert die Größe des Felder für Anmerkungen (wird je nach Bedarf größer und verkleinert Grafik)
+// kontrolliert die Größe des Feldes für Anmerkungen (wird je nach Bedarf größer und verkleinert Grafik)
 function makeTextboxBigger() {
 findChild('id', selectedElementId.parent, 'comment').scroll(0, 1000);
 while (findChild('id', selectedElementId.parent, 'comment').scrollTop > 0) {
@@ -221,21 +222,17 @@ while (findChild('id', selectedElementId.parent, 'comment').scrollTop > 0) {
 }
 }
 
-  /*!
-* Determine if an element is in the viewport
-* (c) 2017 Chris Ferdinandi, MIT License, https://gomakethings.com
-* @param  {Node}    elem The element
-* @return {Boolean}      Returns true if element is in the viewport
-*/
 document.onkeydown = function(event) {
+  // Anwählen des nächsten Textfeldes bei Drücken von Tab (wegen Textfeldern für Grapemtreffer nicht automatisch)
  if (event.key == 'Tab' && document.getElementById(selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1))) {
    setTimeout(function () {
      if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
    }, 10);
  }
+ // Erkennung der Tastenkomination zum Öffnen der Druckeinstellungen
  if (event.key == "p" && event.ctrlKey && printerMode.checked) {
-   alert('Der Browser Chrome wird empfohlen. Bitte auchten Sie auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 3 Seiten sind "1-2" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für gelochte Din A4 Seiten werden links mindestens 15 mm Rand benötigt, wobei bei allen anderen Rändern kein Rand benötigt wird.');
-   alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Seite und probieren Sie es selber aus, sodass der Name oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auch auf der ersten Steite und letzten Seite die Grafik abgebildet ist, werden wahrscheinlich alle anderen Blätter korrekt sein.');
+   alert('Der Browser Chrome wird empfohlen. Bitte achten Sie auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 3 Seiten sind "1-2" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für gelochte Din A4 Seiten werden links mindestens 15 mm Rand benötigt, wobei bei allen anderen Rändern kein Rand benötigt wird.');
+   alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Seite und probieren Sie selber andere Maße aus, bei denen das Feld mit dem Name oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auf der ersten und letzten Seite die Grafik abgebildet ist, wird wahrscheinlich ein Schüler pro Blatt gedruckt.');
    setTimeout(function () {
      selections.style.display = "inline";
      document.getElementById('addPupil').style.display = "inline";
@@ -249,7 +246,7 @@ document.onkeydown = function(event) {
      }
    }, 333000);
  }
- else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler/eine Schülerin pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. Bitte warten sie nach ihrer Entscheidung darauf, dass das Fenster zum Drucken erscheint.')) {
+ else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler/eine Schülerin pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. Bitte warten sie nach ihrer Entscheidung darauf, dass das Fenster mit den Druckeinstellungen erscheint.')) {
    printerMode.checked = true;
    printMode(true, true);
  }
@@ -258,7 +255,7 @@ document.onkeydown = function(event) {
  * PURPOSE : generiert ein neues HTML Element
  *  PARAMS : attr - Attribute des Elements
  *           elm - Typ des Elements
- *           childOf - in welchem welches HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
+ *           childOf - in welchem HTML Element soll das neue eingefügt werden? (wenn nicht angegeben wird es ganz außen unten eingefügt)
  */
   function addElement(attr, elm, childOf, asElement) {
       var newElement = document.createElement(/*'span'*/elm);
