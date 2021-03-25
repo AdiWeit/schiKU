@@ -1,7 +1,7 @@
 // fügt der Auswertung die falsch geschriebenen Buchstaben hinzu
 function addWrongLetter(correct, i) {
   try {
-    // markiert Bucstaben des Wortes als falsch, damit die Anzahl der richtig geschriebenen Laute gezählt werden kann
+    // markiert Buchstaben des Wortes als falsch, damit die Anzahl der richtig geschriebenen Laute gezählt werden kann
     var currentLetter = correct[i].toLowerCase();
     for (lautNow of Object.keys(letterList)) {
       if (letterList[lautNow] && letterList[lautNow][currentLetter]) {
@@ -26,6 +26,7 @@ var selectedTest = "Kreis Unna";
 // @param correct: korrekte Schreibweise
 //        i: aktueller Index (hier: Position im korrekten Wort)
 function checkCategory(correct, i, last) {
+  // alle Laute (aller Kategorien) in der Liste "strings" hinzufügen
   var editedCategories = JSON.parse(JSON.stringify(neededTest.kategorien));
   var justOneGraphemtreffer = [];
   for (laut of sortByStringLength(words[selectedTest].einGraphemtreffer)) {
@@ -35,6 +36,7 @@ function checkCategory(correct, i, last) {
         strings.push(string);
       }
     }
+    // nur im Wort vorhandene Laute, die noch nicht vorhanden sind (also wenn z.B. "sch" bereits vorhanden ist wird nicht mehr "ch" hinzugefügt) in "justOneGraphemtreffer" hinzufügen
     // auskommentiert weil: alles unabhängig von Kategorien
     if (/*!strings.includes(laut) && */correct.toLowerCase().includes(laut) && !justOneGraphemtreffer.some(x => x.includes(laut))) {
       if (!editedCategories["trigger"]) editedCategories["trigger"] = [];
@@ -45,20 +47,29 @@ function checkCategory(correct, i, last) {
   possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
   if (Object.keys(editedCategories).length == 0) editedCategories["trigger"] = [];
+  // alle Laute (aller Kategorien) durchlaufen
   for (var i1 = 0; editedCategories && i1 < Object.keys(editedCategories).length; i1++) {
     var category = Object.keys(editedCategories)[i1];
     for (var i2 = 0; i2 < editedCategories[category].length; i2++) {
       var letterString = editedCategories[category][i2];
+      // wenn Laut der im Wort vorkommt gefunden wurde
       if (correct.toLowerCase().includes(letterString)) {
-        // TODO: nicht selector
-      for (var i3 = 0; justOneGraphemtreffer.includes(letterString) && category == "trigger" && i3 < letterString.length - 1; i3++) {
-        possibleGraphemtreffer--;
-      }
+        var originalCorrect = correct;
+        // mögliche Graphemtreffer wegen Lauten wie "au", die als ein Graphemtreffer behandelt werden abziehen
+        while (correct.toLowerCase().includes(letterString)) {
+          for (var i3 = 0; justOneGraphemtreffer.includes(letterString) && category == "trigger" && i3 < letterString.length - 1; i3++) {
+            possibleGraphemtreffer--;
+          }
+          correct = correct.toLowerCase().replace(letterString, "");
+        }
+        correct = originalCorrect;
       if (!letterList[letterString]) letterList[letterString] = {};
       if (!letterCounter[letterString]) letterCounter[letterString] = [];
+      // wenn der Index ein Buchstabe hinter einem Laut, der einzeln gezählt werden soll, ist
       if (/*letterCounter*/Object.keys(letterList[letterString]).length == letterString.length) {
         var string = replaceAll(Object.keys(letterList[letterString]).toString(), ',', '');
         var letterInMultiple = false;
+        // Überprüfung, ob Buchstabe in mehreren Kategorien vorhanden ist und bereits gewertet wurde
         for (stringCompair of Object.keys(letterList)) {
           var stringTogether = replaceAll(Object.keys(letterList[stringCompair]).toString(), ',', '');
           for (var i4 = i; i4 < i + stringCompair.length; i4++) {
@@ -66,8 +77,10 @@ function checkCategory(correct, i, last) {
           }
           if (stringCompair.includes(string) && string.length == 1 && stringCompair.length > 1 && stringTogether.includes(stringCompair)) letterInMultiple = true;
         }
+        // wenn vor dem aktuellen Index der gesuchte Laut vorhanden ist
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
           if (category != "trigger"/* !justOneGraphemtreffer.includes(string)*/) {
+          // Erhöhe den Zähler für die Laute um einen und erstelle die nötige Datenstruktur, falls nicht vorhanden
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
           if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
@@ -77,6 +90,7 @@ function checkCategory(correct, i, last) {
         }
         var firstOne = false;
         var graphemFehlerBefore = graphemFehler;
+        // Zählen der Graphemfehler des aktuellen Lautes
         for (letterNow of Object.keys(letterList[letterString])) {
           if (!letterList[letterString][letterNow] && !firstOne) {
             firstOne = true;
@@ -85,17 +99,20 @@ function checkCategory(correct, i, last) {
             graphemFehler--;
           }
         }
+        // Laut als richtig abspeichern, falls er keinen Fehler enthält
         if (graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
           auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
       }
       if (category == "trigger" || !justOneGraphemtreffer.includes(letterString)) {
+        // Falls die Anzahl der Buchstaben des aktuelle Lautes erreicht wurde, wird der hinterste bzw. inaktuellste gelöscht, damit ein neuer Laut aus dem Folgenden und den anderen noch vorhandenen entsteht
         delete letterList[letterString][letterCounter[letterString][0]];
         letterCounter[letterString].shift();
       }
       }
-      // TODO: Prblem: gleiche Buchstaben
+      // fügt den nächsten Buchstaben zum aktuellen Laut hinzu, wodurch der Lauf um einen richtung Wortende rutscht
+      // TODO: Problem: gleiche Buchstaben
       if (category == "trigger" || !justOneGraphemtreffer.includes(letterString)) {
       letterList[letterString][correct[i].toLowerCase()] = true;
       letterCounter[letterString].push(correct[i].toLowerCase());
@@ -190,15 +207,15 @@ else {
   // graphemFehler++;
 }
     }
-    // getauscht check
-    else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
-      graphemFehler++;
-      correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
-      correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
-      i++;
-      ausgetauscht = 1;
-      wrongI++;
-    }
+    // getauscht check (rausgenommen weil es mehr Fehler schafft als behebt)
+    // else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
+    //   graphemFehler++;
+    //   correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+    //   correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
+    //   i++;
+    //   ausgetauscht = 1;
+    //   wrongI++;
+    // }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
@@ -229,25 +246,25 @@ else {
   checkCategory(original.correct, 0, true);
   // console.log(correctedString);
   // konvertiert Variablen in HTML Elemente
-  for (var i = 0; i < correctedString.length && !doNotMark && graphemFehler > 0; i++) {
+  for (var i = 0; i < correctedString.length/* && !doNotMark*//* && original.correct != original.wrong*//*graphemFehler > 0*/; i++) {
     var textColour = "black";
     if (correctedString[i].colour != "white") textColour = "white";
     addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: correctedString[i].letter, style: 'background-color:' + correctedString[i].colour + ';' + "color:" + textColour, title: 'klicken, um ' + correctedString[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   }
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
-  if (!doNotMark && graphemFehler > 0) {
+  // if (!doNotMark && graphemFehler > 0) {
     addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
     addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
     findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.dark.text;
-  }
-  else {
-    addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
+  // }
+  // else {
+    // addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
+    // addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
-    else findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
-  }
+    else if (wrong == correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
+  // }
   if ((doNotMark || original.correct == original.wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
   if (doNotMark || original.correct == original.wrong) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
   getAllGraphemtreffer();
