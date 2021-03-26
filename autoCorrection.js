@@ -135,7 +135,11 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   refreshNeededTest();
   inputs[/*'Test ' + */selectedTest][parentId][id] = findChild('id', selectedElementId.parent, id).value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
-  var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
+  // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
+  for (var word of neededTest.words) {
+    if (replaceAll(word, "-", "") == findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText) correct = word;
+  }
+  // var correct = neededTest.words[id.split(" ")[1]];
   var wrong = findChild('id', selectedElementId.parent, 'pupilsWriting ' + id.replace('pupilsWriting ', '')).value;
   // findChild("id", parentId, id).style.width = wrong.length*8;
   for (var i = 0; i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
@@ -176,11 +180,22 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   for (var i = 0; i < wrong.length; i++) {
     correctedString.push({letter: wrong[i], colour: "white"});
   }
-  var original = {correct: correct, wrong: wrong};
+  var original = {correct: replaceAll(correct, "-", ""), wrong: replaceAll(wrong, "-", "")};
+  var originalSilben = {correct: correct, wrong: wrong};
   correct = correct.toLowerCase();
   wrong = wrong.toLowerCase();
+  console.log(correct);
+  // var totalI = 0;
+  var silbeNow = -1;
+  var allI = 0;
+  for (var correct of correct.split("-")) {
+    silbeNow++;
+    // wrongI = 0;
+    // wrongI = correctIndex;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
     var ausgetauscht = 0;
+    var nextLetter = correct[i + 1];
+    if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
     checkCategory(original.correct, i);
     // check letter difference: following letter wrong
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
@@ -189,7 +204,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
       }
       // console.log(correct[i] + " before " + wrong[wrongI]);
       // check if letter missing
-      if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != correct[i + 1])) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1])) {
+      if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != nextLetter)) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter)) {
         // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
         if (correctedString[wrongI + addI]) correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
         wrongI++;
@@ -208,7 +223,7 @@ else {
 }
     }
     // getauscht check (rausgenommen weil es mehr Fehler schafft als behebt)
-    // else if (correct[i + 1] == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != correct[i + 1]) {
+    // else if (nextLetter == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != nextLetter) {
     //   graphemFehler++;
     //   correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
     //   correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
@@ -223,20 +238,25 @@ else {
       doubleError++;
       i--;
       graphemFehler++;
+      wrongI++;
     }
     // markiere falsche Groß-Kleinschreibung
-    else if (original.correct[i] != original.wrong[wrongI]) correctedString[wrongI + addI].colour = selectedColours.wrong.light.text;
-    if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i + 1]))) wrongI++;
+    else if (originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI]) correctedString[wrongI + addI].colour = selectedColours.wrong.light.text;
+    if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter))) wrongI++;
   }
+  allI += i;
+  // wrongI = i;
+}
+  if (wrongI >= i && i != 0) i = original.correct.length;
   if (ausgetauscht) i--;
   // check end missing
-  for (var i = i; correctedString.length - doubleError/* - ausgetauscht*/ < correct.length; i++) {
+  for (var i = allI; correctedString.length - doubleError/* - ausgetauscht*/ < original.correct.length; i++) {
     correctedString.push({letter: '_', colour: "white"});
     checkCategory(original.correct, /*correctedString.length - 1*/i);
     addWrongLetter(original.correct, /*correctedString.length - 1 - ausgetauscht*/i);
   }
   // check too much in the end
-  for (var i = wrongI + addI; i < correctedString.length && i >= correct.length; i++) {
+  for (var i = wrongI + addI; i < correctedString.length && i >= original.correct.length; i++) {
     // console.log("remove " + wrong[i]);
     if (correctedString[i].letter != '_') {
       correctedString[i].colour = selectedColours.wrong.dark.text;
