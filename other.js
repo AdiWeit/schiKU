@@ -177,6 +177,7 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
       findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].got;
       findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].possible;
       getAllGraphemtreffer(true, wordNow, sheetAktuell);
+      if (!auswertung.doNotCount[sheetAktuell].includes(wordNow)) auswertung.doNotCount[sheetAktuell].push(wordNow);
     }
     }
   }
