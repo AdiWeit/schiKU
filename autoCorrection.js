@@ -129,6 +129,27 @@ function checkCategory(correct, i, last) {
  *            doNotMark - wenn true wird die Anzeige für die Auswertung nicht erneuert, wodurch sie nicht zu sehen ist (bei korrekten Wörtern)
  *            doNotResetMirror -
  */
+ function prepareCorrection(parentId, id, wordCorrectionChild) {
+   if (adaptInputs.checked) {
+   findChild("id", parentId, id).style.width = 1;
+   findChild("id", parentId, id).scroll(100, 0)
+   while (findChild("id", parentId, id).scrollLeft > 0) {
+     findChild("id", parentId, id).style.width = JSON.parse(findChild("id", parentId, id).style.width.replace("px", "")) + 1 + "px";
+   }
+   }
+   else findChild("id", parentId, id).style.width = 100;
+   // Löschen der Elemente der letzten Korrektur des Wortes
+   for (var i = 0; findChild('id', wordCorrectionChild, 'correctionLetter', true); i++) {
+     findChild('id', wordCorrectionChild, 'correctionLetter', true).remove();
+   }
+   // Graphemtrefferanzeige löschen, da sie später mit den neuen Werten wieder hinzugefügt wird
+   try {
+     findChild('id', wordCorrectionChild, 'graphemtrefferGot', true).remove();
+     findChild('id', wordCorrectionChild, 'graphemtrefferPossible', true).remove();
+     findChild('id', wordCorrectionChild, 'graphemtrefferSlash', true).remove();
+     findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + correct, true).remove();
+   } catch (e) {}
+ }
 function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   // TODO: Silben mit einbeziehen: siehe Eingabe "Dno"
   if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
@@ -149,14 +170,6 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
     if (auswertung.doNotCount[selectedElementId.parent][i] == correct) auswertung.doNotCount[selectedElementId.parent].splice(i, 1);
   }
   // Anpassung der Größe des Eingabefeldes falls in den Einstellungen aktiviert
-  if (adaptInputs.checked) {
-  findChild("id", parentId, id).style.width = 1;
-  findChild("id", parentId, id).scroll(100, 0)
-  while (findChild("id", parentId, id).scrollLeft > 0) {
-    findChild("id", parentId, id).style.width = JSON.parse(findChild("id", parentId, id).style.width.replace("px", "")) + 1 + "px";
-  }
-  }
-  else findChild("id", parentId, id).style.width = 100;
   var wrongI = 0;
   if (!doNotResetMirror && inputs[/*'Test ' + */selectedTest] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent] && inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[original.correct] = [];
   if (auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
@@ -168,17 +181,7 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
   letterList = {};
   letterCounter = {};
   var wordCorrectionChild = findChild('id', selectedElementId.parent, 'correction ' + id.replace('pupilsWriting ', ''));
-  // Löschen der Elemente der letzten Korrektur des Wortes
-  for (var i = 0; findChild('id', wordCorrectionChild, 'correctionLetter', true); i++) {
-    findChild('id', wordCorrectionChild, 'correctionLetter', true).remove();
-  }
-  // Graphemtrefferanzeige löschen, da sie später mit den neuen Werten wieder hinzugefügt wird
-  try {
-    findChild('id', wordCorrectionChild, 'graphemtrefferGot', true).remove();
-    findChild('id', wordCorrectionChild, 'graphemtrefferPossible', true).remove();
-    findChild('id', wordCorrectionChild, 'graphemtrefferSlash', true).remove();
-    findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + correct, true).remove();
-  } catch (e) {}
+  prepareCorrection(parentId, id, wordCorrectionChild);
   // Liste mit allen Buchstaben und derem Aussehen
   for (var i = 0; i < wrong.length; i++) {
     correctedString.push({letter: wrong[i], colour: "white"});
@@ -204,6 +207,36 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
     // wrongI = 0;
     // wrongI = correctIndex;
     if (wrong.includes(correct)) {
+      // for (var i = 0; wrong[wrongI] && wrong[wrongI] != correct[0]; i++) {
+      //   console.log(correctedString[wrongI + addI].letter + " müsste weg");
+      //   correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+      //   doubleError++;
+      //   // addI++;
+      //   graphemFehler++;
+      //   wrongI++;
+      // }
+      var between = true;
+      // console.log(err);
+      while (between) {
+        var stringlist = [];
+        for (var i1 = 0; i1 < correct.length; i1++) {
+          stringlist.push(wrong[wrongI + i1]);
+        }
+        if (replaceAll(stringlist.toString(), ',', '') == correct || stringlist.includes(undefined)) between = false;
+        else {
+            console.log(correctedString[wrongI + addI].letter + " müsste weg");
+            correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+            doubleError++;
+            // addI++;
+            graphemFehler++;
+          wrongI++;
+      }
+      }
+      for (var i1 = 0; i1 < originalSilben.correct.split("-")[silbeNow].length; i1++) {
+        if (originalSilben.correct.split("-")[silbeNow][i1] != originalSilben.wrong[wrongI + i1] && originalSilben.correct.split("-")[silbeNow][i1].toLowerCase() == originalSilben.wrong[wrongI + i1] && correctedString[wrongI + i1 + addI]) {
+          correctedString[wrongI + i1 + addI].colour = selectedColours.wrong.light.text;
+        }
+      }
       var lautList = [];
       while (replaceAll(lautList.toString(), ",", "") != correct && !lautList.includes(undefined)) {
         lautList = [];
@@ -214,46 +247,56 @@ function markErrors(id, parentId, doNotMark, doNotResetMirror) {
       }
       wrongI--;
       var allIBefore = allI;
+      var wrongILetter = [];
       for (var i1 = allI; i1 < allIBefore + correct.length && wrong[wrongI]; i1++) {
         checkCategory(original.correct, i1);
         allI++;
+        wrongILetter.unshift(wrong[wrongI]);
         /*if (wrong[wrongI].toLowerCase() == original.correct[i1].toLowerCase()) */wrongI++;
       }
   }
     else {
       var wrongIBeginning = wrongI;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
+    console.log("compair " + correct[i] + " with " + wrong[wrongI]);
     var ausgetauscht = 0;
     var nextLetter = correct[i + 1];
     if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
     checkCategory(original.correct, allI + i/* + doubleError - beforeBeginning*/);
     // check letter difference: following letter wrong
+    var letterCorrect = correct[i] == wrong[wrongI];
     if (correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) {
       if ((/*wrong[wrongI] == wrong[wrongI] || */correct[i] != wrong[wrongI]/*capitalizeFirstLetter(correct[i]) == correct[i]*/)/* && !(capitalizeFirstLetter(correct[i]) == correct[i] && correct[i] == wrong[wrongI])*/) {
         addWrongLetter(original.correct, allI + i);
+        // console.log(wrong[wrongI] + " statt " + correct[i]);
       }
       // console.log(correct[i] + " before " + wrong[wrongI]);
       // check if letter missing
       if ((!wrong[wrongI + 1] && (!wrong[wrongI] || wrong[wrongI] != nextLetter)) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter)) {
         // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
         if (correctedString[wrongI + addI - beforeBeginning]) correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
+        console.log(correctedString[wrongI + addI - beforeBeginning]?.letter + " statt " + correct[i]);
+        // console.log(correctedString[wrongI + addI - beforeBeginning]?.letter + " missing");
         wrongI++;
 
         // check if doubleError: same letter 2 times in a row, so, it would not be a replacement, but an added wrong letter
         if (wrong[wrongI - 2] == wrong[wrongI - 1] && !beforeBeginning) {
           correctedString.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
+          console.log(original.correct[wrongI + addI] + " missing");
           addI++;
           doubleError++;
         }
 }
 else {
   if (wrong.includes(originalSilben.correct.split("-")[silbeNow + 1]) && wrong.split(originalSilben.correct.split("-")[silbeNow + 1])[0].length - wrongIBeginning == correct.length) {
+    console.log(correctedString[wrongI + addI - beforeBeginning]?.letter + " statt " + correct[i]);
     correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
     graphemFehler--;
     addWrongLetter(original.correct, allI + i);
     wrongI++;
   }
   else {
+    console.log(original.correct[wrongI + addI] + " missing");
     correctedString.splice(wrongI + addI, 0, {letter: '_', colour: "white"});
     addI++;
   }
@@ -272,16 +315,21 @@ else {
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
+      console.log(correctedString[wrongI + addI].letter + " müsste weg");
       correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
       doubleError++;
+      // addI++;
       i--;
       graphemFehler++;
       wrongI++;
     }
     // markiere falsche Groß-Kleinschreibung
-    else if (originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI]) correctedString[wrongI + addI].colour = selectedColours.wrong.light.text;
-    console.log(correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter)));
-    if (correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter))) wrongI++;
+    else if (originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI]) {
+      correctedString[wrongI + addI].colour = selectedColours.wrong.light.text;
+    }
+    var wrongILetter = [];
+    wrongILetter.unshift(wrong[wrongI]);
+    if (letterCorrect/*correct[i] == wrong[wrongI - 1] && correct[i - 1] == wrong[wrongI] || (!(correct[i] != wrong[wrongI] && (!wrong[wrongI + 1] || wrongI > i || (wrong[wrongI + 1] && wrong[wrongI + 1] != correct[i]))) || (wrong[wrongI + 1] && wrong[wrongI + 1] == nextLetter))*/) wrongI++;
   }
   allI += i;
   // wrongI = i;
@@ -291,6 +339,7 @@ else {
   if (ausgetauscht) i--;
   // check end missing
   for (var i = allI; correctedString.length - doubleError/* - ausgetauscht*/ < original.correct.length; i++) {
+    console.log(original.correct[correctedString.length] + " missing");
     correctedString.push({letter: '_', colour: "white"});
     checkCategory(original.correct, /*correctedString.length - 1*/i);
     addWrongLetter(original.correct, /*correctedString.length - 1 - ausgetauscht*/i);
@@ -306,6 +355,12 @@ else {
   checkCategory(original.correct, 0, true);
   // console.log(correctedString);
   // konvertiert Variablen in HTML Elemente
+  showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong);
+  if ((doNotMark || original.correct == original.wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
+  if (doNotMark || original.correct == original.wrong) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
+  getAllGraphemtreffer();
+}
+function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong) {
   for (var i = 0; i < correctedString.length/* && !doNotMark*//* && original.correct != original.wrong*//*graphemFehler > 0*/; i++) {
     var textColour = "black";
     if (correctedString[i].colour != "white") textColour = "white";
@@ -323,9 +378,6 @@ else {
     // addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     // addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
-    else if (wrong == correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
+    else if (wrong == original.correct.toLowerCase()) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
   // }
-  if ((doNotMark || original.correct == original.wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
-  if (doNotMark || original.correct == original.wrong) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
-  getAllGraphemtreffer();
 }
