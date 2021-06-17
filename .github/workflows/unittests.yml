@@ -9,20 +9,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-      strategy:
-          mattrix:
-              node-version: [12.x]
-        steps:
-          - users: actions/checkout@v2
+    strategy:
+        mattrix:
+            node-version: [12.x]
+      steps:
+        - users: actions/checkout@v2
 
-          - name: node Install
-            uses: actions/setup-node@v1
-            with:
-              node-version: ${{matrix.node-version}}
-          - run: mpm i
+        - name: node Install
+          uses: actions/setup-node@v1
+          with:
+            node-version: ${{matrix.node-version}}
+        - run: mpm i
 
-          - name: Run Jest Unit Testing
-            uses: actions/setup-node@v1
-            with:
-              node-version: ${{matrix.node-version}}
-            - run: npm run test
+        - name: Run Jest Unit Testing
+          uses: actions/setup-node@v1
+          with:
+            node-version: ${{matrix.node-version}}
+          - run: npm run test
