@@ -76,12 +76,12 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         var string = Object.keys(letterList[letterString]).toString().replace(new RegExp(',', 'g'), '');
         var letterInMultiple = false;
         // Überprüfung, ob Buchstabe in mehreren Kategorien vorhanden ist und bereits gewertet wurde
-        for (stringCompair of Object.keys(letterList)) {
-          var stringTogether = Object.keys(letterList[stringCompair]).toString().replace(new RegExp(',', 'g'), '');
-          for (var i4 = i; i4 < i + stringCompair.length; i4++) {
-            if (stringCompair.includes(string) && string.length == 1 && stringCompair.length > 1 && stringTogether == stringCompair) letterInMultiple = true;
+        for (stringCompare of Object.keys(letterList)) {
+          var stringTogether = Object.keys(letterList[stringCompare]).toString().replace(new RegExp(',', 'g'), '');
+          for (var i4 = i; i4 < i + stringCompare.length; i4++) {
+            if (stringCompare.includes(string) && string.length == 1 && stringCompare.length > 1 && stringTogether == stringCompare) letterInMultiple = true;
             if (correct[i4]) stringTogether += correct[i4];
-            if (stringTogether.length > stringCompair.length) stringTogether = stringTogether.slice(1);
+            if (stringTogether.length > stringCompare.length) stringTogether = stringTogether.slice(1);
           }
         }
         // wenn vor dem aktuellen Index der gesuchte Laut vorhanden ist
@@ -274,7 +274,7 @@ else correct = pCorrect;
     else {
       var wrongIBeginning = wrongI;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
-    console.log("compair " + correct[i] + " with " + wrong[wrongI]);
+    console.log("compare " + correct[i] + " with " + wrong[wrongI]);
     var ausgetauscht = 0;
     var nextLetter = correct[i + 1];
     if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
