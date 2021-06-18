@@ -374,7 +374,7 @@ else {
       graphemFehler++;
     }
     else if (correctedString[wrongI + addI - beforeBeginning] && correctedString[wrongI + addI - beforeBeginning].letter != '_' && !pCorrect) {
-        if (onchange && i == correctedStringLengthBefore - 1) alert('Es gab Buchstaben, die bei'/* der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '"*/' dem zuletzt eingegebenen Wort wahrscheinlich nicht ausgewertet werden konnten! Bitte gehen Sie sicher, dass die automatische Fehlerkorrektur nicht zu wenige Graphemtreffer angibt!');
+        if (onchange && i == correctedStringLengthBefore - 1) alert('Es gab Buchstaben, die bei'/* der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '"*/ + ' dem zuletzt eingegebenen Wort wahrscheinlich nicht ausgewertet werden konnten! Bitte gehen Sie sicher, dass die automatische Fehlerkorrektur nicht zu wenige Graphemtreffer angibt!');
         correctedString.splice(wrongI + addI - beforeBeginning, 1);
     }
   }
