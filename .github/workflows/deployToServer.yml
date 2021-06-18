@@ -14,3 +14,10 @@ jobs:
         server: ftp.nicolaiweitkemper.de
         username: adi@adi.nicolaiweitkemper.de
         password: ${{ secrets.NIGGO_SERVER_PASSWORT }}
+        server-dir: SchiKU:Rechtschreibdiagnostik_Kreis_Unna/
+        exclude:
+          - package-lock.json
+          - package.json
+          - README.md
+          - schuelerEingaben.test.js
+          - schiku-Rechtschreibtest-Auswertung.html
