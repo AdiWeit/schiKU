@@ -76,12 +76,12 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         var string = Object.keys(letterList[letterString]).toString().replace(new RegExp(',', 'g'), '');
         var letterInMultiple = false;
         // Überprüfung, ob Buchstabe in mehreren Kategorien vorhanden ist und bereits gewertet wurde
-        for (stringCompare of Object.keys(letterList)) {
-          var stringTogether = Object.keys(letterList[stringCompare]).toString().replace(new RegExp(',', 'g'), '');
-          for (var i4 = i; i4 < i + stringCompare.length; i4++) {
-            if (stringCompare.includes(string) && string.length == 1 && stringCompare.length > 1 && stringTogether == stringCompare) letterInMultiple = true;
+        for (stringcompare of Object.keys(letterList)) {
+          var stringTogether = Object.keys(letterList[stringcompare]).toString().replace(new RegExp(',', 'g'), '');
+          for (var i4 = i; i4 < i + stringcompare.length; i4++) {
+            if (stringcompare.includes(string) && string.length == 1 && stringcompare.length > 1 && stringTogether == stringcompare) letterInMultiple = true;
             if (correct[i4]) stringTogether += correct[i4];
-            if (stringTogether.length > stringCompare.length) stringTogether = stringTogether.slice(1);
+            if (stringTogether.length > stringcompare.length) stringTogether = stringTogether.slice(1);
           }
         }
         // wenn vor dem aktuellen Index der gesuchte Laut vorhanden ist
@@ -157,7 +157,7 @@ return {possible: possibleGraphemtreffer, errors: graphemFehler};
      findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + correct, true).remove();
    } catch (e) {}
  }
-function markErrors(id, parentId, doNotMark, doNotResetMirror, pCorrect, wrong) {
+function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong) {
   // TODO: Silben mit einbeziehen: siehe Eingabe "Dno"
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
@@ -334,6 +334,7 @@ else {
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
       console.log(correctedString[wrongI + addI].letter + " müsste weg");
+      // if (correctedString[wrongI + addI - 1]?.letter == '_') alert('Es gab Buchstaben, die bei der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '" vielleicht fäschlicherweise als falsch wahrgenommen wurden, obwohl sie nur teilweise falsch sind! Bitte gehen sie sicher, dass die automatische Fehlerkorrektur nicht zu wenig Graphemtreffer angibt!');
       if (!pCorrect) correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
       doubleError++;
       // addI++;
@@ -365,11 +366,16 @@ else {
     addWrongLetter(original.correct, /*correctedString.length - 1 - ausgetauscht*/i);
   }
   // check too much in the end
-  for (var i = wrongI + addI - beforeBeginning; i < correctedString.length && i >= original.correct.length; i++) {
+  var correctedStringLengthBefore = correctedString.length;
+  for (var i = wrongI + addI - beforeBeginning; i < correctedStringLengthBefore && i >= original.correct.length; i++) {
     // console.log("remove " + wrong[i]);
-    if (correctedString[i].letter != '_') {
+    if (correctedString[wrongI + addI - beforeBeginning] && correctedString[wrongI + addI - beforeBeginning].letter != '_' && correctedString[wrongI + addI - beforeBeginning - 1] && correctedString[wrongI + addI - beforeBeginning - 1].letter != '_') {
       if (!pCorrect) correctedString[i].colour = selectedColours.wrong.dark.text;
       graphemFehler++;
+    }
+    else if (correctedString[wrongI + addI - beforeBeginning] && correctedString[wrongI + addI - beforeBeginning].letter != '_' && !pCorrect) {
+        if (onchange && i == correctedStringLengthBefore - 1) alert('Es gab Buchstaben, die bei'/* der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '"*/' dem zuletzt eingegebenen Wort wahrscheinlich nicht ausgewertet werden konnten! Bitte gehen Sie sicher, dass die automatische Fehlerkorrektur nicht zu wenige Graphemtreffer angibt!');
+        correctedString.splice(wrongI + addI - beforeBeginning, 1);
     }
   }
   var graphemObj = checkCategory(original.correct, 0, true, pCorrect, possibleGraphemtreffer);
