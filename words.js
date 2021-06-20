@@ -9,29 +9,27 @@ var officialData = {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute
       },
     },
     "Test 2": {
       words: ["Hau-fen", "An-teil", "O-fen", "Ein-kauf", "Du-sche", "Pi-rat", "Rei-fen", "Aus-lauf", "Schein", "Ka-min", "Rau-pe", "Um-tausch", "Ei-sen", "Ma-schi-ne", "En-de"],
       kategorien: {
-        "Zwielaute": ["au", "ei"],
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute
       },
       countTogether: ["Vokale", "Konsonanten"]
     },
     "Test 3": {
       kategorien: {
-        "Zwielaute": ["au", "ei"],
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: ["<e>", "en", "er", "el"],
-        "Zwielaute": officialCategories.Zwielaute,
+        Zwielaute: officialCategories.Zwielaute,
         "Wichtige": ["ö", "w"]
       },
       countTogether: ["Vokale", "Konsonanten"],
@@ -39,12 +37,11 @@ var officialData = {
     },
     "Test 4": {
       kategorien: {
-        "Zwielaute": ["au", "ei"],
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute,
+        Zwielaute: officialCategories.Zwielaute,
         wichtige: ["ö", "ü", "g", "b"]
       },
       countTogether: ["Vokale", "Konsonanten"],
@@ -52,52 +49,49 @@ var officialData = {
     },
     "Test 5": {
       kategorien: {
-        "Zwielaute": ["au", "ei"],
-        sonstige: ["sch"],
+        sonstige: ["sch", "ck"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute,
+        Doppelkonsonanten: officialCategories.Konsonanten// ["dd", "ff", "hh", "kk", "ll", "mm", "nn", "pp", "rr", "ss", "tt", "ww"]
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Ba-de-wan-ne", "Re-gen-man-tel", "Per-len-ket-te", "Ha-sen-fel-le", "Wasch-be-cken", "Ra-ben-fe-der", "Me-lo-nen-ker-ne", "Waf-fel-ei-sen", "Las-so-wer-fer", "Mö-bel-pa-cker",
-        "Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"
-      ]
+        "Scher-ben-hau-fen", "Le-be-we-sen", "Kel-ler-e-cke", "Ta-fel-lap-pen", "Lam-pen-schal-ter"],
+      betonung: [{1: "lang", 5: "kurz"}, {1: "lang"}, {1: "lang", 7: "kurz"}, {6: "kurz"}, {1: "lang", 6: "kurz"}, {}, {}, {1: "kurz"}, {1: "kurz"}, {6: "kurz"}, {}, {}, {1: "kurz", 6: "kurz"}, {6: "kurz"}, {}]
     },
     "Test 6": {
       kategorien: {
-        "Zwielaute": ["au", "ei", "sch"],
-        sonstige: ["sch"],
+        sonstige: ["sch", "ck", "ie"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
-        "Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"
-      ]
+        "Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"],
+      betonung: [{1: "lang", 5: "kurz"}, {1: "lang"}, {1: "lang", 7: "kurz"}, {6: "kurz"}, {1: "lang", 6: "kurz"}, {}, {}, {1: "kurz"}, {1: "kurz"}, {6: "kurz"}, {}, {}, {1: "kurz", 6: "kurz"}, {6: "kurz"}, {}]
     },
     "Test 7": {
       kategorien: {
-        "Zwielaute": ["au", "ei"],
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Son-der-an-ge-bo-te", "Hun-de-fut-ter", "Sol-da-ten-ru-fe", "Kar-tof-fel-sor-te", "Bu-ckel-wa-le", "But-ter-do-se", "Eis-schol-le", "Re-gen-ton-ne", "Schul-ter-wun-de", "Nu-del-sup-pe", "Win-ter-soc-ken", "Fisch-kut-ter"]
     },
     "Test 8": {
       kategorien: {
-        "Zwielaute": ["au", "ei"],
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Sa-lat-schüs-sel", "Ra-ke-ten-böl-ler", "Kör-per-teil", "Re-gen-wür-mer", "Hun-de-hüt-te", "Ka-mel-hö-cker", "Dö-ner-bu-de", "Sup-pen-löf-fel", "Da-men-hü-te", "Fül-ler-tin-te", "Schü-ler-wün-sche", "Wör-ter-lis-te",

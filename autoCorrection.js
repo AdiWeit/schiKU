@@ -21,6 +21,7 @@ var graphemFehler = 0;
 var letterList;
 var letterCounter;
 var selectedTest = "Kreis Unna";
+var letterListBefore = {};
 // überprüft Laute auf Richtigkeit und Anzahl
 // @param correct: korrekte Schreibweise
 //        i: aktueller Index (hier: Position im korrekten Wort)
@@ -93,7 +94,7 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         }
         // wenn vor dem aktuellen Index der gesuchte Laut vorhanden ist
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
-          if ((category != "Endungen" || last) && category != "trigger" && !pCorrect/* !justOneGraphemtreffer.includes(string)*/) {
+          if ((category != "Endungen" || last) && (category != "Doppelkonsonanten" || (correct[i - 2] && correct[i - 2] == letterString && neededTest.betonung[JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1][i - 3] == "kurz")) && category != "trigger" && !pCorrect/* !justOneGraphemtreffer.includes(string)*/) {
           // Erhöhe den Zähler für die Laute um einen und erstelle die nötige Datenstruktur, falls nicht vorhanden
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
@@ -114,12 +115,13 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
           }
         }
         // Laut als richtig abspeichern, falls er keinen Fehler enthält
-        if ((category != "Endungen" || last) && !pCorrect && graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
+        if ((category != "Endungen" || last) && (category != "Doppelkonsonanten" || (correct[i - 2] && correct[i - 2] == letterString && neededTest.betonung[JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1][i - 3] == "kurz" && letterListBefore[letterString][letterString] == true)) && !pCorrect && graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
           auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
       }
       letterInCategoriesNotDone[letterString]--;
+      letterListBefore = JSON.parse(JSON.stringify(letterList));
       if (letterInCategoriesNotDone[letterString] < 1 && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
         // Falls die Anzahl der Buchstaben des aktuelle Lautes erreicht wurde, wird der hinterste bzw. inaktuellste gelöscht, damit ein neuer Laut aus dem Folgenden und den anderen noch vorhandenen entsteht
         delete letterList[letterString][letterCounter[letterString][0]];
@@ -225,12 +227,14 @@ else correct = pCorrect;
     beforeBeginning++;
     doubleError++;
   }
+  var wrongCut = JSON.parse(JSON.stringify(wrong));
   for (var correct of correct.split("-")) {
     silbeNow++;
     var iMinus = false
     // wrongI = 0;
     // wrongI = correctIndex;
-    if (wrong.includes(correct)) {
+    if (wrongCut.includes(correct)) {
+      wrongCut = wrongCut.replace(correct, '');
       // for (var i = 0; wrong[wrongI] && wrong[wrongI] != correct[0]; i++) {
       //   console.log(correctedString[wrongI + addI].letter + " müsste weg");
       //   correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
