@@ -67,12 +67,13 @@ var officialData = {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        Zwielaute: officialCategories.Zwielaute
+        Zwielaute: officialCategories.Zwielaute,
+        Doppelkonsonanten: officialCategories.Konsonanten// ["d
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Hin-weis-schil-der", "Lie-fer-wa-gen", "Win-ter-wet-ter", "Schie-be-tür", "Ge-wit-ter-him-mel",
         "Wi-ckel-tisch", "Ge-heim-nis-se", "Tin-ten-kil-ler", "Lie-ge-wie-se", "Un-ter-kie-fer", "Rin-der-her-de", "Lie-bes-lie-der", "Re-gen-rin-ne", "Kin-der-wip-pe"],
-      betonung: [{1: "lang", 5: "kurz"}, {1: "lang"}, {1: "lang", 7: "kurz"}, {6: "kurz"}, {1: "lang", 6: "kurz"}, {}, {}, {1: "kurz"}, {1: "kurz"}, {6: "kurz"}, {}, {}, {1: "kurz", 6: "kurz"}, {6: "kurz"}, {}]
+      betonung: [{}, {}, {7: "kurz"}, {}, {3: "kurz", 9: "kurz"}, {1: "kurz"}, {7: "kurz"}, {7: "kurz"}, {}, {}, {}, {}, {6: "kurz"}, {7: "kurz"}]
     },
     "Test 7": {
       kategorien: {
