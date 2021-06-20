@@ -50,6 +50,13 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
     if (correct.toLowerCase().includes("sch")) justOneGraphemtreffer.pop();
   }
   possibleGraphemtreffer = correct.length;
+  var letterInCategoriesNotDone = {};
+  for (var editedCategory of Object.keys(editedCategories)) {
+    for (var editedLaut of editedCategories[editedCategory]) {
+      if (!letterInCategoriesNotDone[editedLaut]) letterInCategoriesNotDone[editedLaut] = 0;
+      letterInCategoriesNotDone[editedLaut]++;
+    }
+  }
   if (i == 0) var firstLetter = correct[0];
   if (!pCorrect && Object.keys(editedCategories).length == 0) editedCategories["trigger"] = [];
   // alle Laute (aller Kategorien) durchlaufen
@@ -112,15 +119,17 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }
       }
-      if (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString)) {
+      letterInCategoriesNotDone[letterString]--;
+      if (letterInCategoriesNotDone[letterString] < 1 && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
         // Falls die Anzahl der Buchstaben des aktuelle Lautes erreicht wurde, wird der hinterste bzw. inaktuellste gelöscht, damit ein neuer Laut aus dem Folgenden und den anderen noch vorhandenen entsteht
         delete letterList[letterString][letterCounter[letterString][0]];
         letterCounter[letterString].shift();
       }
       }
+      else letterInCategoriesNotDone[letterString]--;
       // fügt den nächsten Buchstaben zum aktuellen Laut hinzu, wodurch der Lauf um einen richtung Wortende rutscht
       // TODO: Problem: gleiche Buchstaben
-      if (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString)) {
+      if (letterInCategoriesNotDone[letterString] < 1 && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
       letterList[letterString][correct[i].toLowerCase()] = true;
       letterCounter[letterString].push(correct[i].toLowerCase());
     }
@@ -218,6 +227,7 @@ else correct = pCorrect;
   }
   for (var correct of correct.split("-")) {
     silbeNow++;
+    var iMinus = false
     // wrongI = 0;
     // wrongI = correctIndex;
     if (wrong.includes(correct)) {
@@ -278,7 +288,8 @@ else correct = pCorrect;
     var ausgetauscht = 0;
     var nextLetter = correct[i + 1];
     if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
-    var graphemObj = checkCategory(original.correct, allI + i/* + doubleError - beforeBeginning*/, null, pCorrect, possibleGraphemtreffer);
+    if (!iMinus) var graphemObj = checkCategory(original.correct, allI + i/* + doubleError - beforeBeginning*/, null, pCorrect, possibleGraphemtreffer);
+    var iMinus = false;
     graphemFehler = graphemObj.errors;
     possibleGraphemtreffer = graphemObj.possible;
     // check letter difference: following letter wrong
@@ -339,6 +350,7 @@ else {
       doubleError++;
       // addI++;
       i--;
+      var iMinus = true;
       graphemFehler++;
       wrongI++;
     }

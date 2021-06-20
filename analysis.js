@@ -70,15 +70,16 @@ function getEveryCategory(printMode) {
       }
       else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
         }
-        else {
+        else if (!doNotCountObj.laute[objKeyName]) {
           // TODO: wenn keine Kathegorie vorhanden
-          if (!doNotCountObj.laute[objKeyName]) doNotCountObj.laute[objKeyName] = 0;
+          doNotCountObj.laute[objKeyName] = 0;
           if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
           // TODO: Laute: einzelne Buchstaben übertragen (Anzahl kann aus auswertung.categories abgelesen werden)
           else {
             // doNotCountObj.laute[objKeyName]++;
             doNotCountObj.laute[objKeyName] += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
             for (var letter of objKeyName) {
+              if (!doNotCountObj.laute[letter]) doNotCountObj.laute[letter] = 1;
               doNotCountObj.laute[letter]--;
             }
           }

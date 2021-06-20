@@ -106,11 +106,12 @@ for (nameTypeNow of Object.keys(words)) {
 words = wordsInport;
 refreshWords();
 }
-if (localStorage.getItem('syncWithOfficials') == "undefined" || !localStorage.getItem('syncWithOfficials') || localStorage.getItem('syncWithOfficials') == "false") syncWithOfficialData();
+if (/*localStorage.getItem('syncWithOfficials') == "undefined" || !localStorage.getItem('syncWithOfficials') || */localStorage.getItem('syncWithOfficials') == "false") syncWithOfficialData();
 else {
 syncWithOfficialData(true);
 syncDataCheckbox.checked = true;
 }
+var selectedColours = colours[colourSelector.value];
 // Anfragen, ob gespeicherter Fortschritt wiederhergestellt werden soll
 if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie ihre zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken und bestätigen, wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken, gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
@@ -127,7 +128,6 @@ for (var i = 0; i < Object.keys(inputs).length; i++) {
   }
 }
 }
-var selectedColours = colours[colourSelector.value];
 // stellt gespeicherten Fortschritt wieder her
 function recreatePupils(printMode) {
 while (pupils > 0) {

@@ -31,7 +31,8 @@ var officialData = {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        "Zwielaute": officialCategories.Zwielaute,
+        "Wichtige": ["ö", "w"]
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
@@ -43,7 +44,8 @@ var officialData = {
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
-        "Zwielaute": officialCategories.Zwielaute
+        "Zwielaute": officialCategories.Zwielaute,
+        wichtige: ["ö", "ü", "g", "b"]
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
