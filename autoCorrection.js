@@ -96,12 +96,14 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
           if ((category != "Endungen" || last) && (category != "Doppelkonsonanten" || (correct[i - 2] && correct[i - 2] == letterString && neededTest.betonung[JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1][i - 3] == "kurz")) && category != "trigger" && !pCorrect/* !justOneGraphemtreffer.includes(string)*/) {
           // Erhöhe den Zähler für die Laute um einen und erstelle die nötige Datenstruktur, falls nicht vorhanden
+          var auswertungCategory = JSON.parse(JSON.stringify(category));
+          if (category == "sonstige" && letterString == "ck") auswertungCategory = "Doppelkonsonanten";
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
-          if (!auswertung.categories[selectedElementId.parent][correct][category]) auswertung.categories[selectedElementId.parent][correct][category] = {got: 0, possible: 0};
-          if (!auswertung.categories[selectedElementId.parent][correct][category][letterString]) auswertung.categories[selectedElementId.parent][correct][category][letterString] = {possible: 0, got: 0};
-          auswertung.categories[selectedElementId.parent][correct][category][letterString].possible++;
-          auswertung.categories[selectedElementId.parent][correct][category].possible++;
+          if (!auswertung.categories[selectedElementId.parent][correct][auswertungCategory]) auswertung.categories[selectedElementId.parent][correct][auswertungCategory] = {got: 0, possible: 0};
+          if (!auswertung.categories[selectedElementId.parent][correct][auswertungCategory][letterString]) auswertung.categories[selectedElementId.parent][correct][auswertungCategory][letterString] = {possible: 0, got: 0};
+          auswertung.categories[selectedElementId.parent][correct][auswertungCategory][letterString].possible++;
+          auswertung.categories[selectedElementId.parent][correct][auswertungCategory].possible++;
         }
         var firstOne = false;
         var graphemFehlerBefore = graphemFehler;
@@ -116,8 +118,8 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         }
         // Laut als richtig abspeichern, falls er keinen Fehler enthält
         if ((category != "Endungen" || last) && (category != "Doppelkonsonanten" || (correct[i - 2] && correct[i - 2] == letterString && neededTest.betonung[JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1][i - 3] == "kurz" && letterListBefore[letterString][letterString] == true)) && !pCorrect && graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
-          auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
-          auswertung.categories[selectedElementId.parent][correct][category].got++;
+          auswertung.categories[selectedElementId.parent][correct][auswertungCategory][letterString].got++;
+          auswertung.categories[selectedElementId.parent][correct][auswertungCategory].got++;
         }
       }
       letterInCategoriesNotDone[letterString]--;
@@ -229,6 +231,8 @@ else correct = pCorrect;
   }
   var wrongCut = JSON.parse(JSON.stringify(wrong));
   for (var correct of correct.split("-")) {
+    if (wrongString != "") wrongCut = wrongCut.replace(wrongString, '');
+    var wrongString = "";
     silbeNow++;
     var iMinus = false
     // wrongI = 0;
@@ -289,6 +293,7 @@ else correct = pCorrect;
       var wrongIBeginning = wrongI;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
     console.log("compare " + correct[i] + " with " + wrong[wrongI]);
+    wrongString += wrong[wrongI];
     var ausgetauscht = 0;
     var nextLetter = correct[i + 1];
     if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
