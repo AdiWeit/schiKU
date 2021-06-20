@@ -93,7 +93,7 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         }
         // wenn vor dem aktuellen Index der gesuchte Laut vorhanden ist
         if (string == letterString && !(string == "e" && last) && !letterInMultiple) {
-          if (category != "trigger" && !pCorrect/* !justOneGraphemtreffer.includes(string)*/) {
+          if ((category != "Endungen" || last) && category != "trigger" && !pCorrect/* !justOneGraphemtreffer.includes(string)*/) {
           // Erhöhe den Zähler für die Laute um einen und erstelle die nötige Datenstruktur, falls nicht vorhanden
           if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
           if (!auswertung.categories[selectedElementId.parent][correct]) auswertung.categories[selectedElementId.parent][correct] = {};
@@ -114,7 +114,7 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
           }
         }
         // Laut als richtig abspeichern, falls er keinen Fehler enthält
-        if (!pCorrect && graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
+        if ((category != "Endungen" || last) && !pCorrect && graphemFehlerBefore == graphemFehler && !firstOne && /*!justOneGraphemtreffer.includes(string)*/category != "trigger") {
           auswertung.categories[selectedElementId.parent][correct][category][letterString].got++;
           auswertung.categories[selectedElementId.parent][correct][category].got++;
         }

@@ -30,7 +30,7 @@ var officialData = {
         sonstige: ["sch"],
         Vokale: officialCategories.Vokale,
         Konsonanten: officialCategories.Konsonanten,
-        Endungen: officialCategories.Endungen,
+        Endungen: ["<e>", "en", "er", "el"],
         "Zwielaute": officialCategories.Zwielaute,
         "Wichtige": ["ö", "w"]
       },
