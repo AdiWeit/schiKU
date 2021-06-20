@@ -375,11 +375,15 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
         if (letter.includes(label) && letter != label && letter != "got" && letter != "possible") possibleLetterList.push(letter);
       }
     }
+    var category = label;
+    for (var i = idx; !Object.keys(neededTest.kategorien).includes(category); i--) {
+      category = chartData.labels[i];
+    }
       for (var i = 0; i < neededTest.words.length; i++) {
 
         findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
         // Überprüfung, ob das Ausgewählte in dem Wort, das gerade überprüft wird, vorhanden ist
-        if ((label.replace('>', '').replace('<', '').length == 1 && (neededTest.words[i].toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
+        if ((category != "Doppelkonsonanten" || (replaceAll(neededTest.words[i], '-', '').includes(label + label) && ((Object.keys(neededTest.betonung[i])[0] && replaceAll(neededTest.words[i], '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[0]) + 1] == label) || (Object.keys(neededTest.betonung[i])[1] && replaceAll(neededTest.words[i], '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[1]) + 1] == label)))) && (label.replace('>', '').replace('<', '').length == 1 && (neededTest.words[i].toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
           if (label == 'e' && neededTest.words[i][neededTest.words[i].length - 1] == "e") {
             result = neededTest.words[i].split('');
@@ -393,7 +397,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           for (var i1 = 0; i1 < possibleLetterList.length; i1++) {
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
-          if (wordWithoutCategories.includes(label) || possibleLetterList.length == 0) {
+          if ((wordWithoutCategories.includes(label) || possibleLetterList.length == 0)) {
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
           if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
