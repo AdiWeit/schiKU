@@ -45,12 +45,6 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
       justOneGraphemtreffer.push(laut);
     }
   }
-}
-  else {
-    justOneGraphemtreffer = ["ei", "au", "eu", "sch", "ch"];
-    if (correct.toLowerCase().includes("sch")) justOneGraphemtreffer.pop();
-  }
-  possibleGraphemtreffer = correct.length;
   var letterInCategoriesNotDone = {};
   for (var editedCategory of Object.keys(editedCategories)) {
     for (var editedLaut of editedCategories[editedCategory]) {
@@ -58,6 +52,12 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
       letterInCategoriesNotDone[editedLaut]++;
     }
   }
+}
+  else {
+    justOneGraphemtreffer = ["ei", "au", "eu", "sch", "ch"];
+    if (correct.toLowerCase().includes("sch")) justOneGraphemtreffer.pop();
+  }
+  possibleGraphemtreffer = correct.length;
   if (i == 0) var firstLetter = correct[0];
   if (!pCorrect && Object.keys(editedCategories).length == 0) editedCategories["trigger"] = [];
   // alle Laute (aller Kategorien) durchlaufen
@@ -124,7 +124,7 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
       }
       letterInCategoriesNotDone[letterString]--;
       letterListBefore = JSON.parse(JSON.stringify(letterList));
-      if (letterInCategoriesNotDone[letterString] < 1 && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
+      if ((letterInCategoriesNotDone[letterString] < 1 || !letterInCategoriesNotDone[letterString]) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
         // Falls die Anzahl der Buchstaben des aktuelle Lautes erreicht wurde, wird der hinterste bzw. inaktuellste gelöscht, damit ein neuer Laut aus dem Folgenden und den anderen noch vorhandenen entsteht
         delete letterList[letterString][letterCounter[letterString][0]];
         letterCounter[letterString].shift();
@@ -133,14 +133,14 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
       else letterInCategoriesNotDone[letterString]--;
       // fügt den nächsten Buchstaben zum aktuellen Laut hinzu, wodurch der Lauf um einen richtung Wortende rutscht
       // TODO: Problem: gleiche Buchstaben
-      if (letterInCategoriesNotDone[letterString] < 1 && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
+      if ((letterInCategoriesNotDone[letterString] < 1 || !letterInCategoriesNotDone[letterString]) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
       letterList[letterString][correct[i].toLowerCase()] = true;
       letterCounter[letterString].push(correct[i].toLowerCase());
     }
     }
   }
 }
-return {possible: possibleGraphemtreffer, errors: graphemFehler};
+return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
 }
 /*
  * ermittelt die Fehler des Schülers
@@ -282,7 +282,7 @@ else correct = pCorrect;
       var wrongILetter = [];
       for (var i1 = allI; i1 < allIBefore + correct.length && wrong[wrongI]; i1++) {
         var graphemObj = checkCategory(original.correct, i1, null, pCorrect, possibleGraphemtreffer);
-        graphemFehler = graphemObj.errors;
+        // graphemFehler = graphemObj.errors;
         possibleGraphemtreffer = graphemObj.possible
         allI++;
         wrongILetter.unshift(wrong[wrongI]);
@@ -299,7 +299,7 @@ else correct = pCorrect;
     if (i == correct.length - 1 && originalSilben.correct.split("-")[silbeNow + 1]) nextLetter = originalSilben.correct.split("-")[silbeNow + 1][0]
     if (!iMinus) var graphemObj = checkCategory(original.correct, allI + i/* + doubleError - beforeBeginning*/, null, pCorrect, possibleGraphemtreffer);
     var iMinus = false;
-    graphemFehler = graphemObj.errors;
+    // graphemFehler = graphemObj.errors;
     possibleGraphemtreffer = graphemObj.possible;
     // check letter difference: following letter wrong
     var letterCorrect = correct[i] == wrong[wrongI];
@@ -382,7 +382,7 @@ else {
     console.log(original.correct[correctedString.length] + " missing");
     correctedString.push({letter: '_', colour: "white"});
     var graphemObj = checkCategory(original.correct, /*correctedString.length - 1*/i, null, pCorrect, possibleGraphemtreffer);
-    graphemFehler = graphemObj.errors;
+    // graphemFehler = graphemObj.errors;
     possibleGraphemtreffer = graphemObj.possible
     addWrongLetter(original.correct, /*correctedString.length - 1 - ausgetauscht*/i);
   }
@@ -400,7 +400,7 @@ else {
     }
   }
   var graphemObj = checkCategory(original.correct, 0, true, pCorrect, possibleGraphemtreffer);
-  graphemFehler = graphemObj.errors;
+  // graphemFehler = graphemObj.errors;
   possibleGraphemtreffer = graphemObj.possible
   // console.log(correctedString);
   // konvertiert Variablen in HTML Elemente
