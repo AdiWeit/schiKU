@@ -63,12 +63,21 @@ addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 
 addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
+var mostRight = 0;
 for (var i = 0; i < neededTest.words.length; i++) {
   addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + pupils);
   addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'markErrors(id, "pupilSheet' + pupils + '", true); pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + pupils);
+  if (document.getElementsByClassName("writingPupilSheet" + pupils)[i].getBoundingClientRect().left > mostRight) mostRight = document.getElementsByClassName("writingPupilSheet" + pupils)[i].getBoundingClientRect().left;
   addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
   if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
 }
+  for (var textBox of document.getElementsByClassName("writingPupilSheet" + pupils)) {
+    if (inputsParallel.checked) {
+    textBox.style.position = "absolute";
+    textBox.style.left = mostRight;
+    }
+    else textBox.style.position = "";
+  }
 addElement({}, 'br', 'pupilSheet' + pupils);
 addElement({id: 'allGraphemes' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
 addElement({}, 'br', 'pupilSheet' + pupils);
