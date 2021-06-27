@@ -8,8 +8,9 @@
 <button type="button" onclick="settings.style.display = 'inline';" id="settingsButton" name="button">Optionen (drucken, als PDF speichern, Grafikeinstellungen etc.)</button>
 <div id="settings" style="display: none;">
   <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (braucht einige Sek.)
-  <br>
-  <br>
+  <!-- <br>
+  <br> -->
+  <h3>Druckereinstellungen</h3>
   <input onchange="printMode(checked);" id="printerMode" type="checkbox"> <strong>Druckermodus (auch zum Speichern)</strong>
   <br>
     <select onchange="selectPrintColours(value)" id="colourSelector">
@@ -21,8 +22,9 @@
     <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Grafik angepasst)
     <br>
     <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> wenn Druckermodus nicht aktiv, Grafik immer farbig anzeigen
-  <br>
-  <br>
+  <!-- <br>
+  <br> -->
+  <h3>Layout der Blätter/Tests</h3>
   <input id="adaptInputs" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> Größe der Textfelder an Anzahl der Buchstaben anpassen
   <br>
   <input id="inputsParallel" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> alle Eingabefelder untereinander
@@ -34,6 +36,7 @@
   <br>
   <input type="checkbox" id="showEdit" checked="true" onchange="settingChanged(id, {checked: checked}, true);"> Button zum Bearbeiten von Tests anzeigen
   <br>
+  <h3>Tests bearbeiten, hinzufügen, Feedback geben und Fragen stellen</h3>
   <button type="button" onclick="copyCode();" name="button">Selbst erstellte Tests einsenden: Code der Tests in die Zwischenablage kopieren</button> um ihn an
   <br>
   <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a><br> (gerne auch Feedback geben oder Fragen stellen) zu schicken, welcher ihn bei Bedarf hinzufügt

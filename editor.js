@@ -1,5 +1,10 @@
 // öffnet Editor und erstellt falls test bearbeiten gedrückt wurde das bereits vorhandene der tests
 function editTest() {
+  if (syncDataCheckbox.checked && confirm("Wenn Sie die Seite neu laden, werden ihre Änderungen mit den offiziellen Daten überschrieben! Wollen Sie die Synchronisation mit offiziellen Daten deaktivieren um dies zu vermeiden?")) {
+    syncDataCheckbox.checked = false;
+    settingChanged("syncDataCheckbox", {checked: false});
+  }
+  settingsClosed();
 // löscht alle Elemente vom dem letzen Öffnen des Editors
 while (document.getElementsByClassName("Wort").length > 0) {
   document.getElementsByClassName("Wort")[0].remove();
