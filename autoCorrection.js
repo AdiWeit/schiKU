@@ -122,18 +122,18 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
           auswertung.categories[selectedElementId.parent][correct][auswertungCategory].got++;
         }
       }
-      letterInCategoriesNotDone[letterString]--;
+      if (letterInCategoriesNotDone) letterInCategoriesNotDone[letterString]--;
       letterListBefore = JSON.parse(JSON.stringify(letterList));
-      if ((letterInCategoriesNotDone[letterString] < 1 || !letterInCategoriesNotDone[letterString]) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
+      if ((!letterInCategoriesNotDone || letterInCategoriesNotDone[letterString] < 1) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
         // Falls die Anzahl der Buchstaben des aktuelle Lautes erreicht wurde, wird der hinterste bzw. inaktuellste gelöscht, damit ein neuer Laut aus dem Folgenden und den anderen noch vorhandenen entsteht
         delete letterList[letterString][letterCounter[letterString][0]];
         letterCounter[letterString].shift();
       }
       }
-      else letterInCategoriesNotDone[letterString]--;
+      else if (letterInCategoriesNotDone) letterInCategoriesNotDone[letterString]--;
       // fügt den nächsten Buchstaben zum aktuellen Laut hinzu, wodurch der Lauf um einen richtung Wortende rutscht
       // TODO: Problem: gleiche Buchstaben
-      if ((letterInCategoriesNotDone[letterString] < 1 || !letterInCategoriesNotDone[letterString]) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
+      if ((!letterInCategoriesNotDone || letterInCategoriesNotDone[letterString] < 1) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
       letterList[letterString][correct[i].toLowerCase()] = true;
       letterCounter[letterString].push(correct[i].toLowerCase());
     }
