@@ -2,7 +2,7 @@
 function editTest() {
   if (syncDataCheckbox.checked && confirm("Wenn Sie die Seite neu laden, werden ihre Änderungen mit den offiziellen Daten überschrieben! Wollen Sie die Synchronisation mit offiziellen Daten deaktivieren um dies zu vermeiden?")) {
     syncDataCheckbox.checked = false;
-    settingChanged("syncDataCheckbox", {checked: false});
+    localStorage.setItem('syncWithOfficials', false);
   }
   settingsClosed();
 // löscht alle Elemente vom dem letzen Öffnen des Editors
