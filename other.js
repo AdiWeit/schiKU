@@ -1,4 +1,3 @@
-// TODO: nur für veraltete Version (später löschen)
 // if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
   categories.style.left = 166 + 22;
   var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: {text: "gray"}} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
@@ -128,11 +127,10 @@ else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSch
 recreatePupils();
 // aktuallisiert den Test, der aktuell genutzt wird
 function refreshNeededTest() {
-for (var i = 0; i < Object.keys(inputs).length; i++) {
-  if (Object.keys(inputs[Object.keys(inputs)[i]]).includes(selectedElementId.parent) && Object.keys(inputs)[i] != "1. settings") {
-    selectedTest = Object.keys(inputs)[i];
-    for (var i1 = 0; selectedTest != "1. settings" && i1 < Object.keys(inputs[selectedTest]).length; i1++) {
-      if (Object.keys(inputs[selectedTest])[i1] == selectedElementId.parent) neededTest = words[selectedTest][inputs[selectedTest][Object.keys(inputs[selectedTest])[i1]].testName];
+for (testType of Object.keys(inputs)) {
+  if (Object.keys(inputs[testType]).includes(selectedElementId.parent) && testType != "1. settings") {
+    for (var i1 = 0; testType != "1. settings" && i1 < Object.keys(inputs[testType]).length; i1++) {
+      if (Object.keys(inputs[testType])[i1] == selectedElementId.parent) neededTest = words[testType][inputs[testType][Object.keys(inputs[testType])[i1]].testName];
     }
   }
 }

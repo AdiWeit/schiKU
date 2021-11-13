@@ -10,22 +10,23 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
   auswertung.allGraphemtreffer.got = 0;
   if (parent && !inputs[selectedTest][parent].Graphemtreffer) inputs[selectedTest][parent].Graphemtreffer = {};
   for (var i = 0; i < document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent)).length; i++) {
+    var element = document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i];
     if (i == JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1 && changedByUser && !auswertung.doNotCount[selectedElementId.parent].includes(correct)) {
       auswertung.doNotCount[selectedElementId.parent].push(correct);
     }
     auswertung.allGraphemtreffer.possible += JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
-    auswertung.allGraphemtreffer.got += JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
+    auswertung.allGraphemtreffer.got += JSON.parse(element.value);
     if (parent && replaceAll(neededTest.words[i], '-', '') == correct) {
-      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i].value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
+      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(element.value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
     }
-  }
+  };
   document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + "</strong> <a style='font-size:20'>Graphemtreffer</a>";
   // alle richtig verschriftlichen Wörter erfassen
   var correctWords = {possible: 0, got: 0};
-  for (var i = 0; i < neededTest.words.length; i++) {
-    correctWords.possible++;
-    if (replaceAll(neededTest.words[i], '-', '') == findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value) correctWords.got++;
-  }
+  neededTest.words.forEach((word, i) => {
+      correctWords.possible++;
+      if (replaceAll(word, '-', '') == findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value) correctWords.got++;
+  });
   document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + correctWords.got + '/' + correctWords.possible + "</strong> <a style='font-size:20'>korrekte Wörter</a>";
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
@@ -43,15 +44,16 @@ function getEveryCategory(printMode) {
   // doNotCount (Wörter mit manueller Korrektur durch Anpassung der Grapahemtreffer) Laute in minusList (Liste, welche Buchstaben wie Häufig auf Grund von Lauten (hier: mehr als 1 Buchstabe) oder weil sie nicht auswertbar sind von der Auswertung in den Rubriken ausgeschlossen werden müssen) hinzufügen
   var minusList = {doNotCount: {}};
   if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
-  for (var i = 0; i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
-    for (var i1 = 0; i1 < auswertung.doNotCount[selectedElementId.parent][i].length; i1++) {
-      var letter = auswertung.doNotCount[selectedElementId.parent][i][i1].toLowerCase();
-      if (letter == "e" && i1 == auswertung.doNotCount[selectedElementId.parent][i].length - 1) letter = "<e>/<E>";
+  auswertung.doNotCount[selectedElementId.parent].forEach((word, i) => {
+    word.split('').forEach((letter, i) => {
+      letter = letter.toLowerCase();
+      if (letter == "e" && i1 == word.length - 1) letter = "<e>/<E>";
       if (!minusList[letter]) minusList[letter] = {};
-      if (!minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]]) minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]] = 0;
-      minusList[letter][auswertung.doNotCount[selectedElementId.parent][i]]++;
-    }
-  }
+      if (!minusList[letter][word]) minusList[letter][word] = 0;
+      minusList[letter][word]++;
+    });
+  });
+
   var doNotCountObj = JSON.parse(JSON.stringify(minusList));
       doNotCountObj.laute = {};
   // Umschreibung in kategorien (vorher: auswertung.categories[aktueller Test, also pupilSheet][Wort][Rubrik][Buchstabe] nachher: auswertung.byCategories[Rubrik][Buchstabe])
@@ -96,12 +98,12 @@ function getEveryCategory(printMode) {
   var rightList = [];
   var mirrorList = [];
   var letterList = [];
-  for (var i = 0; i < neededTest.words.length; i++) {
+    neededTest.words.forEach((word, i) => {
     var inputValue = document.getElementsByClassName('writing' + capitalizeFirstLetter(selectedElementId.parent))[i].value.toLowerCase();
 
     // Auswertung Silben
-    var label = neededTest.words[i].toString().split('-').length + ' Silben';
-    var wordWithoutSilben = replaceAll(neededTest.words[i], '-', '');
+    var label = word.toString().split('-').length + ' Silben';
+    var wordWithoutSilben = replaceAll(word, '-', '');
     if (auswertung.doNotCount[selectedElementId.parent].includes(wordWithoutSilben)) {
     if (!doNotCountObj[label]) doNotCountObj[label] = 0;//{};
     // if (!doNotCountObj[label][wordWithoutSilben]) doNotCountObj[label][wordWithoutSilben] = 0;
@@ -117,7 +119,7 @@ function getEveryCategory(printMode) {
 
     // Auswertung Buchstaben
     try {
-    var wordNow = replaceAll(neededTest.words[i], '-', '');
+    var wordNow = replaceAll(word, '-', '');
       var wrongLetterAblage = JSON.parse(JSON.stringify(auswertung.wrongLetters[selectedElementId.parent][wordNow]));
       for (var i1 = 0; i1 < wordNow.length; i1++) {
         var letterNow = wordNow[i1].toLowerCase();
@@ -137,7 +139,7 @@ function getEveryCategory(printMode) {
    } catch (e) {
      console.log('not filled already');
    }
-  }
+ });
   // <e> als Endung hinzufügen (steht immer am Ende)
   if (neededTest.kategorien && neededTest.kategorien.Endungen && neededTest.kategorien.Endungen.includes("<e>")) {
     if (!auswertung.byCategories.Endungen) auswertung.byCategories.Endungen = {};
@@ -219,16 +221,18 @@ for (category of Object.keys(neededTest.kategorien)) {
     // gespiegelte Buchstaben hinzufügen
     // TODO: <e> gespiegelt
     for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
-      for (var i4 = 0; i4 < inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]].length; i4++) {
-        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]][i4]) {
+      var currentWord = Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2];
+      for (var i4 = 0; i4 < inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord].length; i4++) {
+        // indexList
+        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord][i4]) {
           for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == findChild("class", findChild("word", selectedElementId.parent, Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]), "correctionLetter" + i4, true).innerText.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
+            if (categoryList[i][0] == findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerText.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
               mirrorList[i]++;
               i = categoryList.length;
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2]), "correctionLetter" + i4, true).toLowerCase());
+            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).toLowerCase());
             mirrorList[i]++;
           }
         }
@@ -236,47 +240,47 @@ for (category of Object.keys(neededTest.kategorien)) {
       }
       var doNotCountList = [];
       // doNotCount (nict automatisch ausgewertet, also nur Graphemtreffer bekannt) zur Liste für die Grafik hinzufügen
-      for (var i = 0; i < categoryList.length; i++) {
+      categoryList.forEach((category, i) => {
         // Hinzufügen der Laute, falls in Rubrik vorhanden
-        if (Object.keys(doNotCountObj.laute).includes(categoryList[i].split("/")[0])) {
-          doNotCountList.push(doNotCountObj.laute[categoryList[i].split("/")[0]]);
+        if (Object.keys(doNotCountObj.laute).includes(category.split("/")[0])) {
+          doNotCountList.push(doNotCountObj.laute[category.split("/")[0]]);
         }
         // Hinzufügen der Endung <e>
-        else if (categoryList[i] == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
+        else if (category == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
           doNotCountList.push(0);
-          for (var i1 = 0; i1 < Object.keys(doNotCountObj[categoryList[i]]).length; i1++) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i]][Object.keys(doNotCountObj[categoryList[i]])];
+          for (var i1 = 0; i1 < Object.keys(doNotCountObj[category]).length; i1++) {
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category][Object.keys(doNotCountObj[category])];
           }
         }
         // Hinzufügen der nicht in Rubriken vorhandenen Buchstaben
-        else if (Object.keys(doNotCountObj).includes(categoryList[i].split("/")[0])) {
+        else if (Object.keys(doNotCountObj).includes(category.split("/")[0])) {
           var total = 0;
-          for (keyNow of Object.keys(doNotCountObj[categoryList[i].split("/")[0]])) {
-            total += doNotCountObj[categoryList[i].split("/")[0]][keyNow];
+          for (keyNow of Object.keys(doNotCountObj[category.split("/")[0]])) {
+            total += doNotCountObj[category.split("/")[0]][keyNow];
           }
           doNotCountList.push(total);
         }
         // Eintragen, dass kein nicht auswertbarer vorhanden ist, oder deine Rubrik auf der y-Achse bei dem Index vorhanden ist, wodurch dort auch nichts vorhanden sein kann
-        else if ((categoryList[i].length != 3 || !Object.keys(doNotCountObj).includes(categoryList[i][0])) && categoryList[i] != "<e>/<E>") {
+        else if ((category.length != 3 || !Object.keys(doNotCountObj).includes(category[0])) && category != "<e>/<E>") {
           doNotCountList.push(0);
         }
         // "sonstige" hinzufügen
-        else if (categoryList[i].length == 3) {
+        else if (category.length == 3) {
           doNotCountList.push(0);
-          // if (minusList.doNotCount[categoryList[i][0]] && minusList.doNotCount[categoryList[i][0]] != 0) {
+          // if (minusList.doNotCount[category[0]] && minusList.doNotCount[category[0]] != 0) {
           // Abziehen wegen minusList (also Bucstaben aus Lauten (hier: mehrere Buchstaben) o.ä.)
-            /*minusList.doNotCount[categoryList[i][0]]*/if (minusList.doNotCount[categoryList[i][0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[categoryList[i][0]];
+            /*minusList.doNotCount[category[0]]*/if (minusList.doNotCount[category[0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[category[0]];
           // }
           // else {
           //
-          for (wordNow of Object.keys(doNotCountObj[categoryList[i][0]])) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[categoryList[i][0]][wordNow[i1]];
+          for (wordNow of Object.keys(doNotCountObj[category[0]])) {
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category[0]][wordNow[i1]];
           }
         // }
         }
         // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
         else doNotCountList.push(0);
-      }
+      });
     addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList}, printMode);
 }
 // fügt einen neuen Graphem inzu bzw. aktuallisiert ihn
@@ -379,28 +383,27 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     for (var i = idx; !Object.keys(neededTest.kategorien).includes(category); i--) {
       category = chartData.labels[i];
     }
-      for (var i = 0; i < neededTest.words.length; i++) {
-
+    neededTest.words.forEach((word, i) => {
         findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
         // Überprüfung, ob das Ausgewählte in dem Wort, das gerade überprüft wird, vorhanden ist
-        if ((category != "Doppelkonsonanten" || (replaceAll(neededTest.words[i], '-', '').includes(label + label) && ((Object.keys(neededTest.betonung[i])[0] && replaceAll(neededTest.words[i], '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[0]) + 1] == label) || (Object.keys(neededTest.betonung[i])[1] && replaceAll(neededTest.words[i], '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[1]) + 1] == label)))) && (label.replace('>', '').replace('<', '').length == 1 && (neededTest.words[i].toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && neededTest.words[i].toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
+        if ((category != "Doppelkonsonanten" || (replaceAll(word, '-', '').includes(label + label) && ((Object.keys(neededTest.betonung[i])[0] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[0]) + 1] == label) || (Object.keys(neededTest.betonung[i])[1] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[1]) + 1] == label)))) && (label.replace('>', '').replace('<', '').length == 1 && (word.toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && word.toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
-          if (label == 'e' && neededTest.words[i][neededTest.words[i].length - 1] == "e") {
-            result = neededTest.words[i].split('');
+          if (label == 'e' && word[word.length - 1] == "e") {
+            result = word.split('');
             result.pop();
           }
           // Das angewälte, falls kein Laut (mit mehreren Buchstaben) markieren
-          if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && neededTest.words[i][neededTest.words[i].length - 1] == "e"))) {
+          if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && word[word.length - 1] == "e"))) {
           // Überprüfung, ob
           var labelIncluded = false;
-          var wordWithoutCategories = neededTest.words[i].toLowerCase();
+          var wordWithoutCategories = word.toLowerCase();
           for (var i1 = 0; i1 < possibleLetterList.length; i1++) {
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
           if ((wordWithoutCategories.includes(label) || possibleLetterList.length == 0)) {
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
-          if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(neededTest.words[i], '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
-          if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(neededTest.words[i], '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
+          if ((!Object.keys(auswertung.wrongLetters[pupilSheet][replaceAll(word, '-', '')]).length || (!auswertung.wrongLetters[pupilSheet][replaceAll(word, '-', '')][label])) && (!(label.includes('Silben')) || findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == replaceAll(word, '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
+          if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(word, '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           if (!graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i]) {
             for (var i1 = 0; i1 < pupils; i1++) {
@@ -410,13 +413,13 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
             }
           }
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
-          // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(neededTest.words[i], '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+          // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(word, '-', '').length;
         }
         }
       }
       // Ausgewählte Kriterium ist in einer Kategorie vorhanden: Markierung des Wortes
       if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
-        var wordNow = replaceAll(neededTest.words[i], '-', '');
+        var wordNow = replaceAll(word, '-', '');
         findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
         for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
           for (letter of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
@@ -426,12 +429,12 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
               findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
-              // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(neededTest.words[i], '-', '').length;
+              // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(word, '-', '').length;
             }
           }
         }
       }
-    }
+    });
   }
 };
 var mostLeft = 257;

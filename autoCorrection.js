@@ -159,7 +159,7 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
    }
    else findChild("id", parentId, id).style.width = 100;
    // Löschen der Elemente der letzten Korrektur des Wortes
-   for (var i = 0; findChild('id', wordCorrectionChild, 'correctionLetter', true); i++) {
+   while (findChild('id', wordCorrectionChild, 'correctionLetter', true)) {
      findChild('id', wordCorrectionChild, 'correctionLetter', true).remove();
    }
    // Graphemtrefferanzeige löschen, da sie später mit den neuen Werten wieder hinzugefügt wird
@@ -171,7 +171,6 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
    } catch (e) {}
  }
 function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong) {
-  // TODO: Silben mit einbeziehen: siehe Eingabe "Dno"
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
   // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -192,8 +191,12 @@ else correct = pCorrect;
   // else var original = {correct: pCorrect, wrong: wrong};
   var originalSilben = {correct: correct, wrong: wrong};
   // findChild("id", parentId, id).style.width = wrong.length*8;
-  for (var i = 0; !pCorrect && i < auswertung.doNotCount[selectedElementId.parent].length; i++) {
-    if (auswertung.doNotCount[selectedElementId.parent][i] == correct) auswertung.doNotCount[selectedElementId.parent].splice(i, 1);
+
+  // TODO: klappt alles nach Änderungen noch? (wenn forEach string ist muss z.B. .split('') verwendet werden)
+  if (!pCorrect) {
+    for (var elm of auswertung.doNotCount[selectedElementId.parent]) {
+      if (elm == correct) elm.splice(i, 1);
+    }
   }
   // Anpassung der Größe des Eingabefeldes falls in den Einstellungen aktiviert
   var wrongI = 0;
@@ -211,8 +214,8 @@ else correct = pCorrect;
     prepareCorrection(parentId, id, wordCorrectionChild);
   }
   // Liste mit allen Buchstaben und derem Aussehen
-  for (var i = 0; i < wrong.length; i++) {
-    correctedString.push({letter: wrong[i], colour: "white"});
+  for (var letter of wrong) {
+    correctedString.push({letter: letter, colour: "white"});
   }
   correct = correct.toLowerCase();
   wrong = wrong.toLowerCase();
@@ -264,11 +267,12 @@ else correct = pCorrect;
           wrongI++;
       }
       }
-      for (var i1 = 0; i1 < originalSilben.correct.split("-")[silbeNow].length; i1++) {
-        if (!pCorrect && originalSilben.correct.split("-")[silbeNow][i1] != originalSilben.wrong[wrongI + i1] && originalSilben.correct.split("-")[silbeNow][i1].toLowerCase() == originalSilben.wrong[wrongI + i1] && correctedString[wrongI + i1 + addI]) {
+      originalSilben.correct.split("-")[silbeNow].split('').forEach((syllable, i1) => {
+        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1] && correctedString[wrongI + i1 + addI]) {
           correctedString[wrongI + i1 + addI].colour = selectedColours.wrong.light.text;
         }
-      }
+
+      });
       var lautList = "";
       while (lautList != correct && !lautList.includes(undefined)) {
         lautList = "";
@@ -417,11 +421,12 @@ else {
   return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer// JSON.stringify(correctedString);
 }
 function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
-  for (var i = 0; i < correctedString.length/* && !doNotMark*//* && original.correct != original.wrong*//*graphemFehler > 0*/; i++) {
+  correctedString.forEach((letter, i) => {
     var textColour = "black";
-    if (correctedString[i].colour != "white") textColour = "white";
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: correctedString[i].letter, style: 'background-color:' + correctedString[i].colour + ';' + "color:" + textColour, title: 'klicken, um ' + correctedString[i].letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
-  }
+    if (letter.colour != "white") textColour = "white";
+    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: letter.letter, style: 'background-color:' + letter.colour + ';' + "color:" + textColour, title: 'klicken, um ' + letter.letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+  });
+
   // if (!doNotMark && graphemFehler > 0) {
     addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
