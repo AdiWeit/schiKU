@@ -402,7 +402,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           }
           if ((wordWithoutCategories.includes(label) || possibleLetterList.length == 0)) {
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
-          if ((label == "<e>" && getLastLetterStyle(i, pupilSheet).color != selectedColours.wrong.dark.text && getLastLetterStyle(i, pupilSheet).letter.toLowerCase() == "e") || (label != "<e>" && findLetter(replaceAll(word, '-', ''), label).got == findLetter(replaceAll(word, '-', ''), label).possible)) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
+          if ((label.includes('Silben') && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) || (!label.includes('Silben') && ((label == "<e>" && getLastLetterStyle(i, pupilSheet).color != selectedColours.wrong.dark.text && getLastLetterStyle(i, pupilSheet).letter.toLowerCase() == "e") || (label != "<e>" && findLetter(replaceAll(word, '-', ''), label).got == findLetter(replaceAll(word, '-', ''), label).possible)))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(word, '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
           if (!graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i]) {
