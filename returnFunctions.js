@@ -43,3 +43,13 @@ return sorted;
                a.localeCompare(b);    // sort by dictionary order
       })
     }
+
+function findLetter(word, letter) {
+  for (var cat of Object.keys(auswertung.categories[selectedElementId.parent][word])) {
+    if (Object.keys(auswertung.categories[selectedElementId.parent][word][cat]).includes(letter)) return auswertung.categories[selectedElementId.parent][word][cat][letter];
+  }
+}
+function getLastLetterStyle(i, pupilSheet) {
+  for (var i1 = 0; findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + i1, true); i1++) {}
+  return {letter: findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).innerHTML, color: findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).style.backgroundColor};
+}

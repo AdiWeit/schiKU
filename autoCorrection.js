@@ -223,7 +223,7 @@ else correct = pCorrect;
   var silbeNow = -1;
   var allI = 0;
   var beforeBeginning = 0;
-  if (((wrong[1] == correct[0])) && correct[0] != wrong[0] || ((wrong[2] == correct[1]) && correct[1] != wrong[1])) {
+  if (((wrong[1] == correct[0])) && (correct[0] != wrong[0] || ((wrong[2] == correct[1]) && correct[1] != wrong[1]))) {
     /* if (wrong[0] == wrong[1]) correctedString[1].colour = selectedColours.wrong.dark.text
     else */if (!pCorrect) correctedString[0].colour = selectedColours.wrong.dark.text
     addI++;
@@ -259,8 +259,8 @@ else correct = pCorrect;
         }
         if (stringlist.toString().replace(new RegExp(',', 'g'), '') == correct || stringlist.includes(undefined)) between = false;
         else {
-            console.log(correctedString[wrongI + addI].letter + " müsste weg");
-            if (!pCorrect) correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+            console.log(correctedString[wrongI + addI - beforeBeginning].letter + " müsste weg");
+            if (!pCorrect) correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
             doubleError++;
             // addI++;
             graphemFehler++;
@@ -268,8 +268,8 @@ else correct = pCorrect;
       }
       }
       originalSilben.correct.split("-")[silbeNow].split('').forEach((syllable, i1) => {
-        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1] && correctedString[wrongI + i1 + addI]) {
-          correctedString[wrongI + i1 + addI].colour = selectedColours.wrong.light.text;
+        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1].toLowerCase() && correctedString[wrongI + i1 + addI - beforeBeginning]) {
+          correctedString[wrongI + i1 + addI - beforeBeginning].colour = selectedColours.wrong.light.text;
         }
 
       });
@@ -357,9 +357,9 @@ else {
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
-      console.log(correctedString[wrongI + addI].letter + " müsste weg");
+      console.log(correctedString[wrongI + addI - beforeBeginning].letter + " müsste weg");
       // if (correctedString[wrongI + addI - 1]?.letter == '_') alert('Es gab Buchstaben, die bei der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '" vielleicht fäschlicherweise als falsch wahrgenommen wurden, obwohl sie nur teilweise falsch sind! Bitte gehen sie sicher, dass die automatische Fehlerkorrektur nicht zu wenig Graphemtreffer angibt!');
-      if (!pCorrect) correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+      if (!pCorrect) correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
       doubleError++;
       // addI++;
       i--;
@@ -368,8 +368,8 @@ else {
       wrongI++;
     }
     // markiere falsche Groß-Kleinschreibung
-    else if (!pCorrect && originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI]) {
-      correctedString[wrongI + addI].colour = selectedColours.wrong.light.text;
+    else if (!pCorrect && originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI - beforeBeginning]) {
+      correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.light.text;
     }
     var wrongILetter = [];
     wrongILetter.unshift(wrong[wrongI]);
