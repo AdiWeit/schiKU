@@ -11,7 +11,8 @@
   <!-- <br>
   <br> -->
   <h3>Druckereinstellungen</h3>
-  <input onchange="printMode(checked);" id="printerMode" type="checkbox"> <strong>Druckermodus (auch zum Speichern)</strong>
+  <input onchange="printMode(checked);" id="printerMode" style="display:none" type="checkbox">
+  <button onclick="printMode(true);" type="checkbox"><strong>Drucken (auch zum Speichern)</strong></button> 
   <br>
     <select onchange="selectPrintColours(value)" id="colourSelector">
       <option value="colour">Farbdruck</option>
@@ -21,7 +22,7 @@
     <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck<br></a>
     <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Grafik angepasst)
     <br>
-    <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> wenn Druckermodus nicht aktiv, Grafik immer farbig anzeigen
+    <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
   <!-- <br>
   <br> -->
   <h3>Layout der Blätter/Tests</h3>
