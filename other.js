@@ -121,7 +121,7 @@ if (/*localStorage.getItem('syncWithOfficials') == "undefined" || !localStorage.
 else syncWithOfficialData(true);
 var selectedColours = colours[colourSelector.value];
 // Anfragen, ob gespeicherter Fortschritt wiederhergestellt werden soll
-if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie ihre zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken und bestätigen, wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
+if (localStorage.getItem('inputsSchiku') && localStorage.getItem('inputsSchiku') != 'undefined' && confirm('Wollen Sie ihre zuletzt ausgefüllten Tests wiederherstellen? Wenn Sie auf abbrechen oder cancel klicken und danach bestätigen, wird der Fortschritt verloren gehen.')) inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 else if (!localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') == 'undefined' || confirm('Wenn Sie auf OK klicken, gehen alle gespeicherten Eingaben von diesem Gerät verloren! Wollen Sie wirklich forfahren?')) localStorage.setItem('inputsSchiku', 'undefined');
 else if (localStorage.getItem('inputsSchiku') || localStorage.getItem('inputsSchiku') != 'undefined') inputs = JSON.parse(localStorage.getItem('inputsSchiku'));
 recreatePupils();
@@ -254,7 +254,7 @@ document.onkeydown = function(event) {
      }
    }, 333000);
  }
- else if (event.key == "p" && event.ctrlKey && confirm('Der Druckermodus ist nicht aktiviert. Damit ein Schüler/eine Schülerin pro Seite gedruckt bzw. gepeichert wird, muss er jedoch aktiv sein. Wenn Sie ihn aktiveren wollen, klicken sie auf "OK" o.ä. Bitte warten sie nach ihrer Entscheidung darauf, dass das Fenster mit den Druckeinstellungen erscheint.')) {
+ else if (event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
    printerMode.checked = true;
    printMode(true, true);
  }
