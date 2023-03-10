@@ -1,3 +1,4 @@
+// unit tests last commit: 11 failed
 // fügt der Auswertung die falsch geschriebenen Buchstaben hinzu
 function addWrongLetter(correct, i) {
   try {
@@ -268,7 +269,7 @@ else correct = pCorrect;
       }
       }
       originalSilben.correct.split("-")[silbeNow].split('').forEach((syllable, i1) => {
-        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1].toLowerCase() && correctedString[wrongI + i1 + addI - beforeBeginning]) {
+        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1].toLowerCase() && correctedString[wrongI + i1 + addI - beforeBeginning]) {
           correctedString[wrongI + i1 + addI - beforeBeginning].colour = selectedColours.wrong.light.text;
         }
 
