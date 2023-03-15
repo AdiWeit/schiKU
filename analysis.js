@@ -356,7 +356,7 @@ var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 // Markierung der Wörter mit dem ausgewählten Kriterium bzw. Balken
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   // TODO: Markierung: "te"/"et" bei "Tapete" (Überschneidung)
-  selectedElementId.parent = evt.path[0].id.replace('textur', '');
+  selectedElementId.parent = evt.srcElement.id.replace('textur', '');
   refreshNeededTest();
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
   var activePoints = chartNow.getElementsAtEvent(evt);
