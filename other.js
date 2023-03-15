@@ -177,19 +177,19 @@ for (sheetAktuell of Object.keys(inputs[testAktuell])) {
     if (idAktuell == "comment" && !generateInfoText.checked) findChild('id', sheetAktuell, idAktuell).value = findChild('id', sheetAktuell, idAktuell).value.replace(words[testAktuell].preComment, "");
     // minusI++;
   }
-  else if (idAktuell == "Graphemtreffer") {
-    // manuell abgeänderte Graphemtrefferanzahl wiederherstellen
-    for (wordNow of Object.keys(inputs[testAktuell][sheetAktuell][idAktuell])) {
-      if (findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true)) {
-      findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].got;
-      findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][sheetAktuell][idAktuell][wordNow].possible;
-      getAllGraphemtreffer(true, wordNow, sheetAktuell);
-      if (!auswertung.doNotCount[sheetAktuell].includes(wordNow)) auswertung.doNotCount[sheetAktuell].push(wordNow);
-    }
-    }
-  }
   pupilsWritingFinished(idAktuell, true);
 }
+}
+// manuell abgeänderte Graphemtrefferanzahl wiederherstellen
+if (Object.keys(inputs[testAktuell][sheetAktuell]).includes("Graphemtreffer")) {
+  for (wordNow of Object.keys(inputs[testAktuell][sheetAktuell]["Graphemtreffer"])) {
+    if (findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true)) {
+    findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell]["Graphemtreffer"][wordNow].got;
+    findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][sheetAktuell]["Graphemtreffer"][wordNow].possible;
+    getAllGraphemtreffer(true, wordNow, sheetAktuell);
+    if (!auswertung.doNotCount[sheetAktuell].includes(wordNow)) auswertung.doNotCount[sheetAktuell].push(wordNow);
+  }
+  }
 }
 // Die gespiegelten Buchstaben wiederherstellen
 for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
