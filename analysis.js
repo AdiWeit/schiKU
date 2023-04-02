@@ -44,15 +44,15 @@ function getEveryCategory(printMode) {
   // doNotCount (Wörter mit manueller Korrektur durch Anpassung der Grapahemtreffer) Laute in minusList (Liste, welche Buchstaben wie Häufig auf Grund von Lauten (hier: mehr als 1 Buchstabe) oder weil sie nicht auswertbar sind von der Auswertung in den Rubriken ausgeschlossen werden müssen) hinzufügen
   var minusList = {doNotCount: {}};
   if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
-  auswertung.doNotCount[selectedElementId.parent].forEach((word, i) => {
+  for (word of auswertung.doNotCount[selectedElementId.parent]) {
     word.split('').forEach((letter, i) => {
       letter = letter.toLowerCase();
-      if (letter == "e" && i1 == word.length - 1) letter = "<e>/<E>";
+      if (letter == "e" && i == word.length - 1) letter = "<e>/<E>";
       if (!minusList[letter]) minusList[letter] = {};
       if (!minusList[letter][word]) minusList[letter][word] = 0;
       minusList[letter][word]++;
     });
-  });
+  }
 
   var doNotCountObj = JSON.parse(JSON.stringify(minusList));
       doNotCountObj.laute = {};
