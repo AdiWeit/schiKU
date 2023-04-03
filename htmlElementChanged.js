@@ -52,7 +52,7 @@ function pupilsWritingFinished(id, restoringData) {
   document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).innerText = document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).value;
   if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
-    markErrors(id, selectedElementId.parent, true, restoringData);
+    markErrors(id, selectedElementId.parent, true/*, verstehe nicht warum doNotMark true sein sollte*/);
   }
   if (!restoringData) {
     setTimeout(function () {

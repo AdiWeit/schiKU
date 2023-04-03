@@ -143,13 +143,6 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
 }
 return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
 }
-/*
- * ermittelt die Fehler des Schülers
- * Parameter: id - id des Textfeldes, wo die Schreibung des Schülers eingegeben wird
- *            parentId - Id des "Blattes" (div element) des Schülers
- *            doNotMark - wenn true wird die Anzeige für die Auswertung nicht erneuert, wodurch sie nicht zu sehen ist (bei korrekten Wörtern)
- *            doNotResetMirror -
- */
  function prepareCorrection(parentId, id, wordCorrectionChild) {
    if (adaptInputs.checked) {
    findChild("id", parentId, id).style.width = 1;
@@ -171,6 +164,13 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
      findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + correct, true).remove();
    } catch (e) {}
  }
+ /*
+ * ermittelt die Fehler des Schülers
+ * Parameter: id - id des Textfeldes, wo die Schreibung des Schülers eingegeben wird
+ *            parentId - Id des "Blattes" (div element) des Schülers
+ *            doNotMark - wenn true wird die Anzeige für die Auswertung nicht erneuert, wodurch sie nicht zu sehen ist (bei korrekten Wörtern)
+ *            doNotResetMirror -
+ */
 function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong) {
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
@@ -442,4 +442,5 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
     else if (wrong == original.correct.toLowerCase()) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
   // }
 }
-module.exports = markErrors;
+// Don't know why this should be needed
+// module.exports = markErrors;
