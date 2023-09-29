@@ -34,7 +34,11 @@ return sorted;
     function findChild(childType, idOfElement, idOfChild, elementNotId){
       if (!elementNotId) var element = document.getElementById(idOfElement);
       else var element = idOfElement;
-      return element.querySelector('[' + childType + '="' + idOfChild + '"]');
+      try {
+        return element.querySelector('[' + childType + '="' + idOfChild + '"]');
+      } catch (error) {
+        console.log("finding child failed. No child there?");
+      }
     }
     // sortiert eine Liste nach ihrer Länge
     function sortByStringLength(array) {
