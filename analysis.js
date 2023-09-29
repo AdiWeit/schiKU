@@ -15,9 +15,9 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
       auswertung.doNotCount[selectedElementId.parent].push(correct);
     }
     auswertung.allGraphemtreffer.possible += JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
-    auswertung.allGraphemtreffer.got += JSON.parse(element.value);
+    auswertung.allGraphemtreffer.got += Number(element.value);
     if (parent && replaceAll(neededTest.words[i], '-', '') == correct) {
-      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: JSON.parse(element.value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
+      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: Number(element.value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
     }
   };
   document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + "</strong> <a style='font-size:20'>Graphemtreffer</a>";
@@ -137,7 +137,7 @@ function getEveryCategory(printMode) {
     }
     auswertung.wrongLetters[selectedElementId.parent][wordNow] = wrongLetterAblage;
    } catch (e) {
-     console.log('not filled already');
+     console.log('not filled yet');
    }
  });
   // <e> als Endung hinzufügen (steht immer am Ende)
@@ -356,7 +356,8 @@ var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 // Markierung der Wörter mit dem ausgewählten Kriterium bzw. Balken
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   // TODO: Markierung: "te"/"et" bei "Tapete" (Überschneidung)
-  selectedElementId.parent = evt.srcElement.id.replace('textur', '');
+  // srcElement is deprecaed
+  selectedElementId.parent = evt.currentTarget.id.replace('textur', '');
   refreshNeededTest();
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
   var activePoints = chartNow.getElementsAtEvent(evt);
