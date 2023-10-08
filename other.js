@@ -137,78 +137,92 @@ for (testType of Object.keys(inputs)) {
   }
 }
 }
-// stellt gespeicherten Fortschritt wieder her
-function recreatePupils(printMode) {
-while (pupils > 0) {
-  document.getElementById('pupilSheet' + pupils).remove();
-  pupils--;
-}
-selectedElementId.parent = 'pupilSheet1';
-inputs = sortObjectByKey(inputs, true);
-for (testAktuell of Object.keys(inputs)) {
-  selectedTest = testAktuell;//.replace('Test ', '');
-for (sheetAktuell of Object.keys(inputs[testAktuell])) {
-  selectedElementId.parent = sheetAktuell;
-  if (testAktuell == "1. settings" && !printMode) {
-    // gespeicherte Einstellungen wiederherstellen
-    for (param of Object.keys(inputs["1. settings"][sheetAktuell])) {
-      document.getElementById(sheetAktuell)[param] = inputs["1. settings"][sheetAktuell][param];
-      if (sheetAktuell == "patterns" && param == "checked") patternSelected(inputs["1. settings"][sheetAktuell][param]);
-      if (sheetAktuell == "showEdit") showEditorSelected(inputs["1. settings"][sheetAktuell][param]);
+function recreatePupil(referenceSheet, newSheet=referenceSheet) {
+  document.getElementById(newSheet)?.remove();
+  // inputs = sortObjectByKey(inputs, true);
+    selectedElementId.parent = referenceSheet;
+    if (selectedTest == "1. settings" && !printerMode.checked) {
+      // gespeicherte Einstellungen wiederherstellen
+      for (param of Object.keys(inputs["1. settings"][referenceSheet])) {
+        document.getElementById(referenceSheet)[param] = inputs["1. settings"][referenceSheet][param];
+        if (referenceSheet == "patterns" && param == "checked") patternSelected(inputs["1. settings"][referenceSheet][param]);
+        if (referenceSheet == "showEdit") showEditorSelected(inputs["1. settings"][referenceSheet][param]);
+      }
     }
-  }
-  else if (testAktuell != "1. settings") {
-    // gespeicherte Eingaben der Schreibungen des Schülers wiederherstellen
-    selectedColours = colours[colourSelector.value];
-    if (!printMode && alwaysShowColoured.checked) {
-      selectedColours = colours.colour; // colourSelector.value = "colour";
-      patterns = "chart";
+    else if (selectedTest != "1. settings") {
+      // gespeicherte Eingaben der Schreibungen des Schülers wiederherstellen
+      selectedColours = colours[colourSelector.value];
+      if (!printerMode.checked && alwaysShowColoured.checked) {
+        selectedColours = colours.colour; // colourSelector.value = "colour";
+        patterns = "chart";
+      }
+    neededTest = words[selectedTest][inputs[selectedTest][referenceSheet].testName];
+    addPupil(selectedTest, inputs[selectedTest][referenceSheet].testName, referenceSheet.split("Sheet")[1]);
+    // var minusI = 0;
+    for (idAktuell of Object.keys(inputs[selectedTest][referenceSheet])) {
+      if (idAktuell.includes("Writing")) {
+        wordNow = replaceAll(neededTest.words[idAktuell.split(" ")[1]-1], "-", "");
+        if (!inputs[selectedTest][referenceSheet].Graphemtreffer[wordNow]) {
+          var isDoNotCount = false;
+        }
+        else {
+          var isDoNotCount = Object.keys(inputs[selectedTest][referenceSheet].Graphemtreffer[wordNow]).includes("auto_correction");
+        }
+      }
+      if (!(idAktuell.includes('mirror'))) {
+      if (idAktuell.includes('pupilsWriting') && findChild('id', referenceSheet, idAktuell)) {
+      findChild('id', referenceSheet, idAktuell).value = inputs[selectedTest][referenceSheet][idAktuell];
+      markErrors(idAktuell, referenceSheet, undefined, undefined, undefined, undefined, undefined, isDoNotCount); /*, verstehe nicht, warum doNotMark true sein sollte*/
+      pupilsWritingFinished(idAktuell, true);
     }
-  neededTest = words[selectedTest][inputs[testAktuell][sheetAktuell].testName];
-  addPupil(selectedTest, inputs[testAktuell][sheetAktuell].testName);
-  // var minusI = 0;
-  for (idAktuell of Object.keys(inputs[testAktuell][sheetAktuell])) {
-    if (!(idAktuell.includes('mirror'))) {
-    if (idAktuell.includes('pupilsWriting') && findChild('id', sheetAktuell, idAktuell)) {
-    findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][idAktuell];
-    markErrors(idAktuell, sheetAktuell, undefined, true);
+    else if (findChild('id', referenceSheet, idAktuell)) {
+      findChild('id', referenceSheet, idAktuell).value = inputs[selectedTest][referenceSheet][ idAktuell];
+      if (idAktuell == "comment" && !generateInfoText.checked) findChild('id', referenceSheet, idAktuell).value = findChild('id', referenceSheet, idAktuell).value.replace(words[selectedTest].preComment, "");
+      // minusI++;
+    }
     pupilsWritingFinished(idAktuell, true);
   }
-  else if (findChild('id', sheetAktuell, idAktuell)) {
-    findChild('id', sheetAktuell, idAktuell).value = inputs[testAktuell][sheetAktuell][ idAktuell];
-    if (idAktuell == "comment" && !generateInfoText.checked) findChild('id', sheetAktuell, idAktuell).value = findChild('id', sheetAktuell, idAktuell).value.replace(words[testAktuell].preComment, "");
-    // minusI++;
+  // manuell abgeänderte Graphemtrefferanzahl wiederherstellen
+    if (isDoNotCount) {
+      findChild("id", findChild("word", referenceSheet, wordNow), "graphemtrefferGot", true).value = inputs[selectedTest][referenceSheet]["Graphemtreffer"][wordNow].got;
+      findChild("id", findChild("word", referenceSheet, wordNow), "graphemtrefferPossible", true).value = inputs[selectedTest][referenceSheet]["Graphemtreffer"][wordNow].possible;
+      findChild("id", selectedElementId.parent, findChild("word", selectedElementId.parent, wordNow).id.replace("correction", "pupilsWriting")).style.backgroundColor = "gray"
+      getAllGraphemtreffer(true, wordNow, referenceSheet);
+      if (!auswertung.doNotCount[referenceSheet].includes(wordNow)) auswertung.doNotCount[referenceSheet].push(wordNow);
+    }
   }
-  pupilsWritingFinished(idAktuell, true);
-}
-}
-// manuell abgeänderte Graphemtrefferanzahl wiederherstellen
-if (Object.keys(inputs[testAktuell][sheetAktuell]).includes("Graphemtreffer")) {
-  for (wordNow of Object.keys(inputs[testAktuell][sheetAktuell]["Graphemtreffer"])) {
-    if (findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true)) {
-    findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferGot", true).value = inputs[testAktuell][sheetAktuell]["Graphemtreffer"][wordNow].got;
-    findChild("id", findChild("word", sheetAktuell, wordNow), "graphemtrefferPossible", true).value = inputs[testAktuell][sheetAktuell]["Graphemtreffer"][wordNow].possible;
-    getAllGraphemtreffer(true, wordNow, sheetAktuell);
-    if (!auswertung.doNotCount[sheetAktuell].includes(wordNow)) auswertung.doNotCount[sheetAktuell].push(wordNow);
-  }
-  }
-}
-// Die gespiegelten Buchstaben wiederherstellen
-for (var i2 = 0; inputs[testAktuell][sheetAktuell].mirror && i2 < Object.keys(inputs[testAktuell][sheetAktuell].mirror).length; i2++) {
-  var wordsIn = Object.keys(inputs[testAktuell][sheetAktuell].mirror)[i2];
-  for (var i4 = 0; i4 < inputs[testAktuell][sheetAktuell].mirror[wordsIn].length; i4++) {
-    if (inputs[testAktuell][sheetAktuell].mirror[wordsIn][i4]) {
-    // findChild('word', sheetAktuell,wordsIn);
-    findChild('class', findChild('word', sheetAktuell,wordsIn), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
-    findChild('class', findChild('word', sheetAktuell,wordsIn), 'correctionLetter' + i4, true).style.color = "white";
-  }
+  // Die gespiegelten Buchstaben wiederherstellen
+  for (var i2 = 0; inputs[selectedTest][referenceSheet].mirror && i2 < Object.keys(inputs[selectedTest][referenceSheet].mirror).length; i2++) {
+    var wordsIn = Object.keys(inputs[selectedTest][referenceSheet].mirror)[i2];
+    for (var i4 = 0; i4 < inputs[selectedTest][referenceSheet].mirror[wordsIn].length; i4++) {
+      if (inputs[selectedTest][referenceSheet].mirror[wordsIn][i4]) {
+      // findChild('word', referenceSheet,wordsIn);
+      findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
+      findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.color = "white";
+    }
   }
 }
 pupilsWritingFinished(idAktuell, true);
-getEveryCategory(printMode);
+getEveryCategory();
   makeTextboxBigger();
 }
 }
+// stellt gespeicherten Fortschritt wieder her
+function recreatePupils() {
+while (pupils > 0) {
+  document.getElementById('pupilSheet' + pupils)?.remove();
+  pupils--;
+}
+selectedElementId.parent = 'pupilSheet1';
+// inputs = sortObjectByKey(inputs, true);
+for (testAktuell of Object.keys(inputs)) {
+  if (!testAktuell.includes("settings")) {
+    selectedTest = testAktuell;//.replace('Test ', '');
+    for (sheetAktuell of Object.keys(inputs[testAktuell])) {
+      selectedElementId.parent = sheetAktuell;
+      recreatePupil(sheetAktuell);
+    }
+  }
 }
 }
 // Öffnen des Editors ermöglichen/verstecken bzw. vermeiden
