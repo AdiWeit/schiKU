@@ -39,15 +39,17 @@ document.getElementById('message').style.display = "none";
 // fügt alle Elemente für einen neuen Schüler hinzu
 function addPupil(selectedTestType, pSelectedTest) {
   neededTest = words[selectedTestType][pSelectedTest];
-if (document.getElementsByClassName('names').length == 0 || document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "") {
-pupils++;
+pupils = 0;
+for (i=1; pupils == 0; i++) { 
+  if (inputs[selectedTest]["pupilSheet" + i] == undefined) {
+    pupils = i;
+  }
+}
+  if (sheetNr == undefined) {
+    sheetNr = pupils
+  }
 if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
-if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils] = {};
-if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils].testName) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + pupils].testName = pSelectedTest;
-addElement({id: 'pupilSheet' + pupils, style: 'width:21cm; height:29.7cm'}, 'div');
-addElement({id: 'testSelector' + pupils, onchange: 'inputs["' + selectedTestType + '"]["pupilSheet' + pupils + '"]' + '.testName = value; recreatePupils();'}, 'select', 'pupilSheet' + pupils);
-addElement({id: 'testHeadline' + pupils, innerText: pSelectedTest, style:'display:none'}, 'h3', 'pupilSheet' + pupils);
-addElement({}, 'br', 'pupilSheet' + pupils);
+if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {};
 for (test of Object.keys(words[selectedTestType])) {
   if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
 }
