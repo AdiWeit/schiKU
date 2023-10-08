@@ -9,6 +9,9 @@
 <div id="selections">
 <button type="button" onclick=" if (settings.style.display == 'inline') settings.style.display = 'none'; else settings.style.display = 'inline';" id="settingsButton" name="button">Optionen (drucken, als PDF speichern, Grafikeinstellungen, <b>Hilfe</b>, Verlauf, Testeditor etc.)</button>
 <div id="settings" style="display: none;">
+  <br>
+  <button onclick="window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');"><b>Hilfe (Anleitung)</b></button>
+  <br>
   <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (braucht einige Sek.)
   <!-- <br>
   <br> -->
