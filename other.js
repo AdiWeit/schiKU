@@ -240,26 +240,14 @@ document.onkeydown = function(event) {
    }, 10);
  }
  // Erkennung der Tastenkomination zum Öffnen der Druckeinstellungen
- if (event.key == "p" && event.ctrlKey && printerMode.checked) {
-   alert('Der Browser Chrome wird empfohlen. Bitte achten Sie auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 3 Seiten sind "1-2" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für gelochte Din A4 Seiten werden links mindestens 15 mm Rand benötigt, wobei bei allen anderen Rändern kein Rand benötigt wird.');
-   alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Seite und probieren Sie selber andere Maße aus, bei denen das Feld mit dem Name oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis der Name oben auf der Seite auftaucht. Wenn auf der ersten und letzten Seite die Grafik abgebildet ist, wird wahrscheinlich ein Schüler pro Blatt gedruckt.');
-   setTimeout(function () {
-     selections.style.display = "inline";
-     document.getElementById('addPupil').style.display = "inline";
-     document.getElementById('settings').style.display = "none";
-     document.getElementById('openEditorB').style.display = "inline";
-     printMode.checked = false;
-     for (var i = 0; i < pupils; i++) {
-       selectedElementId.parent = "pupilSheet" + (i + 1);
-       refreshNeededTest();
-       getEveryCategory(true);
-     }
-   }, 333000);
+if (!printerMode.checked && event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
+   if (printMode(true, true)) {
+     printerMode.checked = true;
+   }
  }
- else if (event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
-   printerMode.checked = true;
-   printMode(true, true);
- }
+  if (event.key == "p" && event.ctrlKey) {
+    event.preventDefault();
+  }
 }
 /*
  * PURPOSE : generiert ein neues HTML Element
@@ -276,6 +264,8 @@ document.onkeydown = function(event) {
         if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
         else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
       }
+    }
+printerMode.checked = false;
 var isInViewport = function (elem) {
   var bounding = elem.getBoundingClientRect();
   return (
