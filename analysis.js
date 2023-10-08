@@ -56,7 +56,10 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen
-function getEveryCategory(printMode) {
+// manualOverwrite: true wenn durch Überschreiben der Graphemtreffer aufgerufen
+// id: pupilsWriting [1-*]
+// beide Parameter nur für graue Unterlegung wenn duNotCount -> TODO: später verlagern?
+function getEveryCategory(manualOverwrite, id) {
   // Silben aus der Auswertung löschen (wird neu gezählt)
   for (auswertungNow of Object.keys(auswertung)) {
     if (auswertungNow.includes("Silben")/* != "letter" && auswertungNow != "allGraphemtreffer" && auswertungNow != "wrongLetters"*/) {
@@ -80,11 +83,14 @@ function getEveryCategory(printMode) {
 
   var doNotCountObj = JSON.parse(JSON.stringify(minusList));
       doNotCountObj.laute = {};
+  // Anzahl Richtige und Anzahl Falsche zur Liste nach Kategorien und Alphabet geordnet hinzufügen
+  var categoryList = [];
   // Umschreibung in kategorien (vorher: auswertung.categories[aktueller Test, also pupilSheet][Wort][Rubrik][Buchstabe] nachher: auswertung.byCategories[Rubrik][Buchstabe])
   auswertung.byCategories = {};
   for (var i1 = 0; auswertung.categories[selectedElementId.parent] && i1 < Object.keys(auswertung.categories[selectedElementId.parent]).length; i1++) {
     var wordNow = Object.keys(auswertung.categories[selectedElementId.parent])[i1];
     for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
+      // objKeyName: "possible", "got", letters
       for (objKeyName of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
         if (!auswertung.byCategories[category]) auswertung.byCategories[category] = {possible: 0, got: 0};
         if (objKeyName != "got" && objKeyName != "possible") {
@@ -96,9 +102,11 @@ function getEveryCategory(printMode) {
       }
       else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
         }
-        else if (!doNotCountObj.laute[objKeyName]) {
-          // TODO: wenn keine Kathegorie vorhanden
-          doNotCountObj.laute[objKeyName] = 0;
+        else {
+          if (!doNotCountObj.laute[objKeyName]) {
+            doNotCountObj.laute[objKeyName] = 0;
+          }
+          if (!myCategories[category].includes(objKeyName) && !categoryList.includes(objKeyName)) categoryList.push(objKeyName);
           if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
           // TODO: Laute: einzelne Buchstaben übertragen (Anzahl kann aus auswertung.categories abgelesen werden)
           else {
@@ -129,9 +137,18 @@ function getEveryCategory(printMode) {
     var label = word.toString().split('-').length + ' Silben';
     var wordWithoutSilben = replaceAll(word, '-', '');
     if (auswertung.doNotCount[selectedElementId.parent].includes(wordWithoutSilben)) {
-    if (!doNotCountObj[label]) doNotCountObj[label] = 0;//{};
-    // if (!doNotCountObj[label][wordWithoutSilben]) doNotCountObj[label][wordWithoutSilben] = 0;
-    doNotCountObj[label]/*[wordWithoutSilben]*/++;
+    // TODO: check ob Vereinheitlichen möglich
+    if (label.includes("Silben")) {
+      if (!doNotCountObj[label]) {
+        doNotCountObj[label] = {}
+      }
+      if (!doNotCountObj[label][wordWithoutSilben]) doNotCountObj[label][wordWithoutSilben] = 0
+      doNotCountObj[label][wordWithoutSilben]++;
+    }
+    else {
+      if (!doNotCountObj[label]) doNotCountObj[label] = 0;//{};
+      doNotCountObj[label]/*[wordWithoutSilben]*/++;
+    }
     // falls kein einziger auswertbar
     if (!auswertung[label]) auswertung[label] = {possible: 0, got: 0};
   }
@@ -170,34 +187,46 @@ function getEveryCategory(printMode) {
     if (auswertung.letter[selectedElementId.parent]["<e>"]) auswertung.byCategories.Endungen["<e>/<E>"] = auswertung.letter[selectedElementId.parent]["<e>"];
   }
   // Anzahl Richtige und Anzahl Falsche zur Liste nach Kategorien und Alphabet geordnet hinzufügen
-  var categoryList = [];
   var wordsCountedTogether = [];
   auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
-  for (category of Object.keys(auswertung.byCategories)) {
+  for (category of Object.keys(sortObjectByKey(/*auswertung.byCategories*/myCategories, true))) {
     auswertung.byCategories[category] = sortObjectByKey(auswertung.byCategories[category], true);
-    categoryList.push(category);
-    // Zusammenzählen der Rubrik, falls ausgewählt
-  if (neededTest.countTogether && neededTest.countTogether.includes(category) && countTogether.checked) {
-    categoryList[categoryList.length - 1] = "zusammen " + categoryList[categoryList.length - 1];
-    rightList.push(auswertung.byCategories[category].got)
-    wrongList.push(auswertung.byCategories[category].possible - auswertung.byCategories[category].got);
-    for (letter of Object.keys(auswertung.byCategories[category])) {
-      if (letter != "<e>/<E>") wordsCountedTogether.push(letter + "/" + letter.toUpperCase());
-      else wordsCountedTogether.push(letter);
+    if (Object.keys(auswertung.byCategories).includes(category)) categoryList.push(category);
+    // doNotCount categoryList hinzufügen falls nötig
+    for (letter of Object.keys(doNotCountObj)) {
+      if (myCategories[category].includes(letter)) {
+        if (!categoryList.includes(category)) categoryList.push(category)
+        if (!Object.keys(auswertung.byCategories[category]).includes(letter)) {
+          categoryList.push(letter);
+          rightList.push(0);
+          wrongList.push(0);
+        }
+      }
     }
-  }
-  else {
-    // 0 wegen Text der Rubriken auf der y-Achse (dort sollen keine Balken sein)
-    rightList.push(0)
-    wrongList.push(0);
-    // Hinzufügen der Rubriken, Anzahl richtig und Anzahl falsch geschriebener Laute in Liste für Grafik hinzufügen
-    for (objKeyName of Object.keys(auswertung.byCategories[category])) {
-      if (objKeyName != "got" && objKeyName != "possible") {
-        // letterList push weiter unten um Buchstaben, die in einer Kategorie sind aber in dem spezifisch gewählen Test nicht vorkommen abzufangen
-        // letterList.push(objKeyName);
-        categoryList.push(objKeyName);
-        rightList.push(auswertung.byCategories[category][objKeyName].got);
-        wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
+    if (Object.keys(auswertung.byCategories).includes(category)) {
+      // Zusammenzählen der Rubrik, falls ausgewählt
+    if (neededTest.countTogether && neededTest.countTogether.includes(category) && countTogether.checked) {
+      categoryList[categoryList.length - 1] = "zusammen " + categoryList[categoryList.length - 1];
+      rightList.push(auswertung.byCategories[category].got)
+      wrongList.push(auswertung.byCategories[category].possible - auswertung.byCategories[category].got);
+      for (letter of Object.keys(auswertung.byCategories[category])) {
+        if (letter != "<e>/<E>") wordsCountedTogether.push(letter + "/" + letter.toUpperCase());
+        else wordsCountedTogether.push(letter);
+      }
+    }
+    else {
+      // 0 wegen Text der Rubriken auf der y-Achse (dort sollen keine Balken sein)
+      rightList.push(0)
+      wrongList.push(0);
+      // Hinzufügen der Rubriken, Anzahl richtig und Anzahl falsch geschriebener Laute in Liste für Grafik hinzufügen
+      for (objKeyName of Object.keys(auswertung.byCategories[category])) {
+        if (objKeyName != "got" && objKeyName != "possible") {
+          // letterList push weiter unten um Buchstaben, die in einer Kategorie sind aber in dem spezifisch gewählen Test nicht vorkommen abzufangen
+          // letterList.push(objKeyName);
+          if (!categoryList.includes(objKeyName)) categoryList.push(objKeyName);
+          rightList.push(auswertung.byCategories[category][objKeyName].got);
+          wrongList.push(auswertung.byCategories[category][objKeyName].possible - auswertung.byCategories[category][objKeyName].got);
+        }
       }
     }
   }
@@ -272,8 +301,8 @@ for (category of Object.keys(neededTest.kategorien)) {
         // Hinzufügen der Endung <e>
         else if (category == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
           doNotCountList.push(0);
-          for (var i1 = 0; i1 < Object.keys(doNotCountObj[category]).length; i1++) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category][Object.keys(doNotCountObj[category])];
+          for (word of Object.keys(doNotCountObj[category])) {
+            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category][word];
           }
         }
         // Hinzufügen der nicht in Rubriken vorhandenen Buchstaben
@@ -305,7 +334,8 @@ for (category of Object.keys(neededTest.kategorien)) {
         // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
         else doNotCountList.push(0);
       });
-    addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList}, printMode);
+    addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList});
+  if (manualOverwrite) document.getElementById(id).style.backgroundColor = "gray";
 }
 // fügt einen neuen Graphem inzu bzw. aktuallisiert ihn
 // @param texte: Beschriftung des Graphen auf der y-Achse (Balkendiagramm)
