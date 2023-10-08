@@ -440,6 +440,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
     }
     neededTest.words.forEach((word, i) => {
         findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
+        findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = "";
         // Überprüfung, ob das Ausgewählte in dem Wort, das gerade überprüft wird, vorhanden ist
         if ((category != "Doppelkonsonanten" || (replaceAll(word, '-', '').includes(label + label) && ((Object.keys(neededTest.betonung[i])[0] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[0]) + 1] == label) || (Object.keys(neededTest.betonung[i])[1] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[1]) + 1] == label)))) && (label.replace('>', '').replace('<', '').length == 1 && (word.toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && word.toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
@@ -449,8 +450,6 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           }
           // Das angewälte, falls kein Laut (mit mehreren Buchstaben) markieren
           if (label.includes('Silben') || ((label != '<e>' && (!result || (result.join('').includes('e')))) || (label == '<e>' && word[word.length - 1] == "e"))) {
-          // Überprüfung, ob
-          var labelIncluded = false;
           var wordWithoutCategories = word.toLowerCase();
           for (var i1 = 0; i1 < possibleLetterList.length; i1++) {
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
@@ -460,14 +459,15 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
           if ((label.includes('Silben') && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) || (!label.includes('Silben') && ((label == "<e>" && getLastLetterStyle(i, pupilSheet).color != selectedColours.wrong.dark.text && getLastLetterStyle(i, pupilSheet).letter.toLowerCase() == "e") || (label != "<e>" && findLetter(replaceAll(word, '-', ''), label).got == findLetter(replaceAll(word, '-', ''), label).possible)))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
           if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(word, '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
           findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
-          if (!graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i]) {
-            for (var i1 = 0; i1 < pupils; i1++) {
-              for (var i2 = 0; i2 < 15; i2++) {
-                markErrors('pupilsWriting ' + (i2 + 1), 'pupilSheet' + (i1 + 1))
+          // TODO: not needed because it is already checked if Schreibung Schüler is ""?
+          if (!document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i]) {
+              // go through words
+              for (var i2 = 0; i2 < officialData[selectedTest][inputs[selectedTest][pupilSheet].testName].words.length; i2++) {
+                  markErrors('pupilsWriting ' + (i2 + 1), pupilSheet/*'pupilSheet' + i1*/);
               }
-            }
+            // }
           }
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
+          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
           // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(word, '-', '').length;
         }
         }
