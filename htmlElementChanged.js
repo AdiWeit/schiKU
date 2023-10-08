@@ -150,3 +150,45 @@ function changeMirror(index, wordId) {
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 getEveryCategory();
 }
+function pupilInfoChanged({name, date, elm}) {
+  // TODO mehrere Tests mit gleichen Daten
+  var same = [];
+  for (const testName of Object.keys(inputs)) {
+    for (const sheetNr of Object.keys(inputs[testName])) {
+      if (sheetNr != elm.parentElement.id) {
+        if (inputs[testName][sheetNr]["name" + sheetNr.split("Sheet")[1]] == name) {
+          same.push({testName: testName, sheetId: sheetNr, type: "name"});
+        }
+        if (inputs[testName][sheetNr]["date" + sheetNr.split("Sheet")[1]] == date) {
+          same.push({testName: testName, sheetId: sheetNr, type: "date"});
+        }
+      }
+    }
+  }
+  if (same.map(x => x.type).includes("name") && same.map(x => x.type).includes("date") && confirm("Es existiert bereits ein Test mit den eingegebenen Daten. Wollen Sie diesen laden? Ihre bisherigen Eingaben dieses Tests gehen dabei verloren. ")) {
+    delete inputs[selectedTest][selectedElementId.parent];
+    selectedTest = same[0].testName;
+    recreatePupil(same[0].sheetId, selectedElementId.parent);
+  }
+}
+
+function toggleHistoryDisplay() {
+  recreateOpenSheets();
+  settingsClosed();
+}
+function restore_latest_test() {
+  while (pupils > 0) {
+    document.getElementById('pupilSheet' + pupils)?.remove();
+    pupils--;
+  }
+  testsObj = inputs[selectedTest];
+  recreatePupil(Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
+  settings.style.display = 'none';
+}
+function deleteTest(parent) {
+  if (confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
+    delete inputs[selectedTest][parent];
+    document.getElementById(parent).remove();
+  }
+}
+var selectedGraphemtreffer = {possible: 0, got: 0};
