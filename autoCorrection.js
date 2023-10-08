@@ -170,8 +170,9 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
  *            parentId - Id des "Blattes" (div element) des Schülers
  *            doNotMark - wenn true wird die Anzeige für die Auswertung nicht erneuert, wodurch sie nicht zu sehen ist (bei korrekten Wörtern)
  *            doNotResetMirror -
+ *            isDoNotCount: true wenn das Wort das korrigiert wird manuell korrigiert wurde (doNotCount) (trotzdem wird automatische Korrektur durchgeführt, um die vom dem Programm kalkulierte Graphemtrefferanzahl festzustellen)
  */
-function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong) {
+function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount) {
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
   // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -193,7 +194,7 @@ else correct = pCorrect;
   var originalSilben = {correct: correct, wrong: wrong};
   // findChild("id", parentId, id).style.width = wrong.length*8;
 
-  // TODO: klappt alles nach Änderungen noch? (wenn forEach string ist muss z.B. .split('') verwendet werden)
+  // removes word from doNotCount when the writing is autocorrected again because of pupils writing change
   if (!pCorrect) {
     elm = auswertung.doNotCount[selectedElementId.parent];
     for (var i = 0; i < elm.length; i++) {
@@ -420,8 +421,11 @@ else {
   console.log("possibleGraphemtreffer: " +  possibleGraphemtreffer );
   console.log("graphemFehler: " + graphemFehler);
   console.log("--> " + ((possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer) + " Graphemtreffer");
+  if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
+  if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
   return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer// JSON.stringify(correctedString);
 }
+// id: pupils writing [number 1-*]
 function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
   correctedString.forEach((letter, i) => {
     var textColour = "black";
@@ -430,10 +434,13 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
   });
 
   // if (!doNotMark && graphemFehler > 0) {
-    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'if (value != "") getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
-    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible',onchange: 'getEveryCategory();', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
-    addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible', onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    if (findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + original.correct, true)) {
+      findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + original.correct, true).remove();
+    }
+    addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent) + " automaticGraphemTreffer", style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
     findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.dark.text;
   // }
   // else {

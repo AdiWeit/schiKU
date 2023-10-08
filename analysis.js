@@ -1,25 +1,49 @@
 // Zusammenzählen aller Graphemtreffer und korrekter Wörter
 // todo: klein + / + groß immer, also bei Rubriken hinzufügen
 function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser, correct, parent) {
-  if (parent) {
-    selectedElementId.parent = parent;
-    refreshNeededTest();
-    if (findChild('id', parent, 'automaticGraphemTreffer' + correct)) findChild('id', parent, 'automaticGraphemTreffer' + correct).style.display = 'inline';
-  }
   auswertung.allGraphemtreffer.possible = 0;
   auswertung.allGraphemtreffer.got = 0;
+  var writingI;
+  // doNotCountBefore = structuredClone(auswertung.doNotCount[parent]);
   if (parent && !inputs[selectedTest][parent].Graphemtreffer) inputs[selectedTest][parent].Graphemtreffer = {};
   for (var i = 0; i < document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent)).length; i++) {
     var element = document.getElementsByClassName("graphemtrefferGot" + capitalizeFirstLetter(selectedElementId.parent))[i];
+    if (parent && findChild("id", parent, "word " + (i + 1)).innerText == correct) {
+      writingI = i;
+    }
     if (i == JSON.parse(selectedElementId.element.replace('pupilsWriting ', '')) - 1 && changedByUser && !auswertung.doNotCount[selectedElementId.parent].includes(correct)) {
       auswertung.doNotCount[selectedElementId.parent].push(correct);
     }
     auswertung.allGraphemtreffer.possible += JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
     auswertung.allGraphemtreffer.got += Number(element.value);
     if (parent && replaceAll(neededTest.words[i], '-', '') == correct) {
-      inputs[selectedTest][parent].Graphemtreffer[correct] = {got: Number(element.value), possible: JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value)};
+      // track Graphemtreffer (possible + got) to make automatically going back to autocorrection possible
+      if (/*doNotCountBefore.includes(correct)*/Object.keys(inputs[selectedTest][parent].Graphemtreffer[correct]).includes('auto_correction')) {
+        before = structuredClone(inputs[selectedTest][parent].Graphemtreffer[correct].auto_correction)
+      }
+      else before = structuredClone(inputs[selectedTest][parent].Graphemtreffer[correct]);
+      if (!inputs[selectedTest][parent].Graphemtreffer[correct]) inputs[selectedTest][parent].Graphemtreffer[correct] = {};
+      inputs[selectedTest][parent].Graphemtreffer[correct].got = Number(element.value) 
+      inputs[selectedTest][parent].Graphemtreffer[correct].possible = JSON.parse(document.getElementsByClassName("graphemtrefferPossible" + capitalizeFirstLetter(selectedElementId.parent))[i].value);
+      if (!/*doNotCountBefore.includes(correct)*/Object.keys(inputs[selectedTest][parent].Graphemtreffer[correct]).includes('auto_correction')) {
+        inputs[selectedTest][parent].Graphemtreffer[correct].auto_correction = before;
+      }
     }
-  };
+  };  
+  // parent only defined if graphemtreffer manually changed?
+  // handle automatic correction button display + automatic revert to automatic correction because of same values
+  if (parent) {
+    selectedElementId.parent = parent;
+    refreshNeededTest();
+    graphemtreffer = inputs[selectedTest][parent].Graphemtreffer[correct];
+    // TODO: autocorrectionnot always gotten (recreation of history)
+    if (graphemtreffer.got == graphemtreffer.auto_correction?.got && graphemtreffer.possible == graphemtreffer.auto_correction?.possible) {
+      resetGraphemtreffer("pupilsWriting " + (writingI+1), selectedElementId.parent);
+    }
+    else if (findChild('id', parent, 'automaticGraphemTreffer' + correct)) {
+      findChild('id', parent, 'automaticGraphemTreffer' + correct).style.display = 'inline';
+    } 
+  }
   document.getElementById('allGraphemes' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + auswertung.allGraphemtreffer.got + '/' + auswertung.allGraphemtreffer.possible + "</strong> <a style='font-size:20'>Graphemtreffer</a>";
   // alle richtig verschriftlichen Wörter erfassen
   var correctWords = {possible: 0, got: 0};
