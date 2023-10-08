@@ -10,7 +10,10 @@ function settingChanged(id, attrs, refresh) {
 }
 function settingsClosed() {
   settings.style.display = 'none';
-  if (preview.checked && settingsChanged) recreatePupils();
+  if (preview.checked && settingsChanged) {
+    if (showHistory.checked) recreatePupils();
+    else recreatePupil(selectedElementId.parent);
+  }
   settingsChanged = false;
 }
 function selectPrintColours(value) {
