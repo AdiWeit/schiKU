@@ -276,4 +276,67 @@ document.onkeydown = function(event) {
         if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
         else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
       }
+var isInViewport = function (elem) {
+  var bounding = elem.getBoundingClientRect();
+  return (
+      bounding.top >= 0 &&
+      bounding.left >= 0 &&
+      bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+};
+window.onscroll = function (e) {  
+  // arrow up visibility
+  if (!showHistory.checked || isInViewport(document.getElementById("name" + Object.keys(inputs[selectedTest])[0].split("Sheet")[1]))) {
+    arrowUp.style.display = "none";
+  }
+  else {
+    arrowUp.style.display = "block";
+  }
+  test_name = inputs[selectedTest][Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1]].testName;
+  // arrow down visibility
+  if (!showHistory.checked || isInViewport(findChild("id", Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1], "pupilsWriting " + Math.round(officialData[selectedTest][test_name].words.length/2)))) {
+    arrowDown.style.display = "none";
+  }
+  else {
+    arrowDown.style.display = "block";
+  }
+}
+var isInViewport = function (elem) {
+  try {
+    var bounding = elem.getBoundingClientRect();
+    return (
+      bounding.top >= 0 &&
+      bounding.left >= 0 &&
+      bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
+      );
+    } catch (err) {
+      console.log("element not found: " + err);
+      return true;
     }
+};
+function clearHistory() {
+  if (!confirm("Sind Sie sich sicher, dass Sie alle alten gespeicherten Tests löschen wollen? Nur der letzte (sichtbare) Test wird verbleiben!")) return;
+  while (Object.keys(inputs[selectedTest]).length > 1) {
+    delete inputs[selectedTest][Object.keys(inputs[selectedTest])[0]];
+  }
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+}
+window.onafterprint = function(){
+  // TODO: optional oder so?
+  window.location.reload();
+}
+function recreateOpenSheets() {
+  while (document.getElementsByClassName("pupilSheet").length > 0) {
+    document.getElementsByClassName("pupilSheet")[0].remove();
+  }
+  if (selectedTest == "1. settings") selectedTest = "Kreis Unna";
+    if (showHistory.checked) {
+      recreatePupils();
+    }
+    else {
+      // recreatePupil(Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1]);
+      recreatePupil(selectedElementId.parent);
+    }
+}
