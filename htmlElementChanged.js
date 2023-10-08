@@ -31,7 +31,10 @@ function patternSelected(checked) {
 // aktiviert den print mode
 // @param checked: über Einstellungen aktiviert
        // pressed: Tastenkombination zum Drucken gedrückt
-function printMode(checked, pressed) {
+function printMode(checked) {
+  if ((Array.from(document.querySelectorAll('input[type=date]')).map(x => x.valueAsDate).includes(null) && !confirm("Sie haben noch nicht das Datum aller Tests eingegeben! Sind Sie sich sicher, dass sie trotzdem drucken wollen?")) || (Array.from(document.getElementsByClassName("names")).map(x => x.value).includes('') && !confirm("Sie haben noch keinen Schülernamen eingegeben! Sicher dass Sie trotzdem drucken wollen?"))) {
+    return;
+  }
   if (checked) {
     printerMode.checked = true;
     if (!pressed) alert("drücken sie Str und p, um die Auswertungen auszudrucken. Die Optionen (drucken, als PDF speichern, Grafikeinstellungen etc.) erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen (erneutes Aufrufen) der Seite wieder. Bitte haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden die Druckereinstellungen verschwunden sein.");
