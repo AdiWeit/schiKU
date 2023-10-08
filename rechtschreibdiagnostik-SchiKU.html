@@ -15,6 +15,12 @@
   <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (braucht einige Sek.)
   <!-- <br>
   <br> -->
+  <br>
+  <input type="checkbox" id="showHistory" onchange="toggleHistoryDisplay(checked);"> <b>Verlauf (früher eingegebene Tests) anzeigen (Bitte warten. Die Einstellungen schließen sich nach Beendigung der Wiederherstellung automatisch)</b>
+  <br>
+  <button onclick="restore_latest_test()">vorherigen Test wiederherstellen</button>
+  <br>
+  <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der letzte Test bleibt erhalten
   <h3>Druckereinstellungen</h3>
   <input onchange="printMode(checked);" id="printerMode" style="display:none" type="checkbox">
   <button onclick="printMode(true);" type="checkbox"><strong>Drucken (auch zum Speichern)</strong></button> 
