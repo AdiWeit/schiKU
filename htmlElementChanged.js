@@ -37,16 +37,58 @@ function printMode(checked) {
   }
   if (checked) {
     printerMode.checked = true;
-    if (!pressed) alert("drücken sie Str und p, um die Auswertungen auszudrucken. Die Optionen (drucken, als PDF speichern, Grafikeinstellungen etc.) erscheinen einige Zeit nach dem Druckauftrag, oder durch Neuladen (erneutes Aufrufen) der Seite wieder. Bitte haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden die Druckereinstellungen verschwunden sein.");
-    else {
-      alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter Ausrichtung" Hochformat. Bitte achten Sie zudem auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon eine leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten oder ein richtiges Format werden links und oben mindestens 15 mm Rand benötigt. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
+    alert('Bitte bestätigen Sie die folgenden Meldungen mit "OK" und haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden nur noch die auf dem Druck gewünschten Elemente zu sehen sein. Die Hinweise sind auch in der Anleitung (F1 drücken oder in den Einstellungen  auf "Hilfe (Anleitung)" klicken) unten auffindbar. ');
+    alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter "Ausrichtung" "Porträt" (hochformat). Bitte achten Sie zudem auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon eine leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten oder ein richtiges Format werden links und oben mindestens 15 mm Rand benötigt. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
+    if (showHistory.checked) {
       alert('Andere mögliche Maße, damit es ein Schüler/eine Schülerin pro Blatt bleibt: links 17mm, oben 17,5mm oder links 20mm, oben > 21mm. Für andere Maße, scrollen Sie runter bis zur letzten Auswertung und probieren Sie selber andere Maße aus, bei denen das Feld mit dem Namen oben auf dem Blatt steht. Tipp: stellen Sie eine Entfernung vom rechten Rand ein, die ihnen gefällt und verändern (meist vergrößern) Sie den Abstand vom oberen Rand so lange, bis alle Informationen über den Test (Personenname, Klasse, Datum) auftaucht. Wenn auf der ersten und letzten Seite die Grafik abgebildet ist, wird wahrscheinlich ein Schüler pro Blatt gedruckt.');
     }
     selections.style.display = "none";
     document.getElementById('addPupil').style.display = "none";
     document.getElementById('openEditorB').style.display = "none";
+    for (const elm of document.getElementsByClassName("deleteButton")) {
+      elm.style.display = "none";
+    }
+    arrowUp.style.display = "none";
+    arrowDown.style.display = "none";
   }
-    recreatePupils(true);
+  // recreatePupils(true);
+  var list = [selectedElementId.parent];
+  if (showHistory.checked) {
+    list = Object.keys(inputs[selectedTest])
+  }
+  recreateOpenSheets();
+  for (sheet of list) {
+    sheetNr = sheet.split("Sheet")[1];
+    // replacing input fields with text
+    if (removeTextFields.checked) {
+      while (document.getElementsByClassName('graphemtrefferGotPupilSheet' + sheetNr).length > 0) {
+        elm = document.getElementsByClassName('graphemtrefferGotPupilSheet' + sheetNr)[0]
+        elm.replaceWith(addElement({innerText: elm.value, style: "margin-left: 10px;"}, "b"));
+      }
+      while (document.getElementsByClassName('graphemtrefferPossiblePupilSheet' + sheetNr).length > 0) {
+        elm = document.getElementsByClassName('graphemtrefferPossiblePupilSheet' + sheetNr)[0]
+        addElement({innerText: " Graphemtreffer"}, "a", elm.parentElement, true)
+        elm.replaceWith(addElement({innerText: elm.value}, "b"));
+      }
+      // TODO: padding 1, double-dashed border?
+      elm = document.getElementById("name" + sheetNr)
+      elm.replaceWith(addElement({innerText: elm.value, style: "margin-top: 3px;"}, "b"));
+      elm = document.getElementById("class" + sheetNr)
+      elm.replaceWith(addElement({innerText: elm.value, style: "margin-left: 11px; margin-bottom: 3px"}, "b"));
+      elm = document.getElementById("date" + sheetNr)
+      elm.replaceWith(addElement({innerText: `${elm.valueAsDate?.getDate()}.${elm.valueAsDate?.getMonth() + 1}.${elm.valueAsDate?.getFullYear()}`}, "b"));
+    }
+    while (document.getElementsByClassName("automaticGraphemTreffer").length) {
+      document.getElementsByClassName("automaticGraphemTreffer")[0].remove();
+    }
+  }
+  // TODO: checked gamz weg?
+  if (checked) {
+    setTimeout(() => {
+      window.print();
+    }, 1111);
+  }
+  return true;
 }
 // wird aufgerufen, wenn Eingabe der Schreibweise des Schülers durch Abwählen der Textbox (onchange) beendet wurde..
 // falls nur ein "r" eigegeben wurde, wird das Wort als korrekt anerkannt.
