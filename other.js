@@ -39,15 +39,15 @@ document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
 function addPupil(selectedTestType, pSelectedTest, sheetNr) {
-if (!showHistory.checked) {
-  while (document.getElementsByClassName("pupilSheet").length >= 1) {
-    document.getElementsByClassName("pupilSheet")[0].remove();
-  }
-}
   neededTest = words[selectedTestType][pSelectedTest];
   // sheetNr != undefined --> recreating tests --> ignore if name put in
-if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "") {
-pupils = 0;
+if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || ((document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "" || confirm("Sie haben für Ihren letzten Test keinen Namen eingegeben. Sicher dass Sie wirlich schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[placeholder="Klasse"]')[document.querySelectorAll('[placeholder="Klasse"]').length-1].value != "" || confirm("Sie haben für Ihren letzten Test die Klasse nicht angegeben! Sind Sie sich sicher, dass Sie schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[type="date"]')[document.querySelectorAll('[type="date"]').length-1].value != "" || confirm("Sie haben das Datum des Tests nicht eingegeben! Sind Sie sich sicher, dass Sie trotzdem mit dem nächsten Test fortfahren wollen?")))) {
+  if (!showHistory.checked) {
+    while (document.getElementsByClassName("pupilSheet").length >= 1) {
+      document.getElementsByClassName("pupilSheet")[0].remove();
+    }
+  }
+  pupils = 0;
 for (i=1; pupils == 0; i++) { 
   if (inputs[selectedTest]["pupilSheet" + i] == undefined) {
     pupils = i;
@@ -114,7 +114,6 @@ else {
   if (sheetNr == undefined) {
     sheetNr = pupils
   }
-  alert("Bitte geben sie zuerst den Namen des Schülers/der Schülerin an!");
   document.getElementsByClassName('pupilSheet')[document.getElementsByClassName('pupilSheet').length - 1].scrollIntoView();
 }
 selectedElementId.parent = "pupilSheet" + sheetNr;
