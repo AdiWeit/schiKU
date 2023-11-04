@@ -1,0 +1,144 @@
+<meta charset="utf-8">
+<title>SchiKU-Rechtschreibdiagnostik Kreis Unna</title>
+<!-- Import der libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.0/dist/patternomaly.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+<img src="https://adi.nicolaiweitkemper.de/Bilder/PfeilTranzparent.png" id="arrowUp" style="rotate: -90deg; scale: 0.3; top: -70; position: fixed;left: -120; display: none;">
+<img src="https://adi.nicolaiweitkemper.de/Bilder/PfeilTranzparent.png" id="arrowDown" style="rotate: 90deg; scale: 0.3; bottom: -70; position: fixed;left: -120; display: none;">
+<div id="selections">
+<button type="button" onclick=" if (settings.style.display == 'inline') settings.style.display = 'none'; else settings.style.display = 'inline';" id="settingsButton" name="button">Optionen (drucken, als PDF speichern, Grafikeinstellungen, <b>Hilfe</b>, Verlauf, Testeditor etc.)</button>
+<div id="settings" style="display: none;">
+  <br>
+  <button onclick="window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');"><b>Hilfe (Anleitung)</b></button>
+  <br>
+  <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (braucht einige Sek.)
+  <!-- <br>
+  <br> -->
+  <br>
+  <input type="checkbox" id="showHistory" onchange="RefreshHistoryDisplay();"> <b>Verlauf (früher eingegebene Tests) anzeigen (Bitte warten. Die Einstellungen schließen sich nach Beendigung der Wiederherstellung automatisch)</b>
+  <br>
+  <button onclick="restore_latest_test()">vorherigen Test wiederherstellen</button>
+  <br>
+  <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der letzte Test bleibt erhalten
+  <h3>Druckereinstellungen</h3>
+  <input onchange="printMode(checked);" id="printerMode" style="display:none" type="checkbox">
+  <button onclick="printMode(true);" type="checkbox"><strong>Drucken (auch zum Speichern)</strong></button> 
+  <br>
+    <select onchange="selectPrintColours(value)" id="colourSelector">
+      <option value="colour">Farbdruck</option>
+      <option value="blackWhite">Schwarz-Weiß-Druck</option>
+    </select>
+    <br>
+    <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck<br></a>
+    <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Grafik angepasst)
+    <br>
+    <input id="removeTextFields" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> die Textfelder mit reinem Text ersetzen
+    <br>
+    <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
+  <!-- <br>
+  <br> -->
+  <h3>Layout der Blätter/Tests</h3>
+  <input id="adaptInputs" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> Größe der Textfelder an Anzahl der Buchstaben anpassen
+  <br>
+  <input id="inputsParallel" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> alle Eingabefelder untereinander
+  <br>
+  <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext zum Testverfahren in Anmerkungen automatisch generieren
+  <br>
+  <input type="checkbox" id="countTogether" checked="true" onchange="settingChanged(id, {checked: checked}, true);"> bei Kategorien, auf denen kein Fokus liegt, nur Zusammenzählen
+  <br>
+  <br>
+  <h3>Tests bearbeiten, hinzufügen, Feedback geben und Fragen stellen</h3>
+  <input type="checkbox" id="showEdit" onchange="settingChanged(id, {checked: checked}, true);"> Button zum Bearbeiten von Tests anzeigen
+  <br>
+  <button type="button" onclick="copyCode();" name="button">Selbst erstellte Tests einsenden: Code der Tests in die Zwischenablage kopieren</button> um ihn an
+  <br>
+  <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a><br> (gerne auch Feedback geben oder Fragen stellen) zu schicken, welcher ihn bei Bedarf hinzufügt
+  <br>
+  <br>
+  <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
+  <br>
+  <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
+  <input type="text" id="message" style="display: none">
+  <br>
+  <br>
+  <button type="button" onclick="settingsClosed();" name="button">schließen</button>
+</div>
+<br>
+<br>
+<select id="testTypeSelector" style="display: none">
+  <option value="Kreis Unna">Kreis Unna</option>
+  <option value="newTestType">+ Test Typ</option>
+</select>
+<!-- <br> -->
+<select id="testSelector" title="Test für den nächsten Schüler" onchange="neededTest = words[testTypeSelector.value][value]; console.log(value)">
+  <option value="Test 1">Test 1</option>
+  <option value="Test 2">Test 2</option>
+  <option value="Test 3">Test 3</option>
+  <option value="Test 4">Test 4</option>
+  <option value="Test 5">Test 5</option>
+  <option value="Test 6">Test 6</option>
+  <!-- <option value="newTest">+ Test</option> -->
+</select>
+<br>
+</div>
+<div id="tests">
+  <button type="button" id="addPupil" onclick="addPupil(testTypeSelector.value, testSelector.value);" title="Ein weiteres Blatt erstellen, wo Sie die Schreibungen des nächsten Schülers eingeben können. " name="button">Neuen Test eingeben</button>
+  <br>
+  <button type="button" id="openEditorB" style="display:none" onclick="editTest();" name="button">bearbeiten</button>
+</div>
+<br>
+<div id="editor" style="display: none">
+  <input type="text" id="nameType" placeholder="Name Testart">
+  <input type="text" id="nameTest" placeholder="Name expliziter Test">
+<div style="position: absolute; right: 0;" id="categories">
+  <h1>Einstellungen</h1>
+  <h2>Anmerkungen für alle Testverfahren</h2>
+  <textarea type="text" id="preCommentInput" rows="4" cols="46" placeholder="Anmerkungen"></textarea>
+  <h2>Rubrik</h2>
+<div id="rubrik">
+  <br>
+</div>
+<button type="button" onclick="removeType('Rubrik');" name="button">X</button>
+<button type="button" onclick="addTextbox('bitte auswählen', 'Rubrik', 'rubrik')" name="button">+ Rubrik</button>
+  <h2>ein Graphemtreffer (für gesamtes Testverfahren)</h2>
+  <div id="wortlaut">
+    <br>
+  </div>
+  <button type="button", id="removeWord" onclick="removeType('Wortlaut');" name="button">X</button>
+  <button type="button" onclick="addTextbox('', 'Wortlaut', 'wortlaut')" name="button">+ Wortlaut</button>
+</div>
+<div style="position: absolute; right: 0">
+  <h2>folgende Rubriken in diesem Test Zusammenzählen</h2>
+  <div id="combineCategories">
+    <br>
+  </div>
+  <button type="button", id="removeCombineCategorie" onclick="removeType('combineCategories');" name="button">X</button>
+  <button type="button" onclick="addTextbox('bitte auswählen', 'Rubrik', 'combineCategories')" name="button">+ category</button>
+</div>
+<h2>Wörter</h2>
+<div id="word"></div>
+<button type="button", id="removeWord" onclick="removeType('Wort');" name="button">X</button>
+<button type="button" onclick="addTextbox('', 'Wort', 'word');" style='width: 147px; height: 20' id="addTextbox">+ Wort</button>
+<br>
+<button type="button" style="width: 175" onclick="closeEditor(true);" name="button">auf dem Gerät speichern und verlassen</button>
+<br>
+<button type="button" style="width: 175" onclick="closeEditor();" name="button">abbrechen</button>
+</div>
+<!-- import des restlichen Codes -->
+<script src="returnFunctions.js"></script>
+<script src="words.js"></script>
+<script src="htmlElementChanged.js"></script>
+<script src="editor.js"></script>
+<script src="autoCorrection.js"></script>
+<script src="analysis.js"></script>
+<script src="other.js"></script>
+<style>
+  /* deleting the last page from the print */
+  @media print {
+      html, body {
+          height: 99%;    
+      }
+  }
+  </style>
+  
