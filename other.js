@@ -53,17 +53,12 @@ if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'T
 for (test of Object.keys(words[selectedTestType])) {
   if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
 }
-document.getElementById('testSelector' + pupils).value = pSelectedTest;
-addElement({placeholder: 'Name Schüler/in', id: 'name', class: 'names', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-addElement({placeholder: 'Klasse', id: 'class' + pupils, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-addElement({}, 'br', 'pupilSheet' + pupils);
-addElement({placeholder: 'Datum', style: 'width: 208;', id: 'date' + pupils, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + pupils);
-addElement({placeholder: 'Anmerkungen', style: 'position: absolute; right: 0px; height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + pupils + '"; dataChanged(id, value);'}, 'textarea', 'pupilSheet' + pupils);
-if (generateInfoText.checked && words[selectedTestType].preComment) findChild("id", 'pupilSheet' + pupils, "comment").innerText = words[selectedTestType].preComment;
-addElement({id: 'divGraph' + pupils, style: 'position: absolute; right: 0px;'}, 'div', 'pupilSheet' + pupils);
-addElement({}, 'br', 'pupilSheet' + pupils);
-addElement({id: 'texturpupilSheet' + pupils}, 'canvas', 'divGraph' + pupils);
-addElement({}, 'br', 'pupilSheet' + pupils);
+if (printerMode.checked && removeTextFields.checked) {
+  addElement({style: 'border-style: double; margin: 0; padding-left: 3px;', id: 'comment'}, 'p', elm, true);
+}
+else {
+ addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
+}
 var mostRight = 0;
 for (var i = 0; i < neededTest.words.length; i++) {
   addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + pupils);

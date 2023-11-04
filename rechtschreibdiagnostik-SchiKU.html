@@ -31,7 +31,9 @@
     </select>
     <br>
     <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck<br></a>
-    <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Grafik angepasst)
+    <input id="randDrucken" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Rand drucken (wenn angewählt, wird Abstand zwischen Anmerkungsfeld und Grafik angepasst)
+    <br>
+    <input id="removeTextFields" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> die Textfelder mit reinem Text ersetzen
     <br>
     <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
   <!-- <br>

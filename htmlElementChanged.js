@@ -116,7 +116,7 @@ function dataChanged(id, value) {
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent]) inputs[/*'Test ' + */selectedTest][selectedElementId.parent] = {};
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
-  if (id == "comment") makeTextboxBigger();
+  if (id == "comment" && !printerMode.checked) makeTextboxBigger();
 }
 // setzt Graphemtreffer auf Auswertung des Programmes zurrück
 function resetGraphemtreffer(element, parent) {

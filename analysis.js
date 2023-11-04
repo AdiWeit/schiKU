@@ -340,7 +340,7 @@ for (category of Object.keys(neededTest.kategorien)) {
 // fügt einen neuen Graphem inzu bzw. aktuallisiert ihn
 // @param texte: Beschriftung des Graphen auf der y-Achse (Balkendiagramm)
 // @param data: Inhalte bzw. Daten für die Balken
-function addChart(texte, data, printMode) {
+function addChart(texte, data) {
   // to refresh size (not working otherwise)
   document.getElementById('textur' + selectedElementId.parent).remove();
   addElement({id: 'textur' + selectedElementId.parent}, 'canvas', 'divGraph' + selectedElementId.parent.replace('pupilSheet', ''));
