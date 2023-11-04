@@ -39,6 +39,11 @@ document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
 function addPupil(selectedTestType, pSelectedTest, sheetNr) {
+if (!showHistory.checked) {
+  while (document.getElementsByClassName("pupilSheet").length >= 1) {
+    document.getElementsByClassName("pupilSheet")[0].remove();
+  }
+}
   neededTest = words[selectedTestType][pSelectedTest];
   // sheetNr != undefined --> recreating tests --> ignore if name put in
 if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "") {
@@ -244,6 +249,7 @@ getEveryCategory();
 }
 // stellt gespeicherten Fortschritt wieder her
 function recreatePupils() {
+  // TODO: ändern?
 while (pupils > 0) {
   document.getElementById('pupilSheet' + pupils)?.remove();
   pupils--;
