@@ -172,7 +172,7 @@ function pupilInfoChanged({name, date, elm}) {
   }
 }
 
-function toggleHistoryDisplay() {
+function RefreshHistoryDisplay() {
   recreateOpenSheets();
   settingsClosed();
 }

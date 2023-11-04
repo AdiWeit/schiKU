@@ -163,6 +163,6 @@ for (nameTypeNow of Object.keys(words)) {
 if (!doNotRecreatePupils) {
   addElement({value: 'newTestType', innerText: '+ Testverfahren'}, 'option', 'testTypeSelector');
   addElement({value: 'newTest', innerText: '+ Test'}, 'option', 'testSelector');
-  if (!showEditNotChecked) recreatePupils();
+  if (!showEditNotChecked) RefreshHistoryDisplay(showHistory.checked);
 }
 }

@@ -1,9 +1,11 @@
 // if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
-  categories.style.left = 166 + 22;
+// TODO: index.html
+// window.location.replace('https://adi.nicolaiweitkemper.de/')  
+categories.style.left = 166 + 22;
   var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: {text: "gray"}} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
   document.getElementById('addPupil').style.left = 300 + "px";
   document.getElementById('addPupil').style.position = 'fixed';
-  document.getElementById('testSelector').style.left = 388 + "px";
+  document.getElementById('testSelector').style.left = 300 + "px";
   document.getElementById('testSelector').style.position = 'fixed';
   document.getElementById('testTypeSelector').style.left = 300 + "px";
   document.getElementById('testTypeSelector').style.position = 'fixed';
@@ -37,8 +39,10 @@ document.getElementById("message").value = "Ein Fehler ist aufgetreten!!!"
 document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
-function addPupil(selectedTestType, pSelectedTest) {
+function addPupil(selectedTestType, pSelectedTest, sheetNr) {
   neededTest = words[selectedTestType][pSelectedTest];
+  // sheetNr != undefined --> recreating tests --> ignore if name put in
+if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "") {
 pupils = 0;
 for (i=1; pupils == 0; i++) { 
   if (inputs[selectedTest]["pupilSheet" + i] == undefined) {
@@ -50,47 +54,68 @@ for (i=1; pupils == 0; i++) {
   }
 if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
 if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {};
+if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName = pSelectedTest;
 addElement({id: 'pupilSheet' + sheetNr, class: "pupilSheet", style: 'page-break-after: always; width:21cm; height:29.7cm'}, 'div');
-for (test of Object.keys(words[selectedTestType])) {
-  if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
+if (!printerMode.checked) {
+  addElement({onclick: 'deleteTest(this.parentElement.id);', class: "deleteButton", innerText: "X", style: "background-color: red; font-weight: bold; margin-bottom: 5; margin-right: 5", title: "Test löschen"}, 'button', 'pupilSheet' + sheetNr);
 }
+// nur noch ein Wechsel möglich
+addElement({id: 'testSelector' + sheetNr, onchange: 'inputs["' + selectedTestType + '"]["pupilSheet' + sheetNr + '"]' + '.testName = value; recreatePupil("pupilSheet' + sheetNr + '");'}, 'select', 'pupilSheet' + sheetNr);
+addElement({id: 'testHeadline' + sheetNr, innerText: pSelectedTest, style:'display:none'}, 'h3', 'pupilSheet' + sheetNr);
+addElement({}, 'br', 'pupilSheet' + sheetNr);
+for (test of Object.keys(words[selectedTestType])) {
+  if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + sheetNr);
+}
+document.getElementById('testSelector' + sheetNr).value = pSelectedTest;
+// #potentialError: id changed
+addElement({placeholder: 'Name Schüler/in', onchange: "pupilInfoChanged({name: this.value, elm: this, date: document.getElementById('date" + sheetNr + "').value});", id: 'name' + sheetNr, class: 'names', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + sheetNr);
+addElement({placeholder: 'Klasse', id: 'class' + sheetNr, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + sheetNr);
+addElement({}, 'br', 'pupilSheet' + sheetNr);
+addElement({placeholder: 'Datum', type: "date", onchange: "pupilInfoChanged({date: this.value, name: document.getElementById('name" + sheetNr + "').value, elm: this})", style: 'width: 208;', id: 'date' + sheetNr, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + sheetNr);
 var elm = addElement({style: 'position: absolute; right: 0px;'/*50px*/, id: 'commentDiv' + sheetNr}, 'div', 'pupilSheet' + sheetNr);
+addElement({style: 'margin: 0; text-align: center', class: "commentHeading", innerText: "Anmerkungen"}, 'h3', elm, true);
 if (printerMode.checked && removeTextFields.checked) {
   addElement({style: 'border-style: double; margin: 0; padding-left: 3px;', id: 'comment'}, 'p', elm, true);
 }
 else {
  addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
 }
+if (generateInfoText.checked && words[selectedTestType].preComment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = words[selectedTestType].preComment;
 elm.appendChild(addElement({id: 'divGraph' + sheetNr, style: 'position: absolute; right: 0px; min-width: 481px;'}, 'div', 'pupilSheet' + sheetNr));
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 addElement({id: 'texturpupilSheet' + sheetNr}, 'canvas', 'divGraph' + sheetNr);
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 var mostRight = 0;
 for (var i = 0; i < neededTest.words.length; i++) {
-  addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + pupils);
-  addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + pupils, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + pupils + '");', onchange: 'markErrors(id, "pupilSheet' + pupils + '", true); pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + pupils);
-  if (document.getElementsByClassName("writingPupilSheet" + pupils)[i].getBoundingClientRect().left > mostRight) mostRight = document.getElementsByClassName("writingPupilSheet" + pupils)[i].getBoundingClientRect().left;
-  addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + pupils);
-  if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + pupils);
+  addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + sheetNr);
+  addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + sheetNr, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + sheetNr + '");', onchange: 'markErrors(id, "pupilSheet' + sheetNr + '", true); pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + sheetNr);
+  if (document.getElementsByClassName("writingPupilSheet" + sheetNr)[i].getBoundingClientRect().left > mostRight) mostRight = document.getElementsByClassName("writingPupilSheet" + sheetNr)[i].getBoundingClientRect().left;
+  addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + sheetNr);
+  if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + sheetNr);
 }
-  for (var textBox of document.getElementsByClassName("writingPupilSheet" + pupils)) {
+  for (var textBox of document.getElementsByClassName("writingPupilSheet" + sheetNr)) {
     if (inputsParallel.checked) {
     textBox.style.position = "absolute";
     textBox.style.left = mostRight;
     }
     else textBox.style.position = "";
   }
-addElement({}, 'br', 'pupilSheet' + pupils);
-addElement({id: 'allGraphemes' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
-addElement({}, 'br', 'pupilSheet' + pupils);
-addElement({id: 'allCorrect' + pupils, style: 'font-size: 25'}, 'a', 'pupilSheet' + pupils);
-document.getElementById('pupilSheet' + pupils).scrollIntoView();
+addElement({}, 'br', 'pupilSheet' + sheetNr);
+addElement({id: 'allGraphemes' + sheetNr, style: 'font-size: 25'}, 'a', 'pupilSheet' + sheetNr);
+addElement({}, 'br', 'pupilSheet' + sheetNr);
+addElement({id: 'allCorrect' + sheetNr, style: 'font-size: 25'}, 'a', 'pupilSheet' + sheetNr);
+document.getElementById('pupilSheet' + sheetNr).scrollIntoView();
 }
 else {
+  if (sheetNr == undefined) {
+    sheetNr = pupils
+  }
   alert("Bitte geben sie zuerst den Namen des Schülers/der Schülerin an!");
-  document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].select();
-  document.getElementById('pupilSheet' + pupils).scrollIntoView();
+  document.getElementsByClassName('pupilSheet')[document.getElementsByClassName('pupilSheet').length - 1].scrollIntoView();
 }
+selectedElementId.parent = "pupilSheet" + sheetNr;
+document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].select();
+// makeTextboxBigger();
 }
 // synchronisation mit von mir hinzugefügten Tests
 // @param sync: wenn true wird sychronisiert, sonst erscheint nur ein Button dafür
@@ -105,6 +130,7 @@ localStorage.setItem('words', JSON.stringify(words));
 }
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}, categories: {}, byCategories: {}, doNotCount: {}};
 var inputs = {};
+inputs[selectedTest] = {}
 // eigen hinzugefügte Tests oder Test Typen, die nich vorprogrammiert sind werden hinzugefügt
 if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
 var wordsInport = JSON.parse(localStorage.getItem('words'));
@@ -115,7 +141,7 @@ for (nameTypeNow of Object.keys(words)) {
   }
 }
 words = wordsInport;
-refreshWords();
+refreshWords(true);
 }
 if (/*localStorage.getItem('syncWithOfficials') == "undefined" || !localStorage.getItem('syncWithOfficials') || */localStorage.getItem('syncWithOfficials') == "false") {
   syncWithOfficialData();
@@ -248,16 +274,23 @@ function showEditorSelected(checked) {
 }
 // kontrolliert die Größe des Feldes für Anmerkungen (wird je nach Bedarf größer und verkleinert Grafik)
 function makeTextboxBigger() {
-findChild('id', selectedElementId.parent, 'comment').scroll(0, 1000);
-while (findChild('id', selectedElementId.parent, 'comment').scrollTop > 0) {
-  findChild('id', selectedElementId.parent, 'comment').style.height = JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace('px', '')) + 1 + 'px';
-  document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.top = JSON.parse(document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.top.replace('px', '')) + 1 + 'px';
-  document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height = JSON.parse(document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height.replace('px', '')) - 1 + 'px';
+try {
+  findChild('id', selectedElementId.parent, 'comment').scroll(0, 1000);
+  while (findChild('id', selectedElementId.parent, 'comment').scrollTop > 0) {
+    findChild('id', selectedElementId.parent, 'comment').style.height = JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace('px', '')) + 1 + 'px';
+    document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height = JSON.parse(document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).style.height.replace('px', '')) - 1 + 'px';
+  }
+  } catch (error) {
+    console.log("failed making textbox bigger (seems like there is not really a test)");
 }
 }
-
 document.onkeydown = function(event) {
   // Anwählen des nächsten Textfeldes bei Drücken von Tab (wegen Textfeldern für Grapemtreffer nicht automatisch)
+  if (['Tab', "ArrowDown"].includes(event.key) && selectedElementId.element.includes("pupilsWriting") && document.getElementById(selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1))) {
+    setTimeout(function () {
+      if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
+    }, 10);
+  }
   if (event.key == "F1") window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');
  // Erkennung der Tastenkomination zum Öffnen der Druckeinstellungen
 if (!printerMode.checked && event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
@@ -284,6 +317,7 @@ if (!printerMode.checked && event.key == "p" && event.ctrlKey && confirm('Wollen
         if (attrNow == 'innerText') newElement.innerText = attr[attrNow];
         else newElement.setAttribute(attrNow/*'style'*/, /*'color:' + word[i].colour*/attr[attrNow]);
       }
+      return newElement
     }
 printerMode.checked = false;
 var isInViewport = function (elem) {
