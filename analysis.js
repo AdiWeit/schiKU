@@ -483,7 +483,7 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
               if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.right.text;//"green";
               if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
               findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
-              findChild('word', pupilSheet, wordNow).style.width = graphemtrefferPossible[neededTest.words.length*(pupilSheet.replace('pupilSheet', '') - 1) + i].getBoundingClientRect().right + 3;
+              findChild('word', pupilSheet, wordNow).style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
               // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(word, '-', '').length;
             }
           }
@@ -496,18 +496,22 @@ var mostLeft = 257;
 for (var i = 0; i < document.getElementsByClassName('writing' + selectedElementId.parent).length; i++) {
   if (document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right > mostLeft) mostLeft = document.getElementsByClassName('writing' + selectedElementId.parent)[i].getBoundingClientRect().right;
 }
-// Anpassung der Größe der Grafik und des Feldes für Anmerkungen
+// Anpassung der Größe des Feldes für Anmerkungen
+findChild('id', selectedElementId.parent, 'comment').style.width = window.innerWidth - mostLeft - 65- (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
+if (!printerMode.checked) {
+  findChild('id', selectedElementId.parent, 'comment').style.height = 10;
+}
+makeTextboxBigger();
+// Anpassung der Größe der Grafik
 chartNow.canvas.parentNode.style.right = 27//-20;
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
-if (printMode && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 55 + scrollY + 37*(selectedElementId.parent.replace('pupilSheet', '') - 1);
-else chartNow.canvas.parentNode.style.top = document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 40 + scrollY;
+chartNow.canvas.parentNode.style.top = 79// 74;
+// if (printerMode.checked && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById("commentDiv" + chartNow.canvas.id.split("texturpupilSheet")[1]).getBoundingClientRect().bottom + scrollY  + 23*(selectedElementId.parent.replace('pupilSheet', '') - 1)// document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 90 + document.getElementById("commentHeading").getBoundingClientRect().height + 80// + scrollY;
+// else chartNow.canvas.parentNode.style.top = document.getElementById("commentDiv" + chartNow.canvas.id.split("texturpupilSheet")[1]).getBoundingClientRect().bottom + scrollY//document.getElementById(selectedElementId.parent).getBoundingClientRect().top + document.getElementById("commentHeading").getBoundingClientRect().height + 80// + scrollY;
 for (var graphBottom = document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
 }
-findChild('id', selectedElementId.parent, 'comment').style.width = window.innerWidth - mostLeft - 65- (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
-findChild('id', selectedElementId.parent, 'comment').style.height = 10;
-makeTextboxBigger();
 if (chartNow.canvas.parentNode.style.height.replace("px", "") > 50*texte.length) chartNow.canvas.parentNode.style.height = 50*texte.length + "px";
 // findChild('id', selectedElementId.parent, 'comment').style.top = chartNow.canvas.parentNode.style.top.replace("px", "") - JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace("px", "")) - (1*(selectedElementId.parent.replace('pupilSheet', '') - 1)) + "px";
 }

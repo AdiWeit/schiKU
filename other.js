@@ -50,15 +50,21 @@ for (i=1; pupils == 0; i++) {
   }
 if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
 if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {};
+addElement({id: 'pupilSheet' + sheetNr, class: "pupilSheet", style: 'page-break-after: always; width:21cm; height:29.7cm'}, 'div');
 for (test of Object.keys(words[selectedTestType])) {
   if (test != "einGraphemtreffer" && test != "preComment") addElement({value: test, innerText: test}, 'option', 'testSelector' + pupils);
 }
+var elm = addElement({style: 'position: absolute; right: 0px;'/*50px*/, id: 'commentDiv' + sheetNr}, 'div', 'pupilSheet' + sheetNr);
 if (printerMode.checked && removeTextFields.checked) {
   addElement({style: 'border-style: double; margin: 0; padding-left: 3px;', id: 'comment'}, 'p', elm, true);
 }
 else {
  addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
 }
+elm.appendChild(addElement({id: 'divGraph' + sheetNr, style: 'position: absolute; right: 0px; min-width: 481px;'}, 'div', 'pupilSheet' + sheetNr));
+addElement({}, 'br', 'pupilSheet' + sheetNr);
+addElement({id: 'texturpupilSheet' + sheetNr}, 'canvas', 'divGraph' + sheetNr);
+addElement({}, 'br', 'pupilSheet' + sheetNr);
 var mostRight = 0;
 for (var i = 0; i < neededTest.words.length; i++) {
   addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + pupils);
