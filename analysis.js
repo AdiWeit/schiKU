@@ -507,11 +507,8 @@ chartNow.canvas.parentNode.style.right = 27//-20;
 chartNow.canvas.parentNode.style.width = window.innerWidth - mostLeft - 10 - (window.innerWidth - document.getElementById(selectedElementId.parent).getBoundingClientRect().right);
 chartNow.canvas.parentNode.style.height = 1;
 chartNow.canvas.parentNode.style.top = 79// 74;
-// if (printerMode.checked && randDrucken.checked) chartNow.canvas.parentNode.style.top = document.getElementById("commentDiv" + chartNow.canvas.id.split("texturpupilSheet")[1]).getBoundingClientRect().bottom + scrollY  + 23*(selectedElementId.parent.replace('pupilSheet', '') - 1)// document.getElementById(selectedElementId.parent).getBoundingClientRect().top + 90 + document.getElementById("commentHeading").getBoundingClientRect().height + 80// + scrollY;
-// else chartNow.canvas.parentNode.style.top = document.getElementById("commentDiv" + chartNow.canvas.id.split("texturpupilSheet")[1]).getBoundingClientRect().bottom + scrollY//document.getElementById(selectedElementId.parent).getBoundingClientRect().top + document.getElementById("commentHeading").getBoundingClientRect().height + 80// + scrollY;
 for (var graphBottom = document.getElementById('divGraph' + selectedElementId.parent.replace('pupilSheet', '')).getBoundingClientRect().bottom; document.getElementById(selectedElementId.parent).getBoundingClientRect().bottom > graphBottom; graphBottom++) {
   chartNow.canvas.parentNode.style.height = JSON.parse(chartNow.canvas.parentNode.style.height.replace('px', '')) + 1 + 'px';
 }
 if (chartNow.canvas.parentNode.style.height.replace("px", "") > 50*texte.length) chartNow.canvas.parentNode.style.height = 50*texte.length + "px";
-// findChild('id', selectedElementId.parent, 'comment').style.top = chartNow.canvas.parentNode.style.top.replace("px", "") - JSON.parse(findChild('id', selectedElementId.parent, 'comment').style.height.replace("px", "")) - (1*(selectedElementId.parent.replace('pupilSheet', '') - 1)) + "px";
 }
