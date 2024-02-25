@@ -285,7 +285,7 @@ for (category of Object.keys(neededTest.kategorien)) {
             }
           }
           if (i != categoryList.length + 1) {
-            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).toLowerCase());
+            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerHTML.toLowerCase());
             mirrorList[i]++;
           }
         }
