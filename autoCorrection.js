@@ -80,6 +80,9 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
         correct = originalCorrect;
       if (!letterList[letterString]) letterList[letterString] = {};
       if (!letterCounter[letterString]) letterCounter[letterString] = [];
+      if (Object.keys(letterList[letterString]).length > letterString.length) {
+        delete letterList[letterString][Object.keys(letterList[letterString])[0]]
+      }
       // wenn der Index ein Buchstabe hinter einem Laut, der einzeln gezählt werden soll, ist
       if (/*letterCounter*/Object.keys(letterList[letterString]).length == letterString.length) {
         var string = Object.keys(letterList[letterString]).toString().replace(new RegExp(',', 'g'), '');
