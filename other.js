@@ -176,19 +176,22 @@ for (testType of Object.keys(inputs)) {
   }
 }
 }
+restoreSettings()
+// gespeicherte Einstellungen wiederherstellen
+function restoreSettings() {
+  for (setting of Object.keys(inputs["1. settings"])) {
+    for (param of Object.keys(inputs["1. settings"][setting])) {
+      document.getElementById(setting)[param] = inputs["1. settings"][setting][param];
+      if (setting == "patterns" && param == "checked") patternSelected(inputs["1. settings"][setting][param]);
+      if (setting == "showEdit") showEditorSelected(inputs["1. settings"][setting][param]);
+    }
+  }
+}
 function recreatePupil(referenceSheet, newSheet=referenceSheet) {
   document.getElementById(newSheet)?.remove();
   // inputs = sortObjectByKey(inputs, true);
     selectedElementId.parent = referenceSheet;
-    if (selectedTest == "1. settings" && !printerMode.checked) {
-      // gespeicherte Einstellungen wiederherstellen
-      for (param of Object.keys(inputs["1. settings"][referenceSheet])) {
-        document.getElementById(referenceSheet)[param] = inputs["1. settings"][referenceSheet][param];
-        if (referenceSheet == "patterns" && param == "checked") patternSelected(inputs["1. settings"][referenceSheet][param]);
-        if (referenceSheet == "showEdit") showEditorSelected(inputs["1. settings"][referenceSheet][param]);
-      }
-    }
-    else if (selectedTest != "1. settings") {
+    if (selectedTest != "1. settings") {
       // gespeicherte Eingaben der Schreibungen des Schülers wiederherstellen
       selectedColours = colours[colourSelector.value];
       if (!printerMode.checked && alwaysShowColoured.checked) {
