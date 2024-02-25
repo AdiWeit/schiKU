@@ -1,5 +1,5 @@
 // von mir eingebaute Tests und Kategorien
-var officialCategories = {Vokale: ["a", "ä", "e", "i", "o", "ö", "u", "ü"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaute: ["ai", "ei", "eu", "äu", "ai", "ui", "au"], Endungen: ["en", "<e>"] /*TODO*/};
+var officialCategories = {Vokale: ["a", "ä", "e", "i", "o", "ö", "u", "ü"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaute: ["ai", "ei", "eu", "äu", "ai", "ui", "au"], Endungen: ["en", "<e>"], sonstige: ["Sch", "ch"] /*TODO*/};
 var officialData = {
   // TODO: stattdessen SchiKU
   "Kreis Unna": {
