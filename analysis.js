@@ -334,6 +334,15 @@ for (category of Object.keys(neededTest.kategorien)) {
         // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
         else doNotCountList.push(0);
       });
+    if (chartInPercent.checked) {
+      for (let i = 0; i < wrongList.length; i++) {
+        var sum = wrongList[i] + rightList[i] + doNotCountList[i];
+        wrongList[i] = (wrongList[i]/sum*100).toFixed(2).replace('NaN', '0');
+        rightList[i] = (rightList[i]/sum*100).toFixed(2).replace('NaN', '0');
+        doNotCountList[i] = (doNotCountList[i]/sum*100).toFixed(2).replace('NaN', '0');
+        mirrorList[i] = (mirrorList[i]/sum*100).toFixed(2).replace('NaN', '0');
+      }
+    }
     addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList});
   if (manualOverwrite) document.getElementById(id).style.backgroundColor = "gray";
 }
