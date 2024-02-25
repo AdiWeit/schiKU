@@ -211,7 +211,7 @@ function recreatePupil(referenceSheet, newSheet=referenceSheet) {
       if (!(idAktuell.includes('mirror'))) {
       if (idAktuell.includes('pupilsWriting') && findChild('id', referenceSheet, idAktuell)) {
       findChild('id', referenceSheet, idAktuell).value = inputs[selectedTest][referenceSheet][idAktuell];
-      markErrors(idAktuell, referenceSheet, undefined, undefined, undefined, undefined, undefined, isDoNotCount); /*, verstehe nicht, warum doNotMark true sein sollte*/
+      markErrors(idAktuell, referenceSheet, undefined, undefined, true, undefined, undefined, isDoNotCount); /*, verstehe nicht, warum doNotMark true sein sollte*/
       pupilsWritingFinished(idAktuell, true);
     }
     else if (findChild('id', referenceSheet, idAktuell)) {
