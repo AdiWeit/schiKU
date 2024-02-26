@@ -84,7 +84,8 @@ if (printerMode.checked && removeTextFields.checked) {
 else {
  addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
 }
-if (generateInfoText.checked && words[selectedTestType].preComment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = words[selectedTestType].preComment;
+if (generateInfoText.checked && words[selectedTestType].preComment && !inputs[selectedTestType]['pupilSheet' + sheetNr].comment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = words[selectedTestType].preComment;
+if (inputs[selectedTestType]['pupilSheet' + sheetNr].comment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = inputs[selectedTestType]['pupilSheet' + sheetNr].comment;
 elm.appendChild(addElement({id: 'divGraph' + sheetNr, style: 'position: absolute; right: 0px; min-width: 481px;'}, 'div', 'pupilSheet' + sheetNr));
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 addElement({id: 'texturpupilSheet' + sheetNr}, 'canvas', 'divGraph' + sheetNr);
@@ -204,7 +205,7 @@ function recreatePupil(referenceSheet, newSheet=referenceSheet) {
     for (idAktuell of Object.keys(inputs[selectedTest][referenceSheet])) {
       if (idAktuell.includes("Writing")) {
         wordNow = replaceAll(neededTest.words[idAktuell.split(" ")[1]-1], "-", "");
-        if (!inputs[selectedTest][referenceSheet].Graphemtreffer[wordNow]) {
+        if (!inputs[selectedTest][referenceSheet].Graphemtreffer || !inputs[selectedTest][referenceSheet].Graphemtreffer[wordNow]) {
           var isDoNotCount = false;
         }
         else {
