@@ -334,7 +334,7 @@ for (category of Object.keys(neededTest.kategorien)) {
         // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
         else doNotCountList.push(0);
       });
-    if (chartInPercent.checked) {
+    if (chartInPercent.checked && (!chartInPercentIfCountTogether.checked || (countTogether.checked && neededTest.countTogether != undefined))) {
       for (let i = 0; i < wrongList.length; i++) {
         var sum = wrongList[i] + rightList[i] + doNotCountList[i];
         wrongList[i] = (wrongList[i]/sum*100).toFixed(2).replace('NaN', '0');
