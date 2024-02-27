@@ -42,7 +42,7 @@ function addPupil(selectedTestType, pSelectedTest, sheetNr) {
   neededTest = words[selectedTestType][pSelectedTest];
   // sheetNr != undefined --> recreating tests --> ignore if name put in
 if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || ((document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "" || confirm("Sie haben für Ihren letzten Test keinen Namen eingegeben. Sicher dass Sie wirlich schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[placeholder="Klasse"]')[document.querySelectorAll('[placeholder="Klasse"]').length-1].value != "" || confirm("Sie haben für Ihren letzten Test die Klasse nicht angegeben! Sind Sie sich sicher, dass Sie schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[type="date"]')[document.querySelectorAll('[type="date"]').length-1].value != "" || confirm("Sie haben das Datum des Tests nicht eingegeben! Sind Sie sich sicher, dass Sie trotzdem mit dem nächsten Test fortfahren wollen?")))) {
-  if (!showHistory.checked) {
+  if (!showHistory.checked && testSelection.style.display != "block") {
     while (document.getElementsByClassName("pupilSheet").length >= 1) {
       document.getElementsByClassName("pupilSheet")[0].remove();
     }
@@ -391,4 +391,27 @@ function recreateOpenSheets() {
       // recreatePupil(Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1]);
       recreatePupil(selectedElementId.parent);
     }
+}
+var alert_enough_storage = false;
+function storeSchiKUInputs() {
+  try {
+    localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+  } catch (error) {
+    if (!alertStorageFull.checked || (!alert_enough_storage && error.message.includes('exceeded the quota') && confirm('Der Speicherplatz für die Speicherung der Tests ist voll. Wenn Sie auf "OK" o.ä. klicken, werden die ältesten Tests gelöscht, um Speicherplatz frei zu machen. Falls Sie diese vorher ausdrucken bzw. als PDF abspeichern wollen, klicken Sie auf "Abbrechen". Außerdem können Sie manuell Speicherplatz freimachen: Sie können den ältesten gespeicherten Test oder alle gespeicherten Tests ("Verlauf") in den Einstellungen anzeigen lassen und durch Klicken auf das rote X oben links neben dem Typ (z.B. Test 1) löschen. Wenn genügend Speicherplatz frei ist, werden Sie benachrichtigt. Sie können außerdem in den Einstellungen alle Tests löschen. Auch ist es in den Einstellungen möglich, diese Meldung deaktivieren, falls Sie die gespeicherten Tests nicht interessieren. Dann wird automatisch der älteste Eintrag gelöscht. ') && confirm("Sind Sie sich sicher, dass Sie die ältesten Eingaben löschen wollen?"))) {
+      var quotaExceeded = true;
+      while (quotaExceeded) {
+        quotaExceeded = false;
+        delete inputs["Kreis Unna"][Object.keys(inputs["Kreis Unna"])[0]];
+        try {
+          localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+        }
+        catch (err) {
+          console.log("one deletion not enough!!!");
+          quotaExceeded = true;
+        }
+      }
+      localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+    }
+    else alert_enough_storage = true;
+  }
 }
