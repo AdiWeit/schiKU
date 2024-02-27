@@ -31,14 +31,14 @@ function patternSelected(checked) {
 // aktiviert den print mode
 // @param checked: über Einstellungen aktiviert
        // pressed: Tastenkombination zum Drucken gedrückt
-function printMode(checked) {
+function printMode(checked, pupilSheets) {
   if ((Array.from(document.querySelectorAll('input[type=date]')).map(x => x.valueAsDate).includes(null) && !confirm("Sie haben noch nicht das Datum aller Tests eingegeben! Sind Sie sich sicher, dass sie trotzdem drucken wollen?")) || (Array.from(document.getElementsByClassName("names")).map(x => x.value).includes('') && !confirm("Sie haben noch keinen Schülernamen eingegeben! Sicher dass Sie trotzdem drucken wollen?"))) {
     return;
   }
   if (checked) {
     printerMode.checked = true;
     alert('Bitte bestätigen Sie die folgenden Meldungen mit "OK" und haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden nur noch die auf dem Druck gewünschten Elemente zu sehen sein. Die Hinweise sind auch in der Anleitung (F1 drücken oder in den Einstellungen  auf "Hilfe (Anleitung)" klicken) unten auffindbar. ');
-    alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter "Ausrichtung" "Porträt" (hochformat). Bitte achten Sie zudem auf leere letzte Seiten. Falls eine vorhanden sein sollte, wählen sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon eine leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten werden links mindestens 15 mm Rand empfohlen. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
+    alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter "Ausrichtung" "Porträt" (hochformat). Bitte achten Sie zudem auf leere Seiten. Wenn die zweite Seite leer kann es helfen, wenn der linke Rand mindestens 3mm beträgt. Falls die letzte Seite leer sein sollte, wählen Sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon die letzte leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten werden links mindestens 15 mm Rand empfohlen. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
     selections.style.display = "none";
     document.getElementById('addPupil').style.display = "none";
     document.getElementById('openEditorB').style.display = "none";
@@ -51,7 +51,10 @@ function printMode(checked) {
   if (showHistory.checked) {
     list = Object.keys(inputs[selectedTest])
   }
-  recreateOpenSheets();
+  if (pupilSheets) list = pupilSheets;
+  else {
+    recreateOpenSheets();
+  }
   for (sheet of list) {
     sheetNr = sheet.split("Sheet")[1];
     // replacing input fields with text
@@ -173,13 +176,14 @@ function RefreshHistoryDisplay() {
   recreateOpenSheets();
   settingsClosed();
 }
-function restore_latest_test() {
+function restore_specific_test(type) {
   while (pupils > 0) {
     document.getElementById('pupilSheet' + pupils)?.remove();
     pupils--;
   }
   testsObj = inputs[selectedTest];
-  recreatePupil(Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
+  if (type == "newest") recreatePupil(Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
+  if (type == "oldest") recreatePupil(Object.keys(testsObj)[0]);
   settings.style.display = 'none';
 }
 function deleteTest(parent) {
@@ -189,3 +193,41 @@ function deleteTest(parent) {
   }
 }
 var selectedGraphemtreffer = {possible: 0, got: 0};
+
+function openTestSelection() {
+  selectionGrid.height = Math.min(Object.keys(inputs["Kreis Unna"]).length*47 + 58, 500);
+  var data = [];
+  // var rowData = [
+  //   { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
+  //   { Datum: new Date("2024-02-03"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet2" },
+  //   { Datum: new Date("2024-04-02"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet3" },
+  // ];
+  for (let i = 0; i < Object.keys(inputs["Kreis Unna"]).length; i++) {
+    var sheet = Object.keys(inputs["Kreis Unna"])[i];
+    var test = inputs["Kreis Unna"][sheet];
+    data[i] = {Datum: test["date" + sheet.split("Sheet")[1]], Klasse: test["class" + sheet.split("Sheet")[1]], Name: test["name" + sheet.split("Sheet")[1]], pupilSheet: sheet};
+  }
+  selectionGrid.contentWindow.postMessage("set data: " + JSON.stringify(data), "*")
+  testSelection.style.display = "block";
+}
+
+function openSelectedTests(print) {
+  printerMode.checked = print;
+  selectionGrid.contentWindow.postMessage("get data", "*");
+}
+
+window.addEventListener('message', function(event) {
+  data = JSON.parse(event.data.split("sendData: ")[1]);
+  while (document.getElementsByClassName("pupilSheet").length > 0) {
+    document.getElementsByClassName("pupilSheet")[0].remove();
+  }
+  pupilSheets = [];
+  data.forEach((sheet) => {
+    recreatePupil(sheet.pupilSheet);
+    pupilSheets.push(sheet.pupilSheet);
+  });
+  testSelection.style.display = "none";
+  settings.style.display = 'none';
+  if (printerMode.checked) printMode(true, pupilSheets);
+  printerMode.checked = false;
+}, false);

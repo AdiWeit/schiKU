@@ -302,7 +302,7 @@ document.onkeydown = function(event) {
   if (event.key == "F1") window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');
  // Erkennung der Tastenkomination zum Öffnen der Druckeinstellungen
 if (!printerMode.checked && event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
-   if (printMode(true, true)) {
+   if (printMode(true)) {
      printerMode.checked = true;
    }
  }

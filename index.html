@@ -18,7 +18,17 @@
   <br>
   <input type="checkbox" id="showHistory" onchange="RefreshHistoryDisplay();"> <b>Verlauf (früher eingegebene Tests) anzeigen (Bitte warten. Die Einstellungen schließen sich <br> nach Beendigung der Wiederherstellung automatisch)</b>
   <br>
-  <button onclick="restore_latest_test()">vorherigen Test wiederherstellen</button>
+  <button onclick="restore_specific_test('newest')">vorherigen Test anzeigen</button>
+  <br>
+  <br>
+  <button onclick="openTestSelection();">Tests zum Öffnen auswählen</button>
+  <br>
+  <div id="testSelection" style="display: none;">
+    <iframe id="selectionGrid" style="width: 100%" src="selectTests.html"></iframe>
+    <br>
+    <button onclick="openSelectedTests();">öffnen</button>
+    <button onclick="openSelectedTests(true);">drucken (auch zum Speichern)</button>
+  </div>
   <br>
   <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der letzte Test bleibt erhalten
   <h3>Druckereinstellungen</h3>

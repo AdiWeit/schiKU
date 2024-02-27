@@ -1,0 +1,87 @@
+ <head>
+   <title>Ag Grid App</title>
+   <!-- Include the JS for AG Grid -->
+   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+   <!-- Include the core CSS, this is needed by the grid -->
+   <link rel="stylesheet"
+     href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
+   <!-- Include the theme CSS, only need to import the theme you are going to use -->
+   <link rel="stylesheet"
+     href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+ </head>
+ <body>
+   <!-- The div that will host the grid. ag-theme-alpine is the theme. -->
+   <!-- The gid will be the size that this element is given. -->
+   <div id="grid" class="ag-theme-alpine" style="height: 500px;"></div>
+   <script type="text/javascript">
+    var rowData = [
+  { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
+  { Datum: new Date("2024-02-03"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet2" },
+  { Datum: new Date("2024-04-02"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet3" },
+];
+       // Grid Options are properties passed to the grid
+       const gridOptions = {
+
+         // each entry here represents one column
+         columnDefs: [
+           {headerName: "Auswahl", checkboxSelection: true, width: 30, filter: false},
+           { field: "Datum", cellRenderer: dateCellRenderer, filter: 'agDateColumnFilter', floatingFilter: true, filterParams: {
+    comparator: function(filterLocalDateAtMidnight, cellValue) {
+      var cellDate = new Date(cellValue);
+      cellDate.setHours(0, 0, 0, 0); // set cellDate to midnight
+
+      if (cellDate < filterLocalDateAtMidnight) {
+        return -1;
+      } else if (cellDate > filterLocalDateAtMidnight) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }},
+           { field: "Klasse", filter: true, floatingFilter: true},
+           { field: "Name", filter: true, floatingFilter: true},
+           { field: "pupilSheet", hide: true},
+         ],
+
+         // default col def properties get applied to all columns
+         defaultColDef: {sortable: true, filter: true},
+         // suppressRowClickSelection: true, // disables selection without
+         rowMultiSelectWithClick: true,
+         rowSelection: 'multiple', // allow rows to be selected
+         animateRows: true, // have rows animate to new positions when sorted
+         domLayout: 'autoHeight',
+
+         // example event handler
+         onCellClicked: params => {
+           console.log('cell was clicked', params)
+         }
+       };
+
+       // get div to host the grid
+       const eGridDiv = document.getElementById("grid");
+       // new grid instance, passing in the hosting DIV and Grid Options
+       new agGrid.Grid(eGridDiv, gridOptions);
+       // update the grid with the new data
+       gridOptions.api.setRowData(rowData);
+
+       function dateCellRenderer(params) {
+        return params.value ? params.value.toLocaleDateString('de-DE') : '';
+      }
+
+  window.addEventListener('message', function(event) {
+    if (event.data.includes('set data:')) {
+      data = JSON.parse(event.data.split('set data: ')[1]);
+      for (const entry of data) {
+        if (entry.Datum) entry.Datum = new Date(entry.Datum);
+        else entry.Datum = "";
+      }
+      rowData = data;
+      gridOptions.api.setRowData(rowData);
+    }
+    if (event.data == "get data") {
+      window.parent.postMessage("sendData: " + JSON.stringify(gridOptions.api.getSelectedRows()), "*");
+    }
+}, false);
+</script>
+ </body>
