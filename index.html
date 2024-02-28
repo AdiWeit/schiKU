@@ -21,13 +21,14 @@
   <button onclick="restore_specific_test('newest')">vorherigen Test anzeigen</button>
   <br>
   <br>
-  <button onclick="openTestSelection();">Tests zum Öffnen auswählen</button>
+  <button onclick="openTestSelection();">Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen</button>
   <br>
   <div id="testSelection" style="display: none;">
     <iframe id="selectionGrid" style="width: 100%" src="selectTests.html"></iframe>
     <br>
     <button onclick="openSelectedTests();">öffnen</button>
-    <button onclick="openSelectedTests(true);">drucken (auch zum Speichern)</button>
+    <button onclick="openSelectedTests('print');">drucken (auch zum Speichern)</button>
+    <button id="deleteSelected" onclick="if (confirm('Sind Sie sich sicher, dass Sie alle ausgewählten Tests löschen wollen?')) openSelectedTests('delete');">löschen</button>
   </div>
   <br>
   <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der letzte Test bleibt erhalten

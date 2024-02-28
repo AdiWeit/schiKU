@@ -186,10 +186,10 @@ function restore_specific_test(type) {
   if (type == "oldest") recreatePupil(Object.keys(testsObj)[0]);
   settings.style.display = 'none';
 }
-function deleteTest(parent) {
-  if (confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
+function deleteTest(parent, confirm=true) {
+  if (!confirm || confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
     delete inputs[selectedTest][parent];
-    document.getElementById(parent).remove();
+    document.getElementById(parent)?.remove();
   }
 }
 var selectedGraphemtreffer = {possible: 0, got: 0};
@@ -211,23 +211,29 @@ function openTestSelection() {
   testSelection.style.display = "block";
 }
 
-function openSelectedTests(print) {
-  printerMode.checked = print;
+function openSelectedTests(type) {
+  if (type == "print") printerMode.checked = true;
+  if (type == "delete") deleteSelected.style.backgroundColor = "red";
+  while (document.getElementsByClassName("pupilSheet").length > 0 && type != "delete") {
+    document.getElementsByClassName("pupilSheet")[0].remove();
+  }
   selectionGrid.contentWindow.postMessage("get data", "*");
 }
 
 window.addEventListener('message', function(event) {
   data = JSON.parse(event.data.split("sendData: ")[1]);
-  while (document.getElementsByClassName("pupilSheet").length > 0) {
-    document.getElementsByClassName("pupilSheet")[0].remove();
-  }
   pupilSheets = [];
   data.forEach((sheet) => {
-    recreatePupil(sheet.pupilSheet);
+    // nur Tests anzeigen, wenn diese nicht gelöscht werden sollen
+    if (deleteSelected.style.backgroundColor != "red") recreatePupil(sheet.pupilSheet);
+    else deleteTest(sheet.pupilSheet, false);
     pupilSheets.push(sheet.pupilSheet);
   });
   testSelection.style.display = "none";
   settings.style.display = 'none';
   if (printerMode.checked) printMode(true, pupilSheets);
+  if (deleteSelected.style.backgroundColor == "red") {
+    deleteSelected.style.backgroundColor = "";
+  }
   printerMode.checked = false;
 }, false);
