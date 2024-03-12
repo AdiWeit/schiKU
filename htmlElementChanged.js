@@ -186,8 +186,8 @@ function restore_specific_test(type) {
   if (type == "oldest") recreatePupil(Object.keys(testsObj)[0]);
   settings.style.display = 'none';
 }
-function deleteTest(parent, confirm=true) {
-  if (!confirm || confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
+function deleteTest(parent, pConfirm=true) {
+  if (!pConfirm || confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
     delete inputs[selectedTest][parent];
     document.getElementById(parent)?.remove();
   }
