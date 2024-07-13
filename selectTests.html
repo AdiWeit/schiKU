@@ -19,12 +19,13 @@
   { Datum: new Date("2024-02-03"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet2" },
   { Datum: new Date("2024-04-02"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet3" },
 ];
+var api;
        // Grid Options are properties passed to the grid
        const gridOptions = {
 
          // each entry here represents one column
          columnDefs: [
-           {headerName: "Auswahl", checkboxSelection: true, width: 30, filter: false},
+           {headerName: "Auswahl", checkboxSelection: true, headerCheckboxSelection: true, width: 30, filter: false},
            { field: "Datum", cellRenderer: dateCellRenderer, filter: 'agDateColumnFilter', floatingFilter: true, filterParams: {
     comparator: function(filterLocalDateAtMidnight, cellValue) {
       var cellDate = new Date(cellValue);
@@ -61,9 +62,9 @@
        // get div to host the grid
        const eGridDiv = document.getElementById("grid");
        // new grid instance, passing in the hosting DIV and Grid Options
-       new agGrid.Grid(eGridDiv, gridOptions);
+       api = agGrid.createGrid(eGridDiv, gridOptions);
        // update the grid with the new data
-       gridOptions.api.setRowData(rowData);
+       api.setGridOption("rowData", rowData) 
 
        function dateCellRenderer(params) {
         return params.value ? params.value.toLocaleDateString('de-DE') : '';
@@ -77,10 +78,10 @@
         else entry.Datum = "";
       }
       rowData = data;
-      gridOptions.api.setRowData(rowData);
+      api.setGridOption("rowData", rowData) 
     }
     if (event.data == "get data") {
-      window.parent.postMessage("sendData: " + JSON.stringify(gridOptions.api.getSelectedRows()), "*");
+      window.parent.postMessage("sendData: " + JSON.stringify(api.getSelectedRows()), "*");
     }
 }, false);
 </script>
