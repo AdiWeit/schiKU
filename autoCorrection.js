@@ -437,9 +437,9 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
   });
 
   // if (!doNotMark && graphemFehler > 0) {
-    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'if (value != "") getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', onclick: "this.select();", onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'if (value != "") getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25;'}, 'a', wordCorrectionChild, true);
-    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible', onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
+    addElement({value: possibleGraphemtreffer, id: 'graphemtrefferPossible', onclick: "this.select();", onchange: 'getEveryCategory(true, "' + id + '");', oninput: 'getAllGraphemtreffer(true, "' + original.correct + '", "' + selectedElementId.parent + '");', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent), style: 'width: 25;'}, 'input', wordCorrectionChild, true);
     if (findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + original.correct, true)) {
       findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + original.correct, true).remove();
     }
