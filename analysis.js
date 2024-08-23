@@ -53,6 +53,7 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
   });
   document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + correctWords.got + '/' + correctWords.possible + "</strong> <a style='font-size:20'>korrekte Wörter</a>";
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+  inputs[/*'Test ' + */selectedTest][selectedElementId.parent].completed = completed()
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen

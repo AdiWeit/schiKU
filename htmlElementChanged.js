@@ -198,14 +198,12 @@ function openTestSelection() {
   selectionGrid.height = Math.min(Object.keys(inputs["Kreis Unna"]).length*47 + 58, 500);
   var data = [];
   // var rowData = [
-  //   { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
-  //   { Datum: new Date("2024-02-03"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet2" },
-  //   { Datum: new Date("2024-04-02"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet3" },
-  // ];
+    //   { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
+    // ];
   for (let i = 0; i < Object.keys(inputs["Kreis Unna"]).length; i++) {
     var sheet = Object.keys(inputs["Kreis Unna"])[i];
     var test = inputs["Kreis Unna"][sheet];
-    data[i] = {Datum: test["date" + sheet.split("Sheet")[1]], Klasse: test["class" + sheet.split("Sheet")[1]], Name: test["name" + sheet.split("Sheet")[1]], pupilSheet: sheet};
+    data[i] = {Datum: test["date" + sheet.split("Sheet")[1]], Klasse: test["class" + sheet.split("Sheet")[1]], Name: test["name" + sheet.split("Sheet")[1]], pupilSheet: sheet, ausgefüllt: test.completed};
   }
   selectionGrid.contentWindow.postMessage("set data: " + JSON.stringify(data), "*")
   testSelection.style.display = "block";
