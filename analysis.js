@@ -36,7 +36,7 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
     selectedElementId.parent = parent;
     refreshNeededTest();
     graphemtreffer = inputs[selectedTest][parent].Graphemtreffer[correct];
-    // TODO: autocorrectionnot always gotten (recreation of history)
+    // TODO: autocorrection not always gotten (recreation of history)
     if (graphemtreffer.got == graphemtreffer.auto_correction?.got && graphemtreffer.possible == graphemtreffer.auto_correction?.possible) {
       resetGraphemtreffer("pupilsWriting " + (writingI+1), selectedElementId.parent);
     }
@@ -59,13 +59,12 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
 // Datenübergabe und Befehl für Erstellung der Graphen
 // manualOverwrite: true wenn durch Überschreiben der Graphemtreffer aufgerufen
 // id: pupilsWriting [1-*]
-// beide Parameter nur für graue Unterlegung wenn duNotCount -> TODO: später verlagern?
+// beide Parameter nur für graue Unterlegung wenn doNotCount -> TODO: später verlagern?
 function getEveryCategory(manualOverwrite, id) {
   // Silben aus der Auswertung löschen (wird neu gezählt)
   for (auswertungNow of Object.keys(auswertung)) {
     if (auswertungNow.includes("Silben")/* != "letter" && auswertungNow != "allGraphemtreffer" && auswertungNow != "wrongLetters"*/) {
       delete auswertung[auswertungNow];
-      i--;
     }
   }
   auswertung.letter[selectedElementId.parent] = {};
@@ -84,6 +83,7 @@ function getEveryCategory(manualOverwrite, id) {
 
   var doNotCountObj = JSON.parse(JSON.stringify(minusList));
       doNotCountObj.laute = {};
+      doNotCountObj.byCategories = {};
   // Anzahl Richtige und Anzahl Falsche zur Liste nach Kategorien und Alphabet geordnet hinzufügen
   var categoryList = [];
   // Umschreibung in kategorien (vorher: auswertung.categories[aktueller Test, also pupilSheet][Wort][Rubrik][Buchstabe] nachher: auswertung.byCategories[Rubrik][Buchstabe])
@@ -96,35 +96,47 @@ function getEveryCategory(manualOverwrite, id) {
         if (!auswertung.byCategories[category]) auswertung.byCategories[category] = {possible: 0, got: 0};
         if (objKeyName != "got" && objKeyName != "possible") {
           if (!auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) {
-          if (!auswertung.byCategories[category][objKeyName]) auswertung.byCategories[category][objKeyName] = {possible: 0, got: 0};
-          if (!minusList[objKeyName] || !minusList[objKeyName][wordNow]) {
-        auswertung.byCategories[category][objKeyName].possible += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
-        auswertung.byCategories[category][objKeyName].got += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].got;
-      }
-      else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
-        }
-        else {
-          if (!doNotCountObj.laute[objKeyName]) {
-            doNotCountObj.laute[objKeyName] = 0;
-          }
-          if (!myCategories[category].includes(objKeyName) && !categoryList.includes(objKeyName)) categoryList.push(objKeyName);
-          if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
-          // TODO: Laute: einzelne Buchstaben übertragen (Anzahl kann aus auswertung.categories abgelesen werden)
-          else {
-            // doNotCountObj.laute[objKeyName]++;
-            doNotCountObj.laute[objKeyName] += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
-            for (var letter of objKeyName) {
-              if (!doNotCountObj.laute[letter]) doNotCountObj.laute[letter] = 1;
-              doNotCountObj.laute[letter]--;
+            if (!auswertung.byCategories[category][objKeyName]) auswertung.byCategories[category][objKeyName] = {possible: 0, got: 0};
+            if (!minusList[objKeyName] || !minusList[objKeyName][wordNow]) {
+              auswertung.byCategories[category][objKeyName].possible += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
+              auswertung.byCategories[category][objKeyName].got += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].got;
             }
+            else if (minusList[objKeyName] && minusList[objKeyName][wordNow]) minusList[objKeyName][wordNow]--;
           }
+          else {
+            if (!doNotCountObj.laute[objKeyName]) {
+              doNotCountObj.laute[objKeyName] = 0;
+            }
+            if (!myCategories[category].includes(objKeyName) && !categoryList.includes(objKeyName)) categoryList.push(objKeyName);
+            if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
+            // TODO: Laute: einzelne Buchstaben übertragen (Anzahl kann aus auswertung.categories abgelesen werden)
+            else {
+              // doNotCountObj.laute[objKeyName]++;
+              doNotCountObj.laute[objKeyName] += auswertung.categories[selectedElementId.parent][wordNow][category][objKeyName].possible;
+              for (var letter of objKeyName) {
+                if (!doNotCountObj.laute[letter]) doNotCountObj.laute[letter] = 1;
+                doNotCountObj.laute[letter]--;
+              }
+            }
         }
       }
         else if (objKeyName == "possible") auswertung.byCategories[category].possible += auswertung.categories[selectedElementId.parent][wordNow][category].possible;
         else {
         auswertung.byCategories[category].got += auswertung.categories[selectedElementId.parent][wordNow][category].got;
         }
+      }
     }
+    // count doNotCount
+    for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
+      // objKeyName: "possible", "got", letters
+      for (objKeyName of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
+        for (const letter of Object.keys(doNotCountObj.laute)) {
+          if (letter == objKeyName) {
+            if (!doNotCountObj.byCategories[category]) doNotCountObj.byCategories[category] = {}
+            doNotCountObj.byCategories[category][letter] = doNotCountObj.laute[letter];
+          }
+        }
+      }
     }
   }
   var wrongList = [];
@@ -231,18 +243,17 @@ function getEveryCategory(manualOverwrite, id) {
       }
     }
   }
-}
-// alle zu bewertende Laute in "letterList" hinzufügen
-for (category of Object.keys(neededTest.kategorien)) {
-  for (laut of neededTest.kategorien[category]) {
-    letterList.push(laut);
-  }
-}
-// Falls keine Rubrik "sonstige" vorhanden, aber andere vorhanden sind, wird diese erstellt
-  if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
-    categoryList.push('sonstige');
-    rightList.push(0/*auswertung.byCategories[category].got*/)
-    wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
+    // alle zu bewertende Laute in "letterList" hinzufügen
+    for (category of Object.keys(neededTest.kategorien)) {
+      for (laut of neededTest.kategorien[category]) {
+        letterList.push(laut);
+      }
+    }
+    // Falls keine Rubrik "sonstige" vorhanden, aber andere vorhanden sind, wird diese erstellt
+    if (!Object.keys(auswertung.byCategories).includes('sonstige') && Object.keys(auswertung.byCategories).length > 0) {
+      categoryList.push('sonstige');
+      rightList.push(0/*auswertung.byCategories[category].got*/)
+      wrongList.push(0/*auswertung.byCategories[category].possible - auswertung.byCategories[category].got*/);
   }
 
     // console.log(auswertung);
@@ -335,6 +346,69 @@ for (category of Object.keys(neededTest.kategorien)) {
         // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
         else doNotCountList.push(0);
       });
+    // Hinzufügen der Laute, falls in Rubrik vorhanden
+    if (Object.keys(doNotCountObj.laute).includes(category.split("/")[0])) {
+      doNotCountList.push(doNotCountObj.laute[category.split("/")[0]]);
+    }
+    // Hinzufügen der Endung <e>
+    else if (category == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
+      doNotCountList.push(0);
+      for (word of Object.keys(doNotCountObj[category])) {
+        doNotCountList[doNotCountList.length - 1] += doNotCountObj[category][word];
+      }
+    }
+    // Hinzufügen der nicht in Rubriken vorhandenen Buchstaben
+    else if (Object.keys(doNotCountObj).includes(category.split("/")[0])) {
+      var total = 0;
+      for (keyNow of Object.keys(doNotCountObj[category.split("/")[0]])) {
+        total += doNotCountObj[category.split("/")[0]][keyNow];
+      }
+      doNotCountList.push(total);
+    }
+    // Eintragen, dass kein nicht auswertbarer vorhanden ist, oder deine Rubrik auf der y-Achse bei dem Index vorhanden ist, wodurch dort auch nichts vorhanden sein kann
+    else if ((category.length != 3 || !Object.keys(doNotCountObj).includes(category[0])) && category != "<e>/<E>") {
+      doNotCountList.push(0);
+    }
+    // "sonstige" hinzufügen
+    else if (category.length == 3) {
+      doNotCountList.push(0);
+      // if (minusList.doNotCount[category[0]] && minusList.doNotCount[category[0]] != 0) {
+      // Abziehen wegen minusList (also Bucstaben aus Lauten (hier: mehrere Buchstaben) o.ä.)
+        /*minusList.doNotCount[category[0]]*/if (minusList.doNotCount[category[0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[category[0]];
+      // }
+      // else {
+      //
+      for (wordNow of Object.keys(doNotCountObj[category[0]])) {
+        doNotCountList[doNotCountList.length - 1] += doNotCountObj[category[0]][wordNow[i1]];
+      }
+    // }
+    }
+    // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
+  else doNotCountList.push(0);
+    for (var i = 0; i < categoryList.length; i++) {
+      mirrorList.push(0);
+    }
+    // gespiegelte Buchstaben hinzufügen
+    // TODO: <e> gespiegelt
+    for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
+      var currentWord = Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2];
+      for (var i4 = 0; i4 < inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord].length; i4++) {
+        // indexList
+        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord][i4]) {
+          for (var i = 0; i < categoryList.length; i++) {
+            letter = findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerText.toLowerCase();
+            if ((categoryList[i][0] == letter && (categoryList[i].includes('/') || categoryList[i].length == 1)) || (countTogether.checked && neededTest.kategorien[categoryList[i].replace("zusammen ", "")]?.includes(letter))) {
+              mirrorList[i]++;
+              i = categoryList.length;
+            }
+          }
+          if (i != categoryList.length + 1) {
+            categoryList.push(letter);
+            mirrorList[i]++;
+          }
+        }
+      }
+      }
     if (chartInPercent.checked && (!chartInPercentIfCountTogether.checked || (countTogether.checked && neededTest.countTogether != undefined))) {
       for (let i = 0; i < wrongList.length; i++) {
         var sum = wrongList[i] + rightList[i] + doNotCountList[i];
@@ -344,6 +418,17 @@ for (category of Object.keys(neededTest.kategorien)) {
         mirrorList[i] = (mirrorList[i]/sum*100).toFixed(2).replace('NaN', '0');
       }
     }
+    // delete categories without entries
+    for (var i = 0; i < categoryList.length; i++) {
+      if (wrongList[i] == 0 && rightList[i] == 0 && doNotCountList[i] == 0 && mirrorList[i] == 0 && (Object.keys(neededTest.kategorien).concat("sonstige").includes(categoryList[i + 1]) || categoryList[i + 1].includes('Silben'))) {
+        wrongList.splice(i, 1);
+        rightList.splice(i, 1);
+        doNotCountList.splice(i, 1);
+        mirrorList.splice(i, 1);
+        categoryList.splice(i, 1);
+        i--;
+      }
+    };
     addChart(categoryList, {wrong: wrongList, right: rightList, doNotCount: doNotCountList, mirror: mirrorList});
   if (manualOverwrite) document.getElementById(id).style.backgroundColor = "gray";
 }
