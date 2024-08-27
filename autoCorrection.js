@@ -184,7 +184,7 @@ function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrec
     if (!auswertung.doNotCount[selectedElementId.parent]) auswertung.doNotCount[selectedElementId.parent] = [];
     refreshNeededTest();
     inputs[/*'Test ' + */selectedTest][parentId][id] = findChild('id', selectedElementId.parent, id).value;
-    localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+    storeSchiKUInputs();
   for (var word of neededTest.words) {
     if (replaceAll(word, "-", "") == findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText) correct = word;
   }

@@ -7,26 +7,22 @@ function settingChanged(id, attrs, refresh) {
   }
   if (refresh) settingsChanged = true;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
-}
-function settingsClosed() {
-  settings.style.display = 'none';
-  if (preview.checked && settingsChanged) {
-    if (showHistory.checked) recreatePupils();
-    else recreatePupil(selectedElementId.parent);
-  }
-  settingsChanged = false;
+  // if (document.getElementsByClassName('pupilSheet').length <= 3) {
+      // recreateOpenSheets();
+      // recreatePupil(true, selectedElementId.parent);
+  // }
 }
 function selectPrintColours(value) {
-  if (value == "colour") showPatterns.style.display = "none";
-  else showPatterns.style.display = "inline";
-  settingChanged("showPatterns", {style: "display: " + showPatterns.style.display});
+  if (value == "colour") blackWhiteSettings.style.display = "none";
+  else blackWhiteSettings.style.display = "block";
+  settingChanged("blackWhiteSettings", {style: "display: " + blackWhiteSettings.style.display});
   settingChanged("colourSelector", {value: value}, true);
 }
 var patterns = "chart";
-function patternSelected(checked) {
+function patternSelected(checked, recreate) {
   if (checked) patterns = "chart";
   else patterns = "text";
-  settingChanged("patterns", {checked: checked}, true);
+  if (!recreate) settingChanged("patterns", {checked: checked}, true);
 }
 // aktiviert den print mode
 // @param checked: über Einstellungen aktiviert
@@ -37,20 +33,13 @@ function printMode(checked, pupilSheets) {
   }
   if (checked) {
     printerMode.checked = true;
-    alert('Bitte bestätigen Sie die folgenden Meldungen mit "OK" und haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden nur noch die auf dem Druck gewünschten Elemente zu sehen sein. Die Hinweise sind auch in der Anleitung (F1 drücken oder in den Einstellungen  auf "Hilfe (Anleitung)" klicken) unten auffindbar. ');
-    alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter "Ausrichtung" "Porträt" (hochformat). Bitte achten Sie zudem auf leere Seiten. Wenn die zweite Seite leer kann es helfen, wenn der linke Rand mindestens 3mm beträgt. Falls die letzte Seite leer sein sollte, wählen Sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon die letzte leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten werden links mindestens 15 mm Rand empfohlen. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
-    selections.style.display = "none";
-    document.getElementById('addPupil').style.display = "none";
-    document.getElementById('openEditorB').style.display = "none";
-    for (const elm of document.getElementsByClassName("deleteButton")) {
-      elm.style.display = "none";
+    if (printAlerts.checked) {
+      alert('Bitte bestätigen Sie die folgenden Meldungen mit "OK" und haben Sie einen Augenblick Geduld, bis alle Auswertungsbögen auf das zum Ausdrucken benötigte Layout angepasst wurden. Ist dies geschehen, werden nur noch die auf dem Druck gewünschten Elemente zu sehen sein. Die Hinweise sind auch in der Anleitung (F1 drücken oder in den Einstellungen  auf "Hilfe (Anleitung)" klicken) unten auffindbar. ');
+      alert('Der Browser Chrome wird empfohlen. Bitte wählen Sie unter "Ausrichtung" "Porträt" (hochformat). Bitte achten Sie zudem auf leere Seiten. Falls die letzte Seite leer sein sollte, wählen Sie unter "Seiten" "benutzerdefiniert" und geben sie beispielsweise wenn es insgesamt 4 Seiten sind und davon die letzte leer ist "1-3" ein.\n Wenn Sie die Seiten als PDF speichern wollen, wählen sie unter Ziel "als PDF speichern". Für lochbare Din A4 Seiten werden links mindestens 15 mm Rand empfohlen. Um die Ränderbreiten manuell einzustellen, klicken Sie auf "weitere Einstellungen" und wählen Sie unter "Ränder" "benutzerdefiniert".');
     }
+    toggleButtonsVis("none");
   }
-  // recreatePupils(true);
   var list = [selectedElementId.parent];
-  if (showHistory.checked) {
-    list = Object.keys(inputs[selectedTest])
-  }
   if (pupilSheets) list = pupilSheets;
   else {
     recreateOpenSheets();
@@ -77,11 +66,43 @@ function printMode(checked, pupilSheets) {
       elm.replaceWith(addElement({innerText: `${elm.valueAsDate?.getDate()}.${elm.valueAsDate?.getMonth() + 1}.${elm.valueAsDate?.getFullYear()}`.replace('undefined.NaN.undefined', '')}, "b"));
     }
     while (document.getElementsByClassName("automaticGraphemTreffer").length) {
-      document.getElementsByClassName("automaticGraphemTreffer")[0].remove();
+      elm = document.getElementsByClassName("automaticGraphemTreffer")[0];
+      if (elm.style.display == "inline") {
+        while (elm.parentNode.firstElementChild.id == "correctionLetter") {
+          elm.parentNode.firstElementChild.remove();
+        }
+        // elm.parentNode.appendChild(addElement({innerText: " (manuelle Korrektur)"}, "a", undefined, true));
+      }
+      elm.remove();
     }
   }
   // TODO: checked gamz weg?
   if (checked) {
+    if (list.length == 1) {
+      test = inputs[selectedTest][sheet];
+      document.title=`SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformular_${test["name" + sheet.split("Sheet")[1]]}`;
+    }
+    else {
+      sameInputs = {date: inputs[selectedTest][list[0]]["date" + list[0].split("Sheet")[1]], class: inputs[selectedTest][list[0]]["class" + list[0].split("Sheet")[1]], name: inputs[selectedTest][list[0]]["name" + list[0].split("Sheet")[1]]};
+      for (const sheet of list) {
+        var test = inputs[selectedTest][sheet]
+        for (pType of Object.keys(sameInputs)) {
+          if (test[pType + sheet.split("Sheet")[1]] != sameInputs[pType]) {
+            sameInputs[pType] = false;
+          }
+        }
+      }
+      document.title=`SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformulare`;
+      if (sameInputs.class) {
+        document.title+=` der Klasse ${sameInputs.class}`;
+      }
+      if (sameInputs.date) {
+        document.title += " von " + sameInputs.date;
+      }
+      if (sameInputs.name) {
+        document.title = `SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformulare des Schülers ${sameInputs.class}`;
+      }
+    }
     setTimeout(() => {
       arrowUp.style.display = "none";
       arrowDown.style.display = "none";
@@ -95,11 +116,14 @@ function printMode(checked, pupilSheets) {
 // @param id: id der bearbeiteten Textbox
        // restoringData: falls true werden die Eingaben des Lehrers wiederhergestellt, weshalb nicht nach jedem Wort die Grafik aktuallisiert wird.
 function pupilsWritingFinished(id, restoringData) {
-  document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "none";
-  document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "inline";
-  document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).innerText = document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).value;
-  if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
-    findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
+  if (id.includes("pupilsWriting")) {
+    document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "none";
+    document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).style.display = "inline";
+    document.getElementById('testHeadline' + selectedElementId.parent.replace("pupilSheet", "")).innerText = document.getElementById('testSelector' + selectedElementId.parent.replace("pupilSheet", "")).value;
+  }
+  var inputField = findChild('id', selectedElementId.parent, id);
+  if (inputField?.value == "r") {
+    inputField.value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true/*, verstehe nicht warum doNotMark true sein sollte*/);
     if (inputField.style.backgroundColor == inputField.style.color) {
       inputField.style.color = "white";
@@ -120,6 +144,17 @@ function dataChanged(id, value) {
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   if (id == "comment" && !printerMode.checked) makeTextboxBigger();
+  inputs[/*'Test ' + */selectedTest][selectedElementId.parent].completed = completed();
+}
+// gibt zurück, ob Test komplett ausgefüllt ist
+function completed() {
+  var pupilNr = selectedElementId.parent.replace("pupilSheet", "");
+  var completed = true;
+  // check if all pupil writings are filled out
+  for (const elm of document.getElementsByClassName("writingPupilSheet" + pupilNr)) {
+    if (elm.value == "") completed = false;
+  }
+  return (inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["name" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["date" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["class" + pupilNr] != undefined && completed).toString().replace("true", "ja").replace("false", "nein");
 }
 // setzt Graphemtreffer auf Auswertung des Programmes zurrück
 function resetGraphemtreffer(element, parent) {
@@ -172,33 +207,40 @@ function pupilInfoChanged({name, date, elm}) {
   if (same.map(x => x.type).includes("name") && same.map(x => x.type).includes("date") && confirm("Es existiert bereits ein Test mit den eingegebenen Daten. Wollen Sie diesen laden? Ihre bisherigen Eingaben dieses Tests gehen dabei verloren. ")) {
     delete inputs[selectedTest][selectedElementId.parent];
     selectedTest = same[0].testName;
-    recreatePupil(same[0].sheetId, selectedElementId.parent);
+    recreatePupil(true, same[0].sheetId, selectedElementId.parent);
   }
 }
 
-function RefreshHistoryDisplay() {
-  recreateOpenSheets();
-  settingsClosed();
-}
 function restore_specific_test(type) {
   while (pupils > 0) {
     document.getElementById('pupilSheet' + pupils)?.remove();
     pupils--;
   }
   testsObj = inputs[selectedTest];
-  if (type == "newest") recreatePupil(Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
-  if (type == "oldest") recreatePupil(Object.keys(testsObj)[0]);
+  if (type == "newest") recreatePupil(true, Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
+  if (type == "oldest") recreatePupil(true, Object.keys(testsObj)[0]);
   settings.style.display = 'none';
 }
 function deleteTest(parent, pConfirm=true) {
   if (!pConfirm || confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
     delete inputs[selectedTest][parent];
     document.getElementById(parent)?.remove();
+    if (alert_enough_storage) {
+      var storage_full = false;
+      try {
+        localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
+      }
+      catch(err) {
+        alert("Der Speicherplatz ist leider immer noch zu voll. Bitte löschen Sie weitere Tests.");
+        storage_full = true;
+      }
+      if (!storage_full) alert("Sie haben genug Speicherplatz frei gemacht, um den neuesten Test zu speichern. ");
+    }
   }
 }
 var selectedGraphemtreffer = {possible: 0, got: 0};
 
-function openTestSelection() {
+function toggleTestSelection() {
   selectionGrid.height = Math.min(Object.keys(inputs["Kreis Unna"]).length*47 + 58, 500);
   var data = [];
   // var rowData = [
@@ -228,17 +270,21 @@ function openSelectedTests(type) {
   }
   selectionGrid.contentWindow.postMessage("get data", "*");
 }
-
+var selectedTests = [];
 window.addEventListener('message', function(event) {
-  data = JSON.parse(event.data.split("sendData: ")[1]);
+  selectedTests = JSON.parse(event.data.split("sendData: ")[1]);
   pupilSheets = [];
-  data.forEach((sheet) => {
+  selectedTests.forEach((sheet, i) => {
     // nur Tests anzeigen, wenn diese nicht gelöscht werden sollen
-    if (deleteSelected.style.backgroundColor != "red") recreatePupil(sheet.pupilSheet);
+    if (deleteSelected.style.backgroundColor != "red") {
+      if (i < selectedTests.length - 1) recreatePupil(false, sheet.pupilSheet);
+      else recreatePupil(true, sheet.pupilSheet);
+    }
     else deleteTest(sheet.pupilSheet, false);
     pupilSheets.push(sheet.pupilSheet);
   });
   testSelection.style.display = "none";
+  testSelectionToggler.innerText = "Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen";
   settings.style.display = 'none';
   if (printerMode.checked) printMode(true, pupilSheets);
   if (deleteSelected.style.backgroundColor == "red") {

@@ -109,12 +109,21 @@ document.getElementById("message").value = "Ein Fehler ist aufgetreten!!!"
 document.getElementById('message').style.display = "none";
 }
 // fügt alle Elemente für einen neuen Schüler hinzu
-function addPupil(selectedTestType, pSelectedTest, sheetNr) {
+function addPupil(lastPage, selectedTestType, pSelectedTest, sheetNr) {
+  if (!printerMode.checked && (alwaysShowColoured.checked || colourSelector.value == "colour")) {
+    selectedColours = colours.colour; // colourSelector.value = "colour";
+    patterns = "chart";
+  }
+  if (colourSelector.value == "blackWhite") {
+    patternSelected(document.getElementById("patterns").checked, true);
+    if (highContrastBlackWhite.checked) selectedColours = colours["highContrastblackWhite"];
+    else selectedColours = colours["blackWhite"];
+  }
   neededTest = words[selectedTestType][pSelectedTest];
   // sheetNr != undefined --> recreating tests --> ignore if name put in
 if (sheetNr != undefined || document.getElementsByClassName('names').length == 0 || ((document.getElementsByClassName('names')[document.getElementsByClassName('names').length - 1].value != "" || confirm("Sie haben für Ihren letzten Test keinen Namen eingegeben. Sicher dass Sie wirlich schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[placeholder="Klasse"]')[document.querySelectorAll('[placeholder="Klasse"]').length-1].value != "" || confirm("Sie haben für Ihren letzten Test die Klasse nicht angegeben! Sind Sie sich sicher, dass Sie schon mit dem nächsten Test fortfahren wollen?")) && (document.querySelectorAll('[type="date"]')[document.querySelectorAll('[type="date"]').length-1].value != "" || confirm("Sie haben das Datum des Tests nicht eingegeben! Sind Sie sich sicher, dass Sie trotzdem mit dem nächsten Test fortfahren wollen?")))) {
-  if (!showHistory.checked && testSelection.style.display != "block") {
-    while (document.getElementsByClassName("pupilSheet").length >= 1) {
+  if (selectedTests.length == 0) {
+    while (document.getElementsByClassName("pupilSheet").length > 0) {
       document.getElementsByClassName("pupilSheet")[0].remove();
     }
   }
@@ -130,12 +139,14 @@ for (i=1; pupils == 0; i++) {
 if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
 if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {};
 if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName = pSelectedTest;
-addElement({id: 'pupilSheet' + sheetNr, class: "pupilSheet", style: 'page-break-after: always; width:21cm; height:29.7cm'}, 'div');
+var pageBreak = "always"
+if (lastPage) pageBreak = "avoid"
+addElement({id: 'pupilSheet' + sheetNr, class: "pupilSheet", style: 'page-break-after: ' + pageBreak + '; width:21cm; height:29.7cm'}, 'div');
 if (!printerMode.checked) {
-  addElement({onclick: 'deleteTest(this.parentElement.id);', class: "deleteButton", innerText: "X", style: "background-color: red; font-weight: bold; margin-bottom: 5; margin-right: 5", title: "Test löschen"}, 'button', 'pupilSheet' + sheetNr);
+  addElement({onclick: 'deleteTest(this.parentElement.id);', class: "deleteButton", id: "deleteButton" + sheetNr, innerText: "X", style: "background-color: red; font-weight: bold; margin-bottom: 5; margin-right: 5", title: "Test löschen"}, 'button', 'pupilSheet' + sheetNr);
 }
 // nur noch ein Wechsel möglich
-addElement({id: 'testSelector' + sheetNr, onchange: 'inputs["' + selectedTestType + '"]["pupilSheet' + sheetNr + '"]' + '.testName = value; recreatePupil("pupilSheet' + sheetNr + '");'}, 'select', 'pupilSheet' + sheetNr);
+addElement({id: 'testSelector' + sheetNr, onchange: 'inputs["' + selectedTestType + '"]["pupilSheet' + sheetNr + '"]' + '.testName = value; recreatePupil(true, "pupilSheet' + sheetNr + '");'}, 'select', 'pupilSheet' + sheetNr);
 addElement({id: 'testHeadline' + sheetNr, innerText: pSelectedTest, style:'display:none'}, 'h3', 'pupilSheet' + sheetNr);
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 for (test of Object.keys(words[selectedTestType])) {
@@ -147,16 +158,20 @@ addElement({placeholder: 'Name Schüler/in', onchange: "pupilInfoChanged({name: 
 addElement({placeholder: 'Klasse', id: 'class' + sheetNr, style: 'width: 50;', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + sheetNr);
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 addElement({placeholder: 'Datum', type: "date", onchange: "pupilInfoChanged({date: this.value, name: document.getElementById('name" + sheetNr + "').value, elm: this})", style: 'width: 208;', id: 'date' + sheetNr, oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'input', 'pupilSheet' + sheetNr);
-var elm = addElement({style: 'position: absolute; right: 0px;'/*50px*/, id: 'commentDiv' + sheetNr}, 'div', 'pupilSheet' + sheetNr);
+var elm = addElement({style: 'position: absolute; right: 0px;'/*50px*/, id: 'commentDiv' + sheetNr, class: "commentDiv"}, 'div', 'pupilSheet' + sheetNr);
 addElement({style: 'margin: 0; text-align: center', class: "commentHeading", innerText: "Anmerkungen"}, 'h3', elm, true);
 if (printerMode.checked && removeTextFields.checked) {
   addElement({style: 'border-style: double; margin: 0; padding-left: 3px;', id: 'comment'}, 'p', elm, true);
 }
 else {
- addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
+  addElement({placeholder: 'Anmerkungen', style: 'height: 20px'/*50px*/, id: 'comment', oninput: 'selectedElementId.element = id; selectedElementId.parent = "pupilSheet' + sheetNr + '"; dataChanged(id, value);'}, 'textarea', elm, true);
 }
 if (generateInfoText.checked && words[selectedTestType].preComment && !inputs[selectedTestType]['pupilSheet' + sheetNr].comment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = words[selectedTestType].preComment;
 if (inputs[selectedTestType]['pupilSheet' + sheetNr].comment) findChild("id", 'pupilSheet' + sheetNr, "comment").innerText = inputs[selectedTestType]['pupilSheet' + sheetNr].comment;
+if (printerMode.checked && (!generateInfoText.checked && ["", undefined].includes(inputs["Kreis Unna"]["pupilSheet" + sheetNr]?.comment))) {
+  findChild("id", 'pupilSheet' + sheetNr, "comment").style.display = "none";
+  findChild("class", 'pupilSheet' + sheetNr, "commentHeading").style.display = "none";
+}
 elm.appendChild(addElement({id: 'divGraph' + sheetNr, style: 'position: absolute; right: 0px; min-width: 481px;'}, 'div', 'pupilSheet' + sheetNr));
 addElement({}, 'br', 'pupilSheet' + sheetNr);
 addElement({id: 'texturpupilSheet' + sheetNr}, 'canvas', 'divGraph' + sheetNr);
@@ -164,10 +179,13 @@ addElement({}, 'br', 'pupilSheet' + sheetNr);
 var mostRight = 0;
 for (var i = 0; i < neededTest.words.length; i++) {
   addElement({innerText: replaceAll(neededTest.words[i], '-', ''), id: 'word ' + (i + 1), style: "font-size:23px; font-style:arial"}, 'a', 'pupilSheet' + sheetNr);
-  addElement({id: 'pupilsWriting ' + (i + 1), style: '  color: white;', class: 'writingPupilSheet' + sheetNr, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + sheetNr + '");', onchange: 'markErrors(id, "pupilSheet' + sheetNr + '", true); pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + sheetNr);
+  addElement({id: 'pupilsWriting ' + (i + 1), autocomplete: "off", style: '  color: white; width: 140px;', class: 'writingPupilSheet' + sheetNr, placeholder: 'Schreibung Schüler/in', oninput: 'markErrors(id, "pupilSheet' + sheetNr + '");', onchange: 'markErrors(id, "pupilSheet' + sheetNr + '", true); pupilsWritingFinished(id);', title: 'Wenn der Schüler/die Schülerin das Wort komplett richtig geschrieben hat, geben Sie nur "r" für richtig ein!\nDie Eingabe wird automatisch "korrigiert". \nFalls die automatische Korrektur falsch sein sollte, können Sie die Anzahl der Graphemtreffer über die Anzeige der Graphemtreffer korrigieren.'}, 'input', 'pupilSheet' + sheetNr);
   if (document.getElementsByClassName("writingPupilSheet" + sheetNr)[i].getBoundingClientRect().left > mostRight) mostRight = document.getElementsByClassName("writingPupilSheet" + sheetNr)[i].getBoundingClientRect().left;
-  addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + sheetNr);
+  var correctionDiv = addElement({id: 'correction ' + (i + 1), word: replaceAll(neededTest.words[i], '-', '')}, 'div', 'pupilSheet' + sheetNr);
   if (i != neededTest.words.length - 1) addElement({}, 'br', 'pupilSheet' + sheetNr);
+  addElement({value: 0, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter('pupilSheet' + sheetNr), style: 'width: 25; display: none;'}, 'input', correctionDiv, true);
+  addElement({innerText: '/', id: 'graphemtrefferSlash', style: 'width: 25; display: none'}, 'a', correctionDiv, true);
+  addElement({value: 0, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter('pupilSheet' + sheetNr), style: 'width: 25; display: none;'}, 'input', correctionDiv, true);
 }
   for (var textBox of document.getElementsByClassName("writingPupilSheet" + sheetNr)) {
     if (inputsParallel.checked) {
@@ -207,17 +225,17 @@ var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, le
 var inputs = {};
 inputs[selectedTest] = {}
 // eigen hinzugefügte Tests oder Test Typen, die nich vorprogrammiert sind werden hinzugefügt
-if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
-var wordsInport = JSON.parse(localStorage.getItem('words'));
-for (nameTypeNow of Object.keys(words)) {
-  if (!(Object.keys(wordsInport).includes(nameTypeNow))) wordsInport[nameTypeNow] = words[nameTypeNow];
-  for (nameTestNow of Object.keys(words[nameTypeNow])) {
-    if (!(Object.keys(wordsInport[nameTypeNow]))) wordsInport[nameTypeNow][nameTest] = words[nameTypeNow][nameTestNow];
-  }
-}
-words = wordsInport;
-refreshWords(true);
-}
+// if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
+// var wordsInport = JSON.parse(localStorage.getItem('words'));
+// for (nameTypeNow of Object.keys(words)) {
+//   if (!(Object.keys(wordsInport).includes(nameTypeNow))) wordsInport[nameTypeNow] = words[nameTypeNow];
+//   for (nameTestNow of Object.keys(words[nameTypeNow])) {
+//     if (!(Object.keys(wordsInport[nameTypeNow]))) wordsInport[nameTypeNow][nameTest] = words[nameTypeNow][nameTestNow];
+//   }
+// }
+// words = wordsInport;
+// refreshWords(true);
+// }
 if (/*localStorage.getItem('syncWithOfficials') == "undefined" || !localStorage.getItem('syncWithOfficials') || */localStorage.getItem('syncWithOfficials') == "false") {
   syncWithOfficialData();
   syncDataCheckbox.checked = false;
@@ -237,7 +255,6 @@ if (!["undefined", undefined, null].includes(localStorage.getItem('inputsSchiku'
   }
   pupils = Object.keys(inputs).reduce((y, x) => y + Object.keys(inputs[x]).length, 0);
 }
-addPupil(testTypeSelector.value, testSelector.value);
 // aktuallisiert den Test, der aktuell genutzt wird
 function refreshNeededTest() {
 for (testType of Object.keys(inputs)) {
@@ -248,30 +265,29 @@ for (testType of Object.keys(inputs)) {
   }
 }
 }
-restoreSettings()
+restoreSettings();
+addPupil(true, testTypeSelector.value, testSelector.value);
 // gespeicherte Einstellungen wiederherstellen
 function restoreSettings() {
   for (setting of Object.keys(inputs["1. settings"])) {
     for (param of Object.keys(inputs["1. settings"][setting])) {
-      document.getElementById(setting)[param] = inputs["1. settings"][setting][param];
-      if (setting == "patterns" && param == "checked") patternSelected(inputs["1. settings"][setting][param]);
-      if (setting == "showEdit") showEditorSelected(inputs["1. settings"][setting][param]);
+      if (document.getElementById(setting) != undefined) {
+        document.getElementById(setting)[param] = inputs["1. settings"][setting][param];
+        if (setting == "patterns" && param == "checked") patternSelected(inputs["1. settings"][setting][param]);
+        if (setting == "showEdit") showEditorSelected(inputs["1. settings"][setting][param]);
+      }
     }
   }
 }
-function recreatePupil(referenceSheet, newSheet=referenceSheet) {
+function recreatePupil(lastPage, referenceSheet, newSheet=referenceSheet) {
   document.getElementById(newSheet)?.remove();
   // inputs = sortObjectByKey(inputs, true);
     selectedElementId.parent = referenceSheet;
     if (selectedTest != "1. settings") {
       // gespeicherte Eingaben der Schreibungen des Schülers wiederherstellen
       selectedColours = colours[colourSelector.value];
-      if (!printerMode.checked && alwaysShowColoured.checked) {
-        selectedColours = colours.colour; // colourSelector.value = "colour";
-        patterns = "chart";
-      }
     neededTest = words[selectedTest][inputs[selectedTest][referenceSheet].testName];
-    addPupil(selectedTest, inputs[selectedTest][referenceSheet].testName, referenceSheet.split("Sheet")[1]);
+    addPupil(lastPage, selectedTest, inputs[selectedTest][referenceSheet].testName, referenceSheet.split("Sheet")[1]);
     // var minusI = 0;
     for (idAktuell of Object.keys(inputs[selectedTest][referenceSheet])) {
       if (idAktuell.includes("Writing")) {
@@ -322,25 +338,6 @@ getEveryCategory();
   makeTextboxBigger();
 }
 }
-// stellt gespeicherten Fortschritt wieder her
-function recreatePupils() {
-  // TODO: ändern?
-while (pupils > 0) {
-  document.getElementById('pupilSheet' + pupils)?.remove();
-  pupils--;
-}
-selectedElementId.parent = 'pupilSheet1';
-// inputs = sortObjectByKey(inputs, true);
-for (testAktuell of Object.keys(inputs)) {
-  if (!testAktuell.includes("settings")) {
-    selectedTest = testAktuell;//.replace('Test ', '');
-    for (sheetAktuell of Object.keys(inputs[testAktuell])) {
-      selectedElementId.parent = sheetAktuell;
-      recreatePupil(sheetAktuell);
-    }
-  }
-}
-}
 // Öffnen des Editors ermöglichen/verstecken bzw. vermeiden
 function showEditorSelected(checked) {
   if (checked) {
@@ -371,7 +368,7 @@ document.onkeydown = function(event) {
       if (selectedElementId.element.includes('pupilsWriting')) findChild('id', selectedElementId.parent, selectedElementId.element.toString().split(' ')[0] + ' ' + (JSON.parse(selectedElementId.element.toString().split(' ')[1]) + 1)).select();
     }, 10);
   }
-  if (event.key == "F1") window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');
+  if (event.key == "F1") window.open('Anleitung_neu.pdf', '_blank');
  // Erkennung der Tastenkomination zum Öffnen der Druckeinstellungen
 if (!printerMode.checked && event.key == "p" && event.ctrlKey && confirm('Wollen Sie die ausgewerteten Blätter drucken? Wenn Sie die folgenden Informationen bestätigt haben, warten Sie bitte bis ein Fenster mit der Übersicht der zu druckenden Seiten erscheint.')) {
    if (printMode(true)) {
@@ -410,8 +407,10 @@ var isInViewport = function (elem) {
   );
 };
 window.onscroll = function (e) {  
+  var sheets = document.getElementsByClassName("pupilSheet");
+  var lastSheet = sheets[sheets.length - 1];
   // arrow up visibility
-  if (!showHistory.checked || isInViewport(document.getElementById("name" + Object.keys(inputs[selectedTest])[0].split("Sheet")[1]))) {
+  if (sheets.length == 1 || isInViewport(document.getElementById("allCorrect" + sheets[0].id.split("Sheet")[1]))) {
     arrowUp.style.display = "none";
   }
   else {
@@ -419,7 +418,7 @@ window.onscroll = function (e) {
   }
   test_name = inputs[selectedTest][Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1]].testName;
   // arrow down visibility
-  if (!showHistory.checked || isInViewport(findChild("id", Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1], "pupilsWriting " + Math.round(officialData[selectedTest][test_name].words.length/2)))) {
+  if (sheets.length == 1 || isInViewport(document.getElementById("deleteButton" + lastSheet.id.split("Sheet")[1])) || isInViewport(document.getElementById("allCorrect" + lastSheet.id.split("Sheet")[1]))) {
     arrowDown.style.display = "none";
   }
   else {
@@ -448,21 +447,17 @@ function clearHistory() {
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 window.onafterprint = function(){
-  // TODO: optional oder so?
   window.location.reload();
+  toggleButtonsVis("inline");
+  printerMode.checked = false;
 }
 function recreateOpenSheets() {
-  while (document.getElementsByClassName("pupilSheet").length > 0) {
-    document.getElementsByClassName("pupilSheet")[0].remove();
-  }
   if (selectedTest == "1. settings") selectedTest = "Kreis Unna";
-    if (showHistory.checked) {
-      recreatePupils();
-    }
-    else {
-      // recreatePupil(Object.keys(inputs[selectedTest])[Object.keys(inputs[selectedTest]).length - 1]);
-      recreatePupil(selectedElementId.parent);
-    }
+  Array.from(document.getElementsByClassName("pupilSheet")).forEach((sheetElm, i) => {
+    // überprüfe, ob letze Seite erreicht (dort kein pageBreakAfter)
+    if (i < document.getElementsByClassName("pupilSheet").length - 1) recreatePupil(false, sheetElm.id);
+    else recreatePupil(true, sheetElm.id);
+  });
 }
 var alert_enough_storage = false;
 function storeSchiKUInputs() {
@@ -485,6 +480,14 @@ function storeSchiKUInputs() {
       localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
     }
     else alert_enough_storage = true;
+  }
+}
+function toggleButtonsVis(vis) {
+  selections.style.display = vis;
+  document.getElementById('addPupil').style.display = vis;
+  // document.getElementById('openEditorB').style.display = vis;
+  for (const elm of document.getElementsByClassName("deleteButton")) {
+    elm.style.display = vis;
   }
 }
 function toggleSettingsVis() {

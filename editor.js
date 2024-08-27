@@ -4,7 +4,7 @@ function editTest() {
     syncDataCheckbox.checked = false;
     localStorage.setItem('syncWithOfficials', false);
   }
-  settingsClosed();
+  toggleSettingsVis();
 // löscht alle Elemente vom dem letzen Öffnen des Editors
 while (document.getElementsByClassName("Wort").length > 0) {
   document.getElementsByClassName("Wort")[0].remove();
@@ -163,6 +163,5 @@ for (nameTypeNow of Object.keys(words)) {
 if (!doNotRecreatePupils) {
   addElement({value: 'newTestType', innerText: '+ Testverfahren'}, 'option', 'testTypeSelector');
   addElement({value: 'newTest', innerText: '+ Test'}, 'option', 'testSelector');
-  if (!showEditNotChecked) RefreshHistoryDisplay(showHistory.checked);
 }
 }

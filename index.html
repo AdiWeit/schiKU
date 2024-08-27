@@ -88,9 +88,7 @@
   <!-- <br> -->
   <!-- <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben -->
   <input type="text" id="message" style="display: none">
-  <br>
-  <br>
-  <button type="button" onclick="settingsClosed();" name="button">schließen</button>
+  <button type="button" onclick="toggleSettingsVis();" name="button">schließen</button>
 </div>
 <br>
 <br>
@@ -106,12 +104,14 @@
   <option value="Test 4">Test 4</option>
   <option value="Test 5">Test 5</option>
   <option value="Test 6">Test 6</option>
+  <option value="Test 6">Test 7</option>
+  <option value="Test 6">Test 8</option>
   <!-- <option value="newTest">+ Test</option> -->
 </select>
 <br>
 </div>
 <div id="tests">
-  <button type="button" id="addPupil" onclick="addPupil(testTypeSelector.value, testSelector.value);" title="Ein weiteres Blatt erstellen, wo Sie die Schreibungen des nächsten Schülers eingeben können. " name="button">Neuen Test eingeben</button>
+  <button type="button" id="addPupil" onclick="addPupil(true, testTypeSelector.value, testSelector.value);" title="Ein weiteres Blatt erstellen, wo Sie die Schreibungen des nächsten Schülers eingeben können. " name="button">Neuen Test eingeben</button>
   <br>
   <button type="button" id="openEditorB" style="display:none" onclick="editTest();" name="button">bearbeiten</button>
 </div>
