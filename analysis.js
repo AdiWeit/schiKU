@@ -201,18 +201,23 @@ function getEveryCategory(manualOverwrite, id) {
   }
   // Anzahl Richtige und Anzahl Falsche zur Liste nach Kategorien und Alphabet geordnet hinzufügen
   var wordsCountedTogether = [];
+  var doNotCountList = [];
   auswertung.byCategories = sortObjectByKey(auswertung.byCategories, true);
-  for (category of Object.keys(sortObjectByKey(/*auswertung.byCategories*/myCategories, true))) {
+  var i2 = 0;
+  Object.keys(sortObjectByKey(/*auswertung.byCategories*/myCategories, true)).forEach((category, i) => {
     auswertung.byCategories[category] = sortObjectByKey(auswertung.byCategories[category], true);
     if (Object.keys(auswertung.byCategories).includes(category)) categoryList.push(category);
     // doNotCount categoryList hinzufügen falls nötig
-    for (letter of Object.keys(doNotCountObj)) {
-      if (myCategories[category].includes(letter)) {
+    // TODO: Kathegorien zusammengefasst --> Kathegorien sollten nicht hinzugefügt werden
+    for (letter of Object.keys(doNotCountObj.laute)) {
+      if (myCategories[category].includes(letter) && (!(neededTest.countTogether && neededTest.countTogether.includes(category) && countTogether.checked) || !neededTest.countTogether.includes(category))) {
         if (!categoryList.includes(category)) categoryList.push(category)
         if (!Object.keys(auswertung.byCategories[category]).includes(letter)) {
-          categoryList.push(letter);
-          rightList.push(0);
-          wrongList.push(0);
+          if (doNotCountObj.laute[letter] > 0) {
+            categoryList.push(letter);
+            rightList.push(0);
+            wrongList.push(0);
+          }
         }
       }
     }
@@ -222,15 +227,22 @@ function getEveryCategory(manualOverwrite, id) {
       categoryList[categoryList.length - 1] = "zusammen " + categoryList[categoryList.length - 1];
       rightList.push(auswertung.byCategories[category].got)
       wrongList.push(auswertung.byCategories[category].possible - auswertung.byCategories[category].got);
+      if (doNotCountObj.byCategories[category] != undefined) {
+        doNotCountList.push(Object.values(doNotCountObj.byCategories[category]).reduce((acc, val) => acc + val))
+      }
+      else {
+        // doNotCountList.push(0);
+      }
       for (letter of Object.keys(auswertung.byCategories[category])) {
-        if (letter != "<e>/<E>") wordsCountedTogether.push(letter + "/" + letter.toUpperCase());
-        else wordsCountedTogether.push(letter);
+      if (letter != "<e>/<E>") wordsCountedTogether.push(letter + "/" + letter.toUpperCase());
+      else wordsCountedTogether.push(letter);
       }
     }
     else {
       // 0 wegen Text der Rubriken auf der y-Achse (dort sollen keine Balken sein)
       rightList.push(0)
       wrongList.push(0);
+      // if (!doNotCountObj.byCategories[category] && neededTest.countTogether && countTogether.checked) doNotCountList.push(0);
       // Hinzufügen der Rubriken, Anzahl richtig und Anzahl falsch geschriebener Laute in Liste für Grafik hinzufügen
       for (objKeyName of Object.keys(auswertung.byCategories[category])) {
         if (objKeyName != "got" && objKeyName != "possible") {
@@ -243,6 +255,9 @@ function getEveryCategory(manualOverwrite, id) {
       }
     }
   }
+  // TODO: eigentlich Durchlauf CategoryList (fehlende Categories, also die Buchstaben bzw. Laute selbst hinzufügen)
+  // doNotCount (nicht automatisch ausgewertet, also nur Graphemtreffer bekannt) zur Liste für die Grafik hinzufügen
+  if (!Object.keys(sortObjectByKey(/*auswertung.byCategories*/myCategories, true))[i + 1]) {
     // alle zu bewertende Laute in "letterList" hinzufügen
     for (category of Object.keys(neededTest.kategorien)) {
       for (laut of neededTest.kategorien[category]) {
@@ -280,72 +295,14 @@ function getEveryCategory(manualOverwrite, id) {
         rightList.push(auswertung[auswertungNow].got);
       }
     }
-    for (var i = 0; i < categoryList.length; i++) {
-      mirrorList.push(0);
+  }
+  do {
+    category = categoryList[i2]
+    // if counted together, the couning together is already done
+    if (neededTest.countTogether && countTogether.checked && neededTest.countTogether.includes(category.replace("zusammen ", ""))) {
+      i2++;
+      break;
     }
-    // gespiegelte Buchstaben hinzufügen
-    // TODO: <e> gespiegelt
-    for (var i2 = 0; inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror && i2 < Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror).length; i2++) {
-      var currentWord = Object.keys(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror)[i2];
-      for (var i4 = 0; i4 < inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord].length; i4++) {
-        // indexList
-        if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord][i4]) {
-          for (var i = 0; i < categoryList.length; i++) {
-            if (categoryList[i][0] == findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerText.toLowerCase() && (categoryList[i].includes('/') || categoryList[i].length == 1)) {
-              mirrorList[i]++;
-              i = categoryList.length;
-            }
-          }
-          if (i != categoryList.length + 1) {
-            categoryList.push(findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerHTML.toLowerCase());
-            mirrorList[i]++;
-          }
-        }
-      }
-      }
-      var doNotCountList = [];
-      // doNotCount (nict automatisch ausgewertet, also nur Graphemtreffer bekannt) zur Liste für die Grafik hinzufügen
-      categoryList.forEach((category, i) => {
-        // Hinzufügen der Laute, falls in Rubrik vorhanden
-        if (Object.keys(doNotCountObj.laute).includes(category.split("/")[0])) {
-          doNotCountList.push(doNotCountObj.laute[category.split("/")[0]]);
-        }
-        // Hinzufügen der Endung <e>
-        else if (category == "<e>/<E>" && Object.keys(doNotCountObj).includes('<e>/<E>')) {
-          doNotCountList.push(0);
-          for (word of Object.keys(doNotCountObj[category])) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category][word];
-          }
-        }
-        // Hinzufügen der nicht in Rubriken vorhandenen Buchstaben
-        else if (Object.keys(doNotCountObj).includes(category.split("/")[0])) {
-          var total = 0;
-          for (keyNow of Object.keys(doNotCountObj[category.split("/")[0]])) {
-            total += doNotCountObj[category.split("/")[0]][keyNow];
-          }
-          doNotCountList.push(total);
-        }
-        // Eintragen, dass kein nicht auswertbarer vorhanden ist, oder deine Rubrik auf der y-Achse bei dem Index vorhanden ist, wodurch dort auch nichts vorhanden sein kann
-        else if ((category.length != 3 || !Object.keys(doNotCountObj).includes(category[0])) && category != "<e>/<E>") {
-          doNotCountList.push(0);
-        }
-        // "sonstige" hinzufügen
-        else if (category.length == 3) {
-          doNotCountList.push(0);
-          // if (minusList.doNotCount[category[0]] && minusList.doNotCount[category[0]] != 0) {
-          // Abziehen wegen minusList (also Bucstaben aus Lauten (hier: mehrere Buchstaben) o.ä.)
-            /*minusList.doNotCount[category[0]]*/if (minusList.doNotCount[category[0]]) doNotCountList[doNotCountList.length - 1] -= minusList.doNotCount[category[0]];
-          // }
-          // else {
-          //
-          for (wordNow of Object.keys(doNotCountObj[category[0]])) {
-            doNotCountList[doNotCountList.length - 1] += doNotCountObj[category[0]][wordNow[i1]];
-          }
-        // }
-        }
-        // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
-        else doNotCountList.push(0);
-      });
     // Hinzufügen der Laute, falls in Rubrik vorhanden
     if (Object.keys(doNotCountObj.laute).includes(category.split("/")[0])) {
       doNotCountList.push(doNotCountObj.laute[category.split("/")[0]]);
@@ -385,6 +342,10 @@ function getEveryCategory(manualOverwrite, id) {
     }
     // sonst damit die richtige Position auf der y-achse erhalten bleibt, 0 hinzufügen
   else doNotCountList.push(0);
+    i2++;
+    // go through element from categoryList (laute etc.) that are not in Object.keys(myCategories) ("sch" for example)
+  } while (categoryList[i2] && Object.keys(sortObjectByKey(/*auswertung.byCategories*/myCategories, true))[i2] != categoryList[i2].replace("zusammen ", ""));
+});
     for (var i = 0; i < categoryList.length; i++) {
       mirrorList.push(0);
     }
@@ -409,6 +370,7 @@ function getEveryCategory(manualOverwrite, id) {
         }
       }
       }
+    // Werte in Prozente umwandeln falls angewählt
     if (chartInPercent.checked && (!chartInPercentIfCountTogether.checked || (countTogether.checked && neededTest.countTogether != undefined))) {
       for (let i = 0; i < wrongList.length; i++) {
         var sum = wrongList[i] + rightList[i] + doNotCountList[i];
@@ -505,7 +467,6 @@ var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
 // Markierung der Wörter mit dem ausgewählten Kriterium bzw. Balken
 document.getElementById('textur' + selectedElementId.parent).onclick = function(evt) {
   // TODO: Markierung: "te"/"et" bei "Tapete" (Überschneidung)
-  // srcElement is deprecaed
   selectedElementId.parent = evt.currentTarget.id.replace('textur', '');
   refreshNeededTest();
   var chartNow = myBarChart[selectedElementId.parent.replace('pupilSheet', '')];
