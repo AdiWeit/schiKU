@@ -7,32 +7,38 @@
 <img src="https://adi.nicolaiweitkemper.de/Bilder/PfeilTranzparent.png" id="arrowUp" style="rotate: -90deg; scale: 0.3; top: -70; position: fixed;left: -120; display: none;">
 <img src="https://adi.nicolaiweitkemper.de/Bilder/PfeilTranzparent.png" id="arrowDown" style="rotate: 90deg; scale: 0.3; bottom: -70; position: fixed;left: -120; display: none;">
 <div id="selections">
-<button type="button" onclick=" if (settings.style.display == 'inline') settings.style.display = 'none'; else settings.style.display = 'inline';" id="settingsButton" name="button">Optionen (drucken, als PDF speichern, Grafikeinstellungen, <b>Hilfe</b>, Verlauf, Testeditor etc.)</button>
-<div id="settings" style="display: none;">
-  <br>
-  <button onclick="window.open('https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/Anleitung.pdf', '_blank');"><b>Hilfe (Anleitung)</b></button>
-  <br>
-  <input id="preview" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (braucht einige Sek.)
-  <!-- <br>
-  <br> -->
-  <br>
-  <input type="checkbox" id="showHistory" onchange="RefreshHistoryDisplay();"> <b>Verlauf (früher eingegebene Tests) anzeigen (Bitte warten. Die Einstellungen schließen sich <br> nach Beendigung der Wiederherstellung automatisch)</b>
-  <br>
-  <button onclick="restore_specific_test('newest')">vorherigen Test anzeigen</button>
-  <br>
-  <br>
-  <button onclick="openTestSelection();">Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen</button>
-  <br>
-  <div id="testSelection" style="display: none;">
-    <iframe id="selectionGrid" style="width: 100%" src="selectTests.html"></iframe>
+<button type="button" onclick="toggleSettingsVis();" id="settingsButton" name="button">Optionen (drucken, als PDF speichern, Grafikeinstellungen, <b>Hilfe</b>, Tests auswählen etc.)</button>
+<div id="settings" class="card" style="display: none; overflow: scroll; max-height: 84%;">
+  <h2 style="margin-top: 5px; margin-bottom: 7px;">Einstellungen</h3>
+    <div class="card">
+      <h3>allgemein</h3>
+      <button onclick="window.open('Anleitung_neu.pdf', '_blank');"><b>Hilfe (Anleitung)</b></button>
+      <br>
+      <input id="preview" checked="true" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (nur bei vielen geöffneten Tests. Dort dauert dies einige Sek.)
+      <br>
+      <input id="alertStorageFull" checked="true" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Meldung bei vollem Speicherplatz
+    </div>
+  <div class="card">
+    <h3> Anzeige und Verwaltung der Tests</h3>
+    <button onclick="restore_specific_test('newest')">neuesten Test anzeigen</button>
+    <button onclick="restore_specific_test('oldest')">älteste Eingabe anzeigen</button>
     <br>
-    <button onclick="openSelectedTests();">öffnen</button>
-    <button onclick="openSelectedTests('print');">drucken (auch zum Speichern)</button>
-    <button id="deleteSelected" onclick="if (confirm('Sind Sie sich sicher, dass Sie alle ausgewählten Tests löschen wollen?')) openSelectedTests('delete');">löschen</button>
+    <br>
+    <button id="testSelectionToggler" onclick="toggleTestSelection();">Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen</button>
+    <br>
+    <div id="testSelection" class="card" style="display: none;">
+      <iframe id="selectionGrid" onmouseup="console.log('mouse up detected! calling function...'); onMouseUp();" style="width: 100%; max-height: 47vh; border-width: 0px; box-shadow: 0 8px 8px -4px rgb(181, 186, 188); margin-bottom: 4px;" src="selectTests.html"></iframe>
+      <br>
+      <button onclick="openSelectedTests();">öffnen</button>
+      <button onclick="openSelectedTests('print');">drucken (auch zum Speichern)</button>
+      <button id="deleteSelected" onclick="if (confirm('Sind Sie sich sicher, dass Sie alle ausgewählten Tests löschen wollen?')) openSelectedTests('delete');">löschen</button>
+    </div>
+    <br>
+    <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der neueste Test bleibt erhalten
   </div>
-  <br>
-  <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der letzte Test bleibt erhalten
-  <h3>Druckereinstellungen</h3>
+  <div class="card">
+  <h3>Druckeinstellungen</h3>
+  <!-- checked if printMode is active -->
   <input onchange="printMode(checked);" id="printerMode" style="display:none" type="checkbox">
   <button onclick="printMode(true);" type="checkbox"><strong>Drucken (auch zum Speichern)</strong></button> 
   <br>
@@ -41,41 +47,46 @@
       <option value="blackWhite">Schwarz-Weiß-Druck</option>
     </select>
     <br>
-    <a id="showPatterns" style="display: none;"><input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck<br></a>
+    <div id="blackWhiteSettings" style="display: none;" class="card">
+      <input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck
+      <br>
+      <input id="highContrastBlackWhite" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> hohen Kontrast zwischen richtigen und falschen
+    </div>
     <input id="removeTextFields" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> die Textfelder mit reinem Text ersetzen
     <br>
-    <input id="alwaysShowColoured" checked="true" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
-  <!-- <br>
-  <br> -->
+    <input checked="true" id="printAlerts" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Meldungen mit Informationen zum Drucken
+    <br>
+    <input id="alwaysShowColoured" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
+</div>
+<div class="card">
   <h3>Layout der Blätter/Tests</h3>
-  <input id="adaptInputs" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> Größe der Textfelder an Anzahl der Buchstaben anpassen
-  <br>
-  <input id="inputsParallel" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> alle Eingabefelder untereinander
-  <br>
-  <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext zum Testverfahren in Anmerkungen automatisch generieren
-  <br>
   <input type="checkbox" id="countTogether" checked="true" onchange="settingChanged(id, {checked: checked}, true);"> bei Kategorien, auf denen kein Fokus liegt, nur Zusammenzählen
   <br>
   <input type="checkbox" id="chartInPercent" onchange="settingChanged(id, {checked: checked}, true);"> Anzahl richtige/falsche etc. in Prozent anzeigen
   <br>
   <div style="text-indent: 2em;">
-    <input type="checkbox" style="text-indent: 2em;" id="chartInPercentIfCountTogether" onchange="settingChanged(id, {checked: checked}, true);"> <a style="text-indent: 3em;">nur in Prozent anzeigen wenn Kategorien (auf denen kein Fokus liegt) zusammengezählt</a>
+    <input type="checkbox" style="text-indent: 2em;" id="chartInPercentIfCountTogether" onchange="settingChanged(id, {checked: checked}, true);"> <a style="text-indent: 3em;">nur in Prozent anzeigen, wenn Kategorien (auf denen kein Fokus liegt) zusammengezählt</a>
   </div>
+  <input id="adaptInputs" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> Größe der Textfelder an Anzahl der Buchstaben anpassen
   <br>
+  <input id="inputsParallel" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> alle Eingabefelder untereinander
   <br>
+  <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext zum Testverfahren in Anmerkungen automatisch generieren
+</div>
+<div class="card">
   <h3>alte Version</h3>
   Die ältere Version finden Sie unter folgendem Link: <a href="https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/rechtschreibdiagnostik-SchiKU.html"><br>https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/rechtschreibdiagnostik-SchiKU.html</a>
-  <h3>Tests bearbeiten, hinzufügen, Feedback geben und Fragen stellen</h3>
-  <input type="checkbox" id="showEdit" onchange="settingChanged(id, {checked: checked}, true);"> Button zum Bearbeiten von Tests anzeigen
-  <br>
-  <button type="button" onclick="copyCode();" name="button">Selbst erstellte Tests einsenden: Code der Tests in die Zwischenablage kopieren</button> um ihn an
-  <br>
-  <a href="mailto:Weitkemper.Adrian@web.de?subject=neuer offizieller Test">den Entwickler (Weitkemper.Adrian@web.de)</a><br> (gerne auch Feedback geben oder Fragen stellen) zu schicken, welcher ihn bei Bedarf hinzufügt
-  <br>
-  <br>
-  <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button>
-  <br>
-  <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben
+</div>
+<div class="card">
+  <h3>Feedback geben und Fragen stellen</h3>
+  <!-- <input type="checkbox" id="showEdit" onchange="settingChanged(id, {checked: checked}, true);"> Button zum Bearbeiten von Tests anzeigen -->
+  <!-- <button type="button" onclick="copyCode();" name="button">Selbst erstellte Tests einsenden: Code der Tests in die Zwischenablage kopieren</button> um ihn an
+  <br> -->
+  <b>Feedback (Verbesserungsvorschläge/Wünsche), Fragen oder Probleme gerne an den Entwickler </b> <a href="mailto:Weitkemper.Adrian@web.de?subject=Fragen oder Feedback zu SchiKU">Weitkemper.Adrian@web.de</a>
+</div>
+  <!-- <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button> -->
+  <!-- <br> -->
+  <!-- <input id="syncDataCheckbox" checked="true" onchange="localStorage.setItem('syncWithOfficials', checked); syncWithOfficialData(true); refreshWords();" type="checkbox"> immer mit offiziellen Daten überschreiben -->
   <input type="text" id="message" style="display: none">
   <br>
   <br>
@@ -151,11 +162,19 @@
 <script src="analysis.js"></script>
 <script src="other.js"></script>
 <style>
-  /* deleting the last page from the print */
-  @media print {
-      html, body {
-          height: 99%;    
-      }
-  }
-  </style>
-  
+
+.card {
+  box-shadow: 2px 2px 10px #855d5d;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+h3 {
+  margin-top: 3px;
+  margin-bottom: 7px;
+}
+</style>

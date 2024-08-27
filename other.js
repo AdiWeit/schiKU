@@ -415,3 +415,20 @@ function storeSchiKUInputs() {
     else alert_enough_storage = true;
   }
 }
+function toggleSettingsVis() {
+  if (settings.style.display == 'inline') {
+    settings.style.display = 'none'; 
+    for (elm of document.getElementsByClassName("commentDiv")) elm.style.display = "inline"
+    // document.getElementById("commentDiv" + selectedElementId.parent.split("Sheet")[1]).style.display = "inline";
+    if (preview.checked && settingsChanged) {
+      recreateOpenSheets();
+    }
+    settingsChanged = false;
+  }
+  else {
+    settings.style.display = 'inline';
+    for (elm of document.getElementsByClassName("commentDiv")) elm.style.display = "none"
+    // document.getElementById("commentDiv" + selectedElementId.parent.split("Sheet")[1]).style.display = "none";
+  }
+
+}

@@ -206,7 +206,14 @@ function openTestSelection() {
     data[i] = {Datum: test["date" + sheet.split("Sheet")[1]], Klasse: test["class" + sheet.split("Sheet")[1]], Name: test["name" + sheet.split("Sheet")[1]], pupilSheet: sheet, ausgefüllt: test.completed};
   }
   selectionGrid.contentWindow.postMessage("set data: " + JSON.stringify(data), "*")
-  testSelection.style.display = "block";
+  if (testSelection.style.display == "none") {
+    testSelectionToggler.innerText = "Auswahl schließen";
+    testSelection.style.display = "block";
+  }
+  else {
+    testSelection.style.display = "none";
+    testSelectionToggler.innerText = "Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen";
+  }
 }
 
 function openSelectedTests(type) {

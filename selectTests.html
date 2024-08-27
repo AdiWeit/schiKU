@@ -1,4 +1,5 @@
- <head>
+<head>
+   <meta charset="utf-8">
    <title>Ag Grid App</title>
    <!-- Include the JS for AG Grid -->
    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
@@ -8,21 +9,23 @@
    <!-- Include the theme CSS, only need to import the theme you are going to use -->
    <link rel="stylesheet"
      href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+        <!-- Include the official German locale -->
+   <script src="https://adi.nicolaiweitkemper.de/ag-grid/AG_GRID_LOCALE_DE.js"></script>
  </head>
  <body>
    <!-- The div that will host the grid. ag-theme-alpine is the theme. -->
    <!-- The gid will be the size that this element is given. -->
-   <div id="grid" class="ag-theme-alpine" style="height: 500px;"></div>
+   <div id="grid" class="ag-theme-alpine" style="width: 100%; height: 80%;"></div>
    <script type="text/javascript">
-    var rowData = [
-  { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
-  { Datum: new Date("2024-02-03"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet2" },
-  { Datum: new Date("2024-04-02"), Klasse: "EPH", Name: "Deine Mudda", pupilSheet: "pupilSheet3" },
-];
+    var rowData = [];
 var api;
        // Grid Options are properties passed to the grid
        const gridOptions = {
-
+        // locale: {
+          localeText: AG_GRID_LOCALE_DE,
+          // nur in bezahlter Version :(
+          // enableRangeSelection: true,
+        // },
          // each entry here represents one column
          columnDefs: [
            {headerName: "Auswahl", checkboxSelection: true, headerCheckboxSelection: true, width: 30, filter: false},
@@ -69,7 +72,7 @@ var api;
        function dateCellRenderer(params) {
         return params.value ? params.value.toLocaleDateString('de-DE') : '';
       }
-
+  var selectedTests = [];
   window.addEventListener('message', function(event) {
     if (event.data.includes('set data:')) {
       data = JSON.parse(event.data.split('set data: ')[1]);
@@ -81,8 +84,55 @@ var api;
       api.setGridOption("rowData", rowData) 
     }
     if (event.data == "get data") {
+      // selectedTests = [];
+      // // get selected rows
+      // api.forEachNode(node => {if (node.selected) selectedTests.push(node.data)})
       window.parent.postMessage("sendData: " + JSON.stringify(api.getSelectedRows()), "*");
     }
 }, false);
+
+// Add event listeners to the grid
+api.addEventListener('cellMouseDown', onMouseDown);
+api.addEventListener('cellMouseOver', onMouseOver);
+grid.addEventListener("mouseup", onMouseUp)
+grid.addEventListener("onclick", onMouseOver)
+
+let isSelecting = false;
+let mouseOverCells = new Set();
+var firstNode;
+function onMouseDown(event) {
+    isSelecting = true;
+    mouseOverCells = new Set();
+    event.node.selected = !event.node.selected;
+    onMouseOver(event);
+    firstNode = event.node;
+    // selectedCells.push(event.node);
+    // highlightCell(event.node);
+}
+
+function onMouseOver(event) {
+    if (isSelecting && !mouseOverCells.has(event.node.rowIndex)) {
+        // event.node.selected = !event.node.selected;
+        event.node.setSelected(!event.node.selected);
+        mouseOverCells.add(event.node.rowIndex);
+        // api.redrawRows();
+
+        // selectedCells.push(event.node);
+        // highlightCell(event.node);
+        if (mouseOverCells.size == 2) {
+          firstNode.setSelected(!firstNode.selected);
+        }
+    }
+  }
+  
+  function onMouseUp(event) {
+    isSelecting = false;
+}
+
+// function highlightCell(node) {
+    // Apply a CSS class to highlight the cell
+//     // node.element.classList.add('selected-cell');
+// }
+
 </script>
  </body>
