@@ -101,6 +101,9 @@ function pupilsWritingFinished(id, restoringData) {
   if (findChild('id', selectedElementId.parent, id) && findChild('id', selectedElementId.parent, id).value == "r") {
     findChild('id', selectedElementId.parent, id).value = findChild('id', selectedElementId.parent, "word " + id.replace("pupilsWriting ", "")).innerText;
     markErrors(id, selectedElementId.parent, true/*, verstehe nicht warum doNotMark true sein sollte*/);
+    if (inputField.style.backgroundColor == inputField.style.color) {
+      inputField.style.color = "white";
+    }
   }
   if (!restoringData) {
     setTimeout(function () {
@@ -139,12 +142,13 @@ function changeMirror(index, wordId) {
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
     findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
-    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
+    if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
+    else findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
   }
   else {
   findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
   findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
-  if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] == "white") findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
+  if (["white", "rgb(219, 219, 219)"].includes(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index])) findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));

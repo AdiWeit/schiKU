@@ -1,7 +1,78 @@
 // if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
 // window.location.replace('https://adi.nicolaiweitkemper.de/')  
 categories.style.left = 166 + 22;
-  var colours = {colour: {right: {chart: "rgba(0, 255, 0, 1)", text: "green"}, wrong: {dark: {chart: "red", text: "red"}, light: {text:"#FD6441"}}, doNotCount: {chart: "gray"}, spiegelverkehrt: {chart: "#00BFFF", text: "#00BFFF"}}, blackWhite: {right: {chart: pattern.draw('diamond-box', 'black'), text: "rgb(16,16,16)"}, wrong: {dark: {chart: pattern.draw('cross', 'rgb(56,56,56)'), text: "rgb(56,56,56)"}, light: {text: "gray"}} , doNotCount: {chart: pattern.draw('diagonal', 'gray'), text: "gray"}, spiegelverkehrt: {chart: pattern.draw('line-vertical', 'silver'), text: "silver"}}}
+var colours = { 
+  colour: { 
+    right: { 
+      chart: "rgba(0, 255, 0, 1)", 
+      // outline
+      text: "green" 
+    }, 
+      wrong: { 
+        // colour in chart
+        dark: { 
+          chart: "red", 
+          text: "red" 
+        }, 
+        // colour for correction/marking
+        light: { 
+          text: "#FD6441" 
+        } 
+      }, 
+      doNotCount: { 
+        chart: "gray" 
+      }, 
+      spiegelverkehrt: { 
+        chart: "#00BFFF", 
+        text: "#00BFFF" 
+      } 
+    }, 
+    blackWhite: 
+    { 
+      right: 
+        { 
+          chart: pattern.draw('disc', 'black'), 
+          text: "black" 
+        }, 
+      wrong: { 
+        dark: { 
+          chart: pattern.draw('cross', 'rgb(73,73,73)'), 
+          text: "rgb(73,73,73)" 
+        }, 
+        light: { text: "gray" } 
+      }, 
+      doNotCount: { 
+        chart: pattern.draw('diagonal', 'rgb(146, 146, 146)'), 
+        text: "rgb(146, 146, 146)" 
+      }, 
+      spiegelverkehrt: { 
+        chart: pattern.draw('line-vertical', 'rgb(219, 219, 219)'), 
+        text: "rgb(219, 219, 219)" 
+      } 
+    }, 
+    highContrastblackWhite: {
+      right: 
+      { 
+        chart: pattern.draw('disc', 'black'), 
+        text: "black" 
+      }, 
+    wrong: { 
+      dark: {
+        chart: pattern.draw('line-vertical', 'rgb(219, 219, 219)'), 
+        text: "rgb(219, 219, 219)" 
+      },
+      light: { text: "rgb(219, 219, 219)"  } 
+    }, 
+    doNotCount: { 
+      chart: pattern.draw('diagonal', 'rgb(146, 146, 146)'), 
+      text: "rgb(146, 146, 146)" 
+    }, 
+    spiegelverkehrt: { 
+      chart: pattern.draw('cross', 'rgb(73,73,73)'), 
+      text: "rgb(73,73,73)" 
+    }
+    }
+  }
   document.getElementById('addPupil').style.left = 300 + "px";
   document.getElementById('addPupil').style.position = 'fixed';
   document.getElementById('testSelector').style.left = 300 + "px";
@@ -242,6 +313,7 @@ function recreatePupil(referenceSheet, newSheet=referenceSheet) {
       // findChild('word', referenceSheet,wordsIn);
       findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
       findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.color = "white";
+      if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.color = "black";
     }
   }
 }

@@ -432,7 +432,7 @@ else {
 function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
   correctedString.forEach((letter, i) => {
     var textColour = "black";
-    if (letter.colour != "white") textColour = "white";
+    if (!["rgb(219, 219, 219)", "white"].includes(letter.colour)) textColour = "white";
     addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: letter.letter, style: 'background-color:' + letter.colour + ';' + "color:" + textColour, title: 'klicken, um ' + letter.letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
   });
 
@@ -451,6 +451,7 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
     // addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
     else if (wrong == original.correct.toLowerCase()) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
+      if (["rgb(219, 219, 219)"].includes(findChild('id', selectedElementId.parent, id).style.backgroundColor)) findChild('id', selectedElementId.parent, id).style.color = "black";
   // }
 }
 // Don't know why this should be needed
