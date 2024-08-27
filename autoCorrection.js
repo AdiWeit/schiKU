@@ -137,9 +137,10 @@ function checkCategory(correct, i, last, pCorrect, possibleGraphemtreffer) {
       else if (letterInCategoriesNotDone) letterInCategoriesNotDone[letterString]--;
       // fügt den nächsten Buchstaben zum aktuellen Laut hinzu, wodurch der Lauf um einen richtung Wortende rutscht
       // TODO: Problem: gleiche Buchstaben
-      if ((!letterInCategoriesNotDone || letterInCategoriesNotDone[letterString] < 1) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString))) {
-      letterList[letterString][correct[i].toLowerCase()] = true;
-      letterCounter[letterString].push(correct[i].toLowerCase());
+      if ((!letterInCategoriesNotDone || letterInCategoriesNotDone[letterString] < 1) && (pCorrect || category == "trigger" || !justOneGraphemtreffer.includes(letterString)) && correct[i] != undefined) {
+      // packt aktuelle rein und füllt Buchstaben auf
+        letterList[letterString][correct[i].toLowerCase()] = true;
+        letterCounter[letterString].push(correct[i].toLowerCase());
     }
     }
   }
@@ -239,6 +240,7 @@ else correct = pCorrect;
     doubleError++;
   }
   var wrongCut = JSON.parse(JSON.stringify(wrong));
+  var skipLetters = 0;
   for (var correct of correct.split("-")) {
     if (wrongString != "") wrongCut = wrongCut.replace(wrongString, '');
     var wrongString = "";
@@ -302,6 +304,7 @@ else correct = pCorrect;
     else {
       var wrongIBeginning = wrongI;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
+    if (skipLetters > 0) i += skipLetters;
     console.log("compare " + correct[i] + " with " + wrong[wrongI]);
     wrongString += wrong[wrongI];
     var ausgetauscht = 0;
@@ -351,15 +354,38 @@ else {
   // graphemFehler++;
 }
     }
-    // getauscht check (rausgenommen weil es mehr Fehler schafft als behebt)
-    // else if (nextLetter == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != nextLetter) {
-    //   graphemFehler++;
-    //   correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
-    //   correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
-    //   i++;
-    //   ausgetauscht = 1;
-    //   wrongI++;
-    // }
+    // getauscht/vertauscht check (TODO: mehr oder weniger Fehler als ohne?)
+    else if (nextLetter == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != nextLetter && allI + i == wrongI) {
+      // insgesamt für vertauscht graphemFehler++, aber addWrongLetter erhöht graphemFehler um einen
+      graphemFehler--;
+      correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
+      addWrongLetter(original.correct, wrongI);
+      correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
+      addWrongLetter(original.correct, wrongI + 1);
+      // da ein i übersprungen, wird dieses manuell hinzugefügt (vergessen wie es sonst geht :) )
+   
+      // checkCategory(original.correct, allI + i + 1/* + doubleError - beforeBeginning*/, null, pCorrect, possibleGraphemtreffer);
+      var completeCorrect = replaceAll(originalSilben.correct, "-", "");
+      for (const category of Object.keys(neededTest.kategorien)) {
+        for (const letter of neededTest.kategorien[category]) {
+          for (const elm of neededTest.words) {
+            if (replaceAll(elm, "-", "") == completeCorrect && letter == completeCorrect[allI + i + 1]) {
+              if (!auswertung.categories[selectedElementId.parent]) auswertung.categories[selectedElementId.parent] = {};
+              if (!auswertung.categories[selectedElementId.parent][completeCorrect]) auswertung.categories[selectedElementId.parent][completeCorrect] = {};
+              if (!auswertung.categories[selectedElementId.parent][completeCorrect][category]) auswertung.categories[selectedElementId.parent][completeCorrect][category] = {got: 0, possible: 0};
+              if (!auswertung.categories[selectedElementId.parent][completeCorrect][category][letter]) auswertung.categories[selectedElementId.parent][completeCorrect][category][letter] = {possible: 0, got: 0};
+              auswertung.categories[selectedElementId.parent][completeCorrect][category][letter].possible++;
+              auswertung.categories[selectedElementId.parent][completeCorrect][category].possible++;
+            }
+          }
+        }
+      }
+
+      i += 2//++;
+      skipLetters = i - correct.length;
+      ausgetauscht = 1;
+      wrongI += 2 //++;
+    }
     // too much before end
     else if (((wrong[wrongI + 1] && wrong[wrongI + 1] == correct[i])) && correct[i] != wrong[wrongI]) {
       // console.log("remove " + wrong[wrongI] + " pos. " + wrongI);
@@ -385,8 +411,6 @@ else {
   // wrongI = i;
 }
 }
-  // if (wrongI >= i && i != 0) i = original.correct.length;
-  if (ausgetauscht) i--;
   // check end missing
   for (var i = allI; correctedString.length - doubleError/* - ausgetauscht*/ < original.correct.length; i++) {
     console.log(original.correct[correctedString.length] + " missing");
