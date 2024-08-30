@@ -330,7 +330,7 @@ function recreatePupil(lastPage, referenceSheet, newSheet=referenceSheet) {
       var letterElm = findChild('explicitId', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true);
       letterElm.style.backgroundColor = selectedColours.spiegelverkehrt.text;
       letterElm.style.color = "white";
-      if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)" || !markWrong.checked) letterElm.style.color = "black";
+      if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") letterElm.style.color = "black";
       letterElm.className = " mirrored";
     }
   }

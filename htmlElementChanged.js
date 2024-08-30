@@ -178,7 +178,7 @@ function changeMirror(index, wordId) {
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = letterElm.style.backgroundColor;
     letterElm.style.backgroundColor = selectedColours.spiegelverkehrt.text;
-    if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)" || !markWrong.checked) letterElm.style.color = "black";
+    if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") letterElm.style.color = "black";
     else letterElm.style.color = "white";
     if (mirrorLetter.checked) {
       letterElm.className += " mirrored";
@@ -187,7 +187,7 @@ function changeMirror(index, wordId) {
   else {
   letterElm.style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
   letterElm.style.color = "white";
-  if (["white", "rgb(219, 219, 219)"].includes(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) || !markWrong.checked) {
+  if (["white", "rgb(219, 219, 219)"].includes(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index])) {
     letterElm.style.color = "black";
   }
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;

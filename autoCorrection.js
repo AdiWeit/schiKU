@@ -482,7 +482,7 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
     // addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     if (original.wrong == original.correct) writingInput.style.backgroundColor = selectedColours.right.text;
     else if (wrong == original.correct.toLowerCase()) writingInput.style.backgroundColor = selectedColours.wrong.light.text;
-      if (["rgb(219, 219, 219)"].includes(writingInput.style.backgroundColor)) writingInput.style.backgroundColor.style.color = "black";
+      if (["rgb(219, 219, 219)"].includes(writingInput.style.backgroundColor)) writingInput.style.color = "black";
   // }
 }
 // Don't know why this should be needed
