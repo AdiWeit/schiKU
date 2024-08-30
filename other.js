@@ -327,9 +327,11 @@ function recreatePupil(lastPage, referenceSheet, newSheet=referenceSheet) {
     for (var i4 = 0; i4 < inputs[selectedTest][referenceSheet].mirror[wordsIn].length; i4++) {
       if (inputs[selectedTest][referenceSheet].mirror[wordsIn][i4]) {
       // findChild('word', referenceSheet,wordsIn);
-      findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
-      findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.color = "white";
-      if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") findChild('class', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true).style.color = "black";
+      var letterElm = findChild('explicitId', findChild('word', referenceSheet,wordsIn), 'correctionLetter' + i4, true);
+      letterElm.style.backgroundColor = selectedColours.spiegelverkehrt.text;
+      letterElm.style.color = "white";
+      if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)" || !markWrong.checked) letterElm.style.color = "black";
+      letterElm.className = " mirrored";
     }
   }
 }

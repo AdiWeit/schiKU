@@ -357,7 +357,7 @@ function getEveryCategory(manualOverwrite, id) {
         // indexList
         if (inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[currentWord][i4]) {
           for (var i = 0; i < categoryList.length; i++) {
-            letter = findChild("class", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerText.toLowerCase();
+            letter = findChild("explicitId", findChild("word", selectedElementId.parent, currentWord), "correctionLetter" + i4, true).innerText.toLowerCase();
             if ((categoryList[i][0] == letter && (categoryList[i].includes('/') || categoryList[i].length == 1)) || (countTogether.checked && neededTest.kategorien[categoryList[i].replace("zusammen ", "")]?.includes(letter))) {
               mirrorList[i]++;
               i = categoryList.length;
@@ -495,8 +495,9 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
       category = chartData.labels[i];
     }
     neededTest.words.forEach((word, i) => {
-        findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "";
-        findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = "";
+      var wordElm = findChild('id', pupilSheet, 'correction ' + (i + 1));
+        wordElm.style.outlineStyle = "";
+        wordElm.style.width = "";
         // Überprüfung, ob das Ausgewählte in dem Wort, das gerade überprüft wird, vorhanden ist
         if ((category != "Doppelkonsonanten" || (replaceAll(word, '-', '').includes(label + label) && ((Object.keys(neededTest.betonung[i])[0] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[0]) + 1] == label) || (Object.keys(neededTest.betonung[i])[1] && replaceAll(word, '-', '')[JSON.parse(Object.keys(neededTest.betonung[i])[1]) + 1] == label)))) && (label.replace('>', '').replace('<', '').length == 1 && (word.toLowerCase().includes(label.replace('>', '').replace('<', '').toLowerCase())) || (label.includes('Silben') && word.toString().split('-').length == label.replace(' Silben', ''))) && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value != "") {
           var result = undefined;
@@ -511,10 +512,10 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
             wordWithoutCategories = replaceAll(wordWithoutCategories, possibleLetterList[i1], '');
           }
           if ((wordWithoutCategories.includes(label) || possibleLetterList.length == 0)) {
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.wrong.dark.text;
-          if ((label.includes('Silben') && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) || (!label.includes('Silben') && ((label == "<e>" && getLastLetterStyle(i, pupilSheet).color != selectedColours.wrong.dark.text && getLastLetterStyle(i, pupilSheet).letter.toLowerCase() == "e") || (label != "<e>" && findLetter(replaceAll(word, '-', ''), label).got == findLetter(replaceAll(word, '-', ''), label).possible)))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = selectedColours.right.text;//"green";
-          if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(word, '-', ''))) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineColor = "gray";
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.outlineStyle = "outset";
+          if (markWrong.checked) wordElm.style.outlineColor = selectedColours.wrong.dark.text;
+          if ((label.includes('Silben') && findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) || (!label.includes('Silben') && ((label == "<e>" && getLastLetterStyle(i, pupilSheet).color != selectedColours.wrong.dark.text && getLastLetterStyle(i, pupilSheet).letter.toLowerCase() == "e") || (label != "<e>" && findLetter(replaceAll(word, '-', ''), label).got == findLetter(replaceAll(word, '-', ''), label).possible)))) wordElm.style.outlineColor = selectedColours.right.text;//"green";
+          if (auswertung.doNotCount[selectedElementId.parent].includes(replaceAll(word, '-', ''))) wordElm.style.outlineColor = "gray";
+          wordElm.style.outlineStyle = "outset";
           // TODO: not needed because it is already checked if Schreibung Schüler is ""?
           if (!document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i]) {
               // go through words
@@ -523,24 +524,24 @@ document.getElementById('textur' + selectedElementId.parent).onclick = function(
               }
             // }
           }
-          findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
-          // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) findChild('id', pupilSheet, 'correction ' + (i + 1)).style.width = 7*replaceAll(word, '-', '').length;
+          wordElm.style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
+          // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value.toLowerCase() == replaceAll(word, '-', '').toLowerCase()) wordElm.style.width = 7*replaceAll(word, '-', '').length;
         }
         }
       }
       // Ausgewählte Kriterium ist in einer Kategorie vorhanden: Markierung des Wortes
       if (label.replace('>', '').replace('<', '').length > 1 && !(label.includes("Silben"))) {
         var wordNow = replaceAll(word, '-', '');
-        findChild('word', pupilSheet, wordNow).style.outlineStyle = "";
+        wordElm.style.outlineStyle = "";
         for (category of Object.keys(auswertung.categories[selectedElementId.parent][wordNow])) {
           for (letter of Object.keys(auswertung.categories[selectedElementId.parent][wordNow][category])) {
             if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible && letter == label) {
-              findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.wrong.dark.text;
-              if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) findChild('word', pupilSheet, wordNow).style.outlineColor = selectedColours.right.text;//"green";
-              if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) findChild('word', pupilSheet, wordNow).style.outlineColor = "gray";
-              findChild('word', pupilSheet, wordNow).style.outlineStyle = "outset";
-              findChild('word', pupilSheet, wordNow).style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
-              // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) findChild('word', pupilSheet, wordNow).style.width = 7*replaceAll(word, '-', '').length;
+              if (markWrong.checked) wordElm.style.outlineColor = selectedColours.wrong.dark.text;
+              if (auswertung.categories[selectedElementId.parent][wordNow][category][letter].possible == auswertung.categories[selectedElementId.parent][wordNow][category][letter].got) wordElm.style.outlineColor = selectedColours.right.text;//"green";
+              if (auswertung.doNotCount[selectedElementId.parent].includes(wordNow)) wordElm.style.outlineColor = "gray";
+              wordElm.style.outlineStyle = "outset";
+              wordElm.style.width = document.getElementsByClassName('graphemtrefferPossible' + pupilSheet)[i].getBoundingClientRect().right + 3;
+              // if (findChild('id', pupilSheet, 'pupilsWriting ' + (i + 1)).value == wordNow) wordElm.style.width = 7*replaceAll(word, '-', '').length;
             }
           }
         }

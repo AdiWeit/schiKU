@@ -222,7 +222,8 @@ else correct = pCorrect;
   }
   // Liste mit allen Buchstaben und derem Aussehen
   for (var letter of wrong) {
-    correctedString.push({letter: letter, colour: "white"});
+    if (markWrong.checked) correctedString.push({letter: letter, colour: "white"});
+    else correctedString.push({letter: letter, colour: "black"});
   }
   correct = correct.toLowerCase();
   wrong = wrong.toLowerCase();
@@ -456,8 +457,12 @@ else {
 function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
   correctedString.forEach((letter, i) => {
     var textColour = "black";
-    if (!["rgb(219, 219, 219)", "white"].includes(letter.colour)) textColour = "white";
-    addElement({id: 'correctionLetter', class: 'correctionLetter' + i, innerText: letter.letter, style: 'background-color:' + letter.colour + ';' + "color:" + textColour, title: 'klicken, um ' + letter.letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    if (!["rgb(219, 219, 219)", "white"].includes(letter.colour) && markWrong.checked) textColour = "white";
+    var newElm = addElement({id: 'correctionLetter', explicitId: 'correctionLetter' + i, innerText: letter.letter, style: 'background-color:' + letter.colour + ';' + "color:" + textColour, title: 'klicken, um ' + letter.letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
+    if (underlineWrong.checked && [selectedColours.wrong.dark.text, selectedColours.wrong.light.text].includes(newElm.style.backgroundColor)) {
+      newElm.classList += " underline";
+    }
+    if (!markWrong.checked) newElm.style.backgroundColor = "";
   });
 
   // if (!doNotMark && graphemFehler > 0) {
@@ -468,14 +473,16 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
       findChild('id', wordCorrectionChild, 'automaticGraphemTreffer' + original.correct, true).remove();
     }
     addElement({innerText: '⟲automatische Auswertung', id: 'automaticGraphemTreffer' + original.correct, onclick: 'resetGraphemtreffer("' + selectedElementId.element + '", "' + selectedElementId.parent + '");', class: 'automaticGraphemTreffer' + capitalizeFirstLetter(selectedElementId.parent) + " automaticGraphemTreffer", style: 'width: 100; display: none;'}, 'button', wordCorrectionChild, true);
-    findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.dark.text;
+    var writingInput = findChild('id', selectedElementId.parent, id);
+    writingInput.style.backgroundColor = selectedColours.wrong.dark.text;
+
   // }
   // else {
     // addElement({style: 'display: none;', value: possibleGraphemtreffer - graphemFehler, id: 'graphemtrefferGot', class: 'graphemtrefferGot' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
     // addElement({style: 'display: none;', value: possibleGraphemtreffer, id: 'graphemtrefferPossible', class: 'graphemtrefferPossible' + capitalizeFirstLetter(selectedElementId.parent)}, 'input', wordCorrectionChild, true);
-    if (original.wrong == original.correct) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.right.text;
-    else if (wrong == original.correct.toLowerCase()) findChild('id', selectedElementId.parent, id).style.backgroundColor = selectedColours.wrong.light.text;
-      if (["rgb(219, 219, 219)"].includes(findChild('id', selectedElementId.parent, id).style.backgroundColor)) findChild('id', selectedElementId.parent, id).style.color = "black";
+    if (original.wrong == original.correct) writingInput.style.backgroundColor = selectedColours.right.text;
+    else if (wrong == original.correct.toLowerCase()) writingInput.style.backgroundColor = selectedColours.wrong.light.text;
+      if (["rgb(219, 219, 219)"].includes(writingInput.style.backgroundColor)) writingInput.style.backgroundColor.style.color = "black";
   // }
 }
 // Don't know why this should be needed

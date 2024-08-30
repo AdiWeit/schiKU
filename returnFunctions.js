@@ -54,6 +54,6 @@ function findLetter(word, letter) {
   }
 }
 function getLastLetterStyle(i, pupilSheet) {
-  for (var i1 = 0; findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + i1, true); i1++) {}
-  return {letter: findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).innerHTML, color: findChild('class', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).style.backgroundColor};
+  for (var i1 = 0; findChild('explicitId', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + i1, true); i1++) {}
+  return {letter: findChild('explicitId', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).innerHTML, color: findChild('explicitId', findChild('id', pupilSheet, 'correction ' + (i + 1)), 'correctionLetter' + (i1 - 1), true).style.backgroundColor};
 }

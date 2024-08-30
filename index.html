@@ -71,6 +71,16 @@
   <br>
   <input id="inputsParallel" checked="true" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> alle Eingabefelder untereinander
   <br>
+  <div class="card">
+    <h3>Autokorrektur</h3>
+    <input type="checkbox" group="autoCorrection" checked="true" onchange="settingChanged(id, {checked: checked}, true); autoCorrectionSettingChanged(this);" id="markWrong"> falsche Buchstaben farblich markieren
+    <br>
+    <input type="checkbox" group="autoCorrection" onchange="settingChanged(id, {checked: checked}, true); autoCorrectionSettingChanged(this);" id="underlineWrong"> falsche Buchstaben unterstreichen
+    <br>
+    <!-- TODO: so gut? -->
+    <input type="checkbox" onchange="settingChanged(id, {checked: checked}, true);" id="mirrorLetter"> gespiegelte Buchstaben gespiegelt darstellen
+  </div>
+  <br>
   <input type="checkbox" checked="true" onchange="settingChanged(id, {checked: checked}, true);" id="generateInfoText"> Infotext zum Testverfahren in Anmerkungen automatisch generieren
 </div>
 <div class="card">
@@ -176,5 +186,21 @@
 h3 {
   margin-top: 3px;
   margin-bottom: 7px;
+}
+/* mirror text (vertically) */
+.mirrored {
+  -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
+  -ms-transform: scale(-1, 1);
+  transform: scale(-1, 1);
+  display: inline-block;
+}
+.underline {
+  /* text-decoration-line: underline;
+  text-decoration-thickness: 3px;
+  text-decoration-color: black; */
+  border-bottom: black thick solid;
+
 }
 </style>

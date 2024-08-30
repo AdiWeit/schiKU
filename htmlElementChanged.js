@@ -169,22 +169,29 @@ function resetGraphemtreffer(element, parent) {
 }
 // Buchstaben, die grafisch gesehen falsch verschriftlicht wurden werden markiert oder abgewählt
 function changeMirror(index, wordId) {
+  var letterElm = findChild('explicitId',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true);
   var word = replaceAll(neededTest.words[wordId.replace('pupilsWriting ', '') - 1], '-', '');
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror) inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror = {};
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word]) {
     inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word] = [];
   }
   if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) {
-    inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor;
-    findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = selectedColours.spiegelverkehrt.text;
-    if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
-    else findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
+    inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = letterElm.style.backgroundColor;
+    letterElm.style.backgroundColor = selectedColours.spiegelverkehrt.text;
+    if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)" || !markWrong.checked) letterElm.style.color = "black";
+    else letterElm.style.color = "white";
+    if (mirrorLetter.checked) {
+      letterElm.className += " mirrored";
+    }
   }
   else {
-  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
-  findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "white";
-  if (["white", "rgb(219, 219, 219)"].includes(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index])) findChild('class',  findChild('id', selectedElementId.parent, wordId.replace('pupilsWriting', 'correction')), 'correctionLetter' + index, true).style.color = "black";
+  letterElm.style.backgroundColor = inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index];
+  letterElm.style.color = "white";
+  if (["white", "rgb(219, 219, 219)"].includes(inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index]) || !markWrong.checked) {
+    letterElm.style.color = "black";
+  }
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].mirror[word][index] = undefined;
+  letterElm.className = letterElm.className.replace(" mirrored", "");
 }
 localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 getEveryCategory();
@@ -292,3 +299,10 @@ window.addEventListener('message', function(event) {
   }
   printerMode.checked = false;
 }, false);
+
+function autoCorrectionSettingChanged(elm) {
+  if (!Array.from(document.querySelectorAll('input[group="autoCorrection"]')).map(x => x.checked).includes(true)) {
+    elm.checked = true;
+    alert("Bitte verwenden Sie mindestens eine der unten stehenden Arten falsche Buchstaben zu markieren!");
+  }
+}
