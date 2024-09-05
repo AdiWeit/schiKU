@@ -512,7 +512,7 @@ function toggleSettingsVis() {
 }
 function alertCorrectionChanged() {
   if (graphemtrefferChanged) {
-    alert("Die automatische Auswertung hat nach einem Update eine andere Zahl an Graphemtreffern gezählt. Bitte überprüfen Sie alle rot umrandeten Graphemtreffer!");
+    alert("Die automatische Auswertung hat nach einem Update andere Ergebnisse für die Auswertung der Graphemtreffer. Betroffene Graphemtreffer sind grau umrandet und die vor dem Update ermittelten Werte werden automatisch eingetragen. Es ist ratsam, die markierten Einträge erneut zu überprüfen. ");
     graphemtrefferChanged = false;
   }
 }

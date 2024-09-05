@@ -52,8 +52,8 @@ function getAllGraphemtreffer(/*doNotMark, graphemFehler, correct*/changedByUser
       if (replaceAll(word, '-', '') == findChild('id', selectedElementId.parent, 'pupilsWriting ' + (i + 1)).value) correctWords.got++;
   });
   document.getElementById('allCorrect' + selectedElementId.parent.toString().split('Sheet')[1]).innerHTML = '<a style="font-size:20">gesamt </a> <strong style="font-size:20">' + correctWords.got + '/' + correctWords.possible + "</strong> <a style='font-size:20'>korrekte Wörter</a>";
-  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent].completed = completed()
+  localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
 }
 // Schreibdiagnostik: welcher Buchstabe bzw. Laut wie häufig richtig?
 // Datenübergabe und Befehl für Erstellung der Graphen

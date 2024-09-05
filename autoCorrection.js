@@ -450,21 +450,24 @@ else {
   console.log("graphemFehler: " + graphemFehler);
   console.log("--> " + ((possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer) + " Graphemtreffer");
   var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
-  if (recreatingSheets && JSON.stringify({got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer}) != JSON.stringify(storedGraphemtreffer) && !storedGraphemtreffer.auto_correction) {
+  if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
+  if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
+  if (recreatingSheets && storedGraphemtreffer && JSON.stringify({got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer}) != JSON.stringify(storedGraphemtreffer) && !storedGraphemtreffer.auto_correction) {
     var graphemtrefferPossibleElm = findChild("id", findChild("id", parentId, "correction " + id.split("Writing ")[1]), "graphemtrefferPossible", true);
     var graphemtrefferGotElm = findChild("id", findChild("id", parentId, "correction " + id.split("Writing ")[1]), "graphemtrefferGot", true);
     if (possibleGraphemtreffer - graphemFehler != storedGraphemtreffer.got) {
-      graphemtrefferGotElm.style.borderColor = "red";
+      graphemtrefferGotElm.style.borderColor = "gray";
       graphemtrefferGotElm.style.borderWidth = "4px";
+      graphemtrefferGotElm.value = storedGraphemtreffer.got;
     }
     if (possibleGraphemtreffer != storedGraphemtreffer.possible) {
-      graphemtrefferPossibleElm.style.borderColor = "red";
+      graphemtrefferPossibleElm.style.borderColor = "gray";
       graphemtrefferPossibleElm.style.borderWidth = "4px";
+      graphemtrefferPossibleElm.value = storedGraphemtreffer.possible;
     }
+    getAllGraphemtreffer(true, original.correct, parentId);
     graphemtrefferChanged = true;
   }
-  if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
-  if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
   return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer// JSON.stringify(correctedString);
 }
 var graphemtrefferChanged = false;
