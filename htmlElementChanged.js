@@ -224,8 +224,13 @@ function restore_specific_test(type) {
     pupils--;
   }
   testsObj = inputs[selectedTest];
-  if (type == "newest") recreatePupil(true, Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
-  if (type == "oldest") recreatePupil(true, Object.keys(testsObj)[0]);
+  if (type == "newest") {
+    recreatePupil(true, Object.keys(testsObj)[Object.keys(testsObj).length - 2]);
+  }
+  if (type == "oldest") {
+    recreatePupil(true, Object.keys(testsObj)[0]);
+  }
+  alertCorrectionChanged();
   settings.style.display = 'none';
 }
 function deleteTest(parent, pConfirm=true) {
@@ -290,6 +295,7 @@ window.addEventListener('message', function(event) {
     else deleteTest(sheet.pupilSheet, false);
     pupilSheets.push(sheet.pupilSheet);
   });
+  alertCorrectionChanged();
   testSelection.style.display = "none";
   testSelectionToggler.innerText = "Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen";
   settings.style.display = 'none';
@@ -303,6 +309,6 @@ window.addEventListener('message', function(event) {
 function autoCorrectionSettingChanged(elm) {
   if (!Array.from(document.querySelectorAll('input[group="autoCorrection"]')).map(x => x.checked).includes(true)) {
     elm.checked = true;
-    alert("Bitte verwenden Sie mindestens eine der unten stehenden Arten falsche Buchstaben zu markieren!");
+    alert("Bitte verwenden Sie mindestens eine der zwei unten stehenden Arten falsche Buchstaben zu markieren!");
   }
 }

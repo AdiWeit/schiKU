@@ -176,7 +176,7 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
  *            doNotResetMirror -
  *            isDoNotCount: true wenn das Wort das korrigiert wird manuell korrigiert wurde (doNotCount) (trotzdem wird automatische Korrektur durchgeführt, um die vom dem Programm kalkulierte Graphemtrefferanzahl festzustellen)
  */
-function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount) {
+function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount, recreatingSheets) {
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
   // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -449,10 +449,25 @@ else {
   console.log("possibleGraphemtreffer: " +  possibleGraphemtreffer );
   console.log("graphemFehler: " + graphemFehler);
   console.log("--> " + ((possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer) + " Graphemtreffer");
+  var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
+  if (recreatingSheets && JSON.stringify({got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer}) != JSON.stringify(storedGraphemtreffer) && !storedGraphemtreffer.auto_correction) {
+    var graphemtrefferPossibleElm = findChild("id", findChild("id", parentId, "correction " + id.split("Writing ")[1]), "graphemtrefferPossible", true);
+    var graphemtrefferGotElm = findChild("id", findChild("id", parentId, "correction " + id.split("Writing ")[1]), "graphemtrefferGot", true);
+    if (possibleGraphemtreffer - graphemFehler != storedGraphemtreffer.got) {
+      graphemtrefferGotElm.style.borderColor = "red";
+      graphemtrefferGotElm.style.borderWidth = "4px";
+    }
+    if (possibleGraphemtreffer != storedGraphemtreffer.possible) {
+      graphemtrefferPossibleElm.style.borderColor = "red";
+      graphemtrefferPossibleElm.style.borderWidth = "4px";
+    }
+    graphemtrefferChanged = true;
+  }
   if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
   if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
   return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer// JSON.stringify(correctedString);
 }
+var graphemtrefferChanged = false;
 // id: pupils writing [number 1-*]
 function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
   correctedString.forEach((letter, i) => {

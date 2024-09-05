@@ -302,7 +302,7 @@ function recreatePupil(lastPage, referenceSheet, newSheet=referenceSheet) {
       if (!(idAktuell.includes('mirror'))) {
       if (idAktuell.includes('pupilsWriting') && findChild('id', referenceSheet, idAktuell)) {
       findChild('id', referenceSheet, idAktuell).value = inputs[selectedTest][referenceSheet][idAktuell];
-      markErrors(idAktuell, referenceSheet, undefined, undefined, true, undefined, undefined, isDoNotCount); /*, verstehe nicht, warum doNotMark true sein sollte*/
+      markErrors(idAktuell, referenceSheet, undefined, undefined, true, undefined, undefined, isDoNotCount, true); /*, verstehe nicht, warum doNotMark true sein sollte*/
       pupilsWritingFinished(idAktuell, true);
     }
     else if (findChild('id', referenceSheet, idAktuell)) {
@@ -460,6 +460,7 @@ function recreateOpenSheets() {
     if (i < document.getElementsByClassName("pupilSheet").length - 1) recreatePupil(false, sheetElm.id);
     else recreatePupil(true, sheetElm.id);
   });
+  alertCorrectionChanged();
 }
 var alert_enough_storage = false;
 function storeSchiKUInputs() {
@@ -508,4 +509,10 @@ function toggleSettingsVis() {
     // document.getElementById("commentDiv" + selectedElementId.parent.split("Sheet")[1]).style.display = "none";
   }
 
+}
+function alertCorrectionChanged() {
+  if (graphemtrefferChanged) {
+    alert("Die automatische Auswertung hat nach einem Update eine andere Zahl an Graphemtreffern gezählt. Bitte überprüfen Sie alle rot umrandeten Graphemtreffer!");
+    graphemtrefferChanged = false;
+  }
 }
