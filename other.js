@@ -331,7 +331,7 @@ function recreatePupil(lastPage, referenceSheet, newSheet=referenceSheet) {
       letterElm.style.backgroundColor = selectedColours.spiegelverkehrt.text;
       letterElm.style.color = "white";
       if (selectedColours.spiegelverkehrt.text == "rgb(219, 219, 219)") letterElm.style.color = "black";
-      letterElm.className = " mirrored";
+      if (mirrorLetter.checked) letterElm.className = " mirrored";
     }
   }
 }
