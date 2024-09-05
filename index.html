@@ -83,9 +83,9 @@
   <br>
   <div class="card">
     <h3>Autokorrektur</h3>
-    <input type="checkbox" group="autoCorrection" checked="true" onchange="settingChanged(id, {checked: checked}, true); autoCorrectionSettingChanged(this);" id="markWrong"> falsche Buchstaben farblich markieren
+    <input type="checkbox" group="autoCorrection" checked="true" onchange="autoCorrectionSettingChanged(this); settingChanged(id, {checked: checked}, true);" id="markWrong"> falsche Buchstaben farblich markieren
     <br>
-    <input type="checkbox" group="autoCorrection" onchange="settingChanged(id, {checked: checked}, true); autoCorrectionSettingChanged(this);" id="underlineWrong"> falsche Buchstaben unterstreichen
+    <input type="checkbox" group="autoCorrection" onchange="autoCorrectionSettingChanged(this); settingChanged(id, {checked: checked}, true);" id="underlineWrong"> falsche Buchstaben unterstreichen
     <br>
     <!-- TODO: so gut? -->
     <input type="checkbox" onchange="settingChanged(id, {checked: checked}, true);" id="mirrorLetter"> gespiegelte Buchstaben gespiegelt darstellen
