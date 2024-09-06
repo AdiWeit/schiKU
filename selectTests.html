@@ -75,7 +75,7 @@ var api;
       }
   var selectedTests = [];
   window.addEventListener('message', function(event) {
-    if (event.data.includes('set data:')) {
+    if (typeof event.data == "string" && event.data.includes('set data:')) {
       data = JSON.parse(event.data.split('set data: ')[1]);
       for (const entry of data) {
         if (entry.Datum) entry.Datum = new Date(entry.Datum);

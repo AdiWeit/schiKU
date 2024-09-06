@@ -284,9 +284,10 @@ function openSelectedTests(type) {
 }
 var selectedTests = [];
 window.addEventListener('message', function(event) {
-  selectedTests = JSON.parse(event.data.split("sendData: ")[1]);
-  pupilSheets = [];
-  selectedTests.forEach((sheet, i) => {
+  if (typeof event.data == "string" && event.data.includes("sendData")) {
+    selectedTests = JSON.parse(event.data.split("sendData: ")[1]);
+    pupilSheets = [];
+    selectedTests.forEach((sheet, i) => {
     // nur Tests anzeigen, wenn diese nicht gelöscht werden sollen
     if (deleteSelected.style.backgroundColor != "red") {
       if (i < selectedTests.length - 1) recreatePupil(false, sheet.pupilSheet);
@@ -304,6 +305,7 @@ window.addEventListener('message', function(event) {
     deleteSelected.style.backgroundColor = "";
   }
   printerMode.checked = false;
+}
 }, false);
 
 function autoCorrectionSettingChanged(elm) {
