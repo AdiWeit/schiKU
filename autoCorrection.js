@@ -176,7 +176,7 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
  *            doNotResetMirror -
  *            isDoNotCount: true wenn das Wort das korrigiert wird manuell korrigiert wurde (doNotCount) (trotzdem wird automatische Korrektur durchgeführt, um die vom dem Programm kalkulierte Graphemtrefferanzahl festzustellen)
  */
-function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount, recreatingSheets) {
+function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount, recreatingSheets, unitTesting) {
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
   // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -222,7 +222,7 @@ else correct = pCorrect;
   }
   // Liste mit allen Buchstaben und derem Aussehen
   for (var letter of wrong) {
-    if (markWrong.checked) correctedString.push({letter: letter, colour: "white"});
+    if (unitTesting || markWrong.checked) correctedString.push({letter: letter, colour: "white"});
     else correctedString.push({letter: letter, colour: "black"});
   }
   correct = correct.toLowerCase();
@@ -437,6 +437,7 @@ else {
   var graphemObj = checkCategory(original.correct, 0, true, pCorrect, possibleGraphemtreffer);
   // graphemFehler = graphemObj.errors;
   possibleGraphemtreffer = graphemObj.possible
+
   // console.log(correctedString);
   // konvertiert Variablen in HTML Elemente
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
@@ -449,7 +450,8 @@ else {
   console.log("possibleGraphemtreffer: " +  possibleGraphemtreffer );
   console.log("graphemFehler: " + graphemFehler);
   console.log("--> " + ((possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer) + " Graphemtreffer");
-  var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
+  if (unitTesting) return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer;
+  if (!unitTesting) var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
   if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
   if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
   if (recreatingSheets && storedGraphemtreffer && JSON.stringify({got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer}) != JSON.stringify(storedGraphemtreffer) && !storedGraphemtreffer.auto_correction) {
@@ -503,5 +505,5 @@ function showCorrectedWord(correctedString, id, wordCorrectionChild, original, w
       if (["rgb(219, 219, 219)"].includes(writingInput.style.backgroundColor)) writingInput.style.color = "black";
   // }
 }
-// Don't know why this should be needed
-// module.exports = markErrors;
+// Needed for testing with Jest (?)
+module.exports = markErrors;
