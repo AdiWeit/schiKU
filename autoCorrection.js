@@ -1,4 +1,4 @@
-// unit tests last commit: 11 failed
+// unit tests last commit: 10 failed, 48 passed
 // fügt der Auswertung die falsch geschriebenen Buchstaben hinzu
 function addWrongLetter(correct, i) {
   try {
@@ -307,6 +307,7 @@ else correct = pCorrect;
       var wrongIBeginning = wrongI;
   for (var i = 0; i < correct.length && wrong[wrongI]; i++) {
     if (skipLetters > 0) i += skipLetters;
+    if (i >= correct.length) break;
     console.log("compare " + correct[i] + " with " + wrong[wrongI]);
     wrongString += wrong[wrongI];
     var ausgetauscht = 0;
@@ -454,7 +455,9 @@ else {
   console.log("graphemFehler: " + graphemFehler);
   console.log("--> " + ((possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer) + " Graphemtreffer");
   if (unitTesting) return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer;
-  if (!unitTesting) var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
+  if (!unitTesting && JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer) {
+    var storedGraphemtreffer = JSON.parse(localStorage.getItem('inputsSchiku'))["Kreis Unna"][parentId].Graphemtreffer[original.correct];
+  }
   if (!inputs[selectedTest][parentId].Graphemtreffer) inputs[selectedTest][parentId].Graphemtreffer = {};
   if (!isDoNotCount) inputs[selectedTest][parentId].Graphemtreffer[original.correct] = {got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer};
   if (recreatingSheets && storedGraphemtreffer && JSON.stringify({got: (possibleGraphemtreffer - graphemFehler), possible: possibleGraphemtreffer}) != JSON.stringify(storedGraphemtreffer) && !storedGraphemtreffer.auto_correction) {
