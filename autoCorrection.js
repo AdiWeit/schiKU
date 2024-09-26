@@ -444,7 +444,7 @@ else {
   // konvertiert Variablen in HTML Elemente
   if (possibleGraphemtreffer - graphemFehler < 0) graphemFehler = possibleGraphemtreffer;
   if (!pCorrect) {
-    showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer);
+    showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer, recreatingSheets, onchange);
     if ((doNotMark || original.correct == original.wrong) && !auswertung.wrongLetters[selectedElementId.parent]) auswertung.wrongLetters[selectedElementId.parent] = {};
     if ((doNotMark || original.correct == original.wrong)) auswertung.wrongLetters[selectedElementId.parent][original.correct] = {};
     getAllGraphemtreffer();
@@ -475,9 +475,33 @@ else {
   return (possibleGraphemtreffer - graphemFehler) + '/' + possibleGraphemtreffer// JSON.stringify(correctedString);
 }
 var graphemtrefferChanged = false;
+var alerted = true;
 // id: pupils writing [number 1-*]
-function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer) {
+function showCorrectedWord(correctedString, id, wordCorrectionChild, original, wrong, possibleGraphemtreffer, recreatingSheets, onchange) {
+  var counter = {gap: 0, wrongAdded: 0, pureWrongLetter: 0};
+  alerted = !onchange
   correctedString.forEach((letter, i) => {
+    if (letter.colour == selectedColours.wrong.dark.text) {
+      counter.pureWrongLetter++;
+    }
+    else counter.pureWrongLetter = 0;
+    if (letter.letter == "_") {
+      if (counter.wrongAdded > 0) {
+        counter.gap = 0;
+      }
+      counter.wrongAdded = 0;
+      counter.gap++;
+    }
+    else if (letter.colour == selectedColours.wrong.dark.text && counter.gap >= 2) {
+      counter.wrongAdded++;
+    }
+    else {
+      counter = {gap: 0, wrongAdded: 0, pureWrongLetter: counter.pureWrongLetter};
+    }
+    if (((counter.gap >= 2 && counter.wrongAdded >= 2) || counter.pureWrongLetter >= 3) && !alerted && !recreatingSheets) {
+      alert('Es gab Buchstaben, die bei'/* der Schreibung "' + original.wrong + '" des Wortes "' + original.correct.replace(new RegExp('-', 'g'), '') + '"*/ + ' dem zuletzt eingegebenen Wort wahrscheinlich nicht ausgewertet werden konnten! Bitte gehen Sie sicher, dass die automatische Fehlerkorrektur nicht zu wenige Graphemtreffer angibt!');
+      alerted = true
+    }
     var textColour = "black";
     if (!["rgb(219, 219, 219)", "white"].includes(letter.colour) && markWrong.checked) textColour = "white";
     var newElm = addElement({id: 'correctionLetter', explicitId: 'correctionLetter' + i, innerText: letter.letter, style: 'background-color:' + letter.colour + ';' + "color:" + textColour, title: 'klicken, um ' + letter.letter + ' als gespiegelt (blau) zu markieren, oder die Markierung wieder zu entfernen.\nBei Veränderung der Schreibweise des Schülers/der Schülerin wird das Wort nicht mehr als gespiegelt eingetragen sein.', onclick: 'changeMirror(' + i + ', "' + id + '");'}, 'strong', /*'correction ' + id.replace('pupilsWriting ', '')*/wordCorrectionChild, true);
