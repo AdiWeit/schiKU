@@ -107,7 +107,7 @@ function getEveryCategory(manualOverwrite, id) {
             if (!doNotCountObj.laute[objKeyName]) {
               doNotCountObj.laute[objKeyName] = 0;
             }
-            if (!myCategories[category].includes(objKeyName) && !categoryList.includes(objKeyName)) categoryList.push(objKeyName);
+            if (myCategories[category] && !myCategories[category].includes(objKeyName) && !categoryList.includes(objKeyName)) categoryList.push(objKeyName);
             if (objKeyName.length == 1) doNotCountObj.laute[objKeyName] += doNotCountObj[objKeyName][wordNow];
             // TODO: Laute: einzelne Buchstaben übertragen (Anzahl kann aus auswertung.categories abgelesen werden)
             else {
@@ -382,7 +382,7 @@ function getEveryCategory(manualOverwrite, id) {
     }
     // delete categories without entries
     for (var i = 0; i < categoryList.length; i++) {
-      if (wrongList[i] == 0 && rightList[i] == 0 && doNotCountList[i] == 0 && mirrorList[i] == 0 && (Object.keys(neededTest.kategorien).concat("sonstige").includes(categoryList[i + 1]) || categoryList[i + 1].includes('Silben'))) {
+      if (wrongList[i] == 0 && rightList[i] == 0 && doNotCountList[i] == 0 && mirrorList[i] == 0 && (Object.keys(neededTest.kategorien).concat("sonstige").includes(categoryList[i + 1]) || (categoryList[i + 1] && categoryList[i + 1].includes('Silben')))) {
         wrongList.splice(i, 1);
         rightList.splice(i, 1);
         doNotCountList.splice(i, 1);
