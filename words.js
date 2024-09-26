@@ -1,7 +1,6 @@
 // von mir eingebaute Tests und Kategorien
-var officialCategories = {Vokale: ["a", "ä", "e", "i", "o", "ö", "u", "ü"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaute: ["ai", "ei", "eu", "äu", "ai", "ui", "au"], Endungen: ["en", "<e>"], sonstige: ["Sch", "ch"] /*TODO*/};
+var officialCategories = {Vokale: ["a", "ä", "e", "i", "o", "ö", "u", "ü"], Konsonanten: ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y"], Zwielaute: ["ai", "ei", "eu", "äu", "ui", "au"], Endungen: ["en", "<e>"], sonstige: ["sch", "ch", "ck"] /*TODO*/};
 var officialData = {
-  // TODO: stattdessen SchiKU
   "Kreis Unna": {
     "Test 1": {
       words: ["La-ma", "Na-se", "Hu-pe", "Ro-se", "Fa-den", "Ho-se", "Ha-fen", "Sa-la-mi", "Fi-na-le", "Do-mi-no", "Ka-no-ne", "Pe-da-len", "Ta-pe-te", "Ku-si-ne", "Ra-ke-te"],
@@ -30,7 +29,7 @@ var officialData = {
         Konsonanten: officialCategories.Konsonanten,
         Endungen: ["<e>", "en", "er", "el"],
         Zwielaute: officialCategories.Zwielaute,
-        "Wichtige": ["ö", "w"]
+        // "Wichtige": ["ö", "w"]
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Wein", "Rei-ter", "Am-pel", "Na-del", "Ei-mer", "Aus-weis", "Dö-ner", "Schön-heit", "Al-ter", "Le-der-ho-se", "Me-lo-nen-scha-le", "Nu-del-sa-lat", "Mo-den-schau", "Ki-lo-me-ter", "Mö-wen-fe-der"]
@@ -42,7 +41,7 @@ var officialData = {
         Konsonanten: officialCategories.Konsonanten,
         Endungen: officialCategories.Endungen,
         Zwielaute: officialCategories.Zwielaute,
-        wichtige: ["ö", "ü", "g", "b"]
+        // wichtige: ["ö", "ü", "g", "b"]
       },
       countTogether: ["Vokale", "Konsonanten"],
       words: ["Gei-ge", "Bau-er", "Eu-le", "Se-gel", "Bi-ber", "Beu-tel", "Ga-bel", "Ge-mü-se", "Scheu-nen-tor", "Ge-heim-tür", "Mö-bel-wa-gen", "Bü-gel-ei-sen", "Le-be-we-sen", "Ge-mein-heit", "O-fen-feu-er"]
