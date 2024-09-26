@@ -177,6 +177,7 @@ return {possible: possibleGraphemtreffer/*, errors: graphemFehler*/};
  *            isDoNotCount: true wenn das Wort das korrigiert wird manuell korrigiert wurde (doNotCount) (trotzdem wird automatische Korrektur durchgeführt, um die vom dem Programm kalkulierte Graphemtrefferanzahl festzustellen)
  */
 function markErrors(id, parentId, onchange, doNotMark, doNotResetMirror, pCorrect, wrong, isDoNotCount, recreatingSheets, unitTesting) {
+ if (unitTesting) selectedColours = {wrong: {dark: {text: "red"}}};
   var possibleGraphemtreffer;
   selectedElementId = {parent: parentId, element: id};
   // var correct = findChild('id', selectedElementId.parent, 'word ' + id.replace('pupilsWriting ', '')).innerText;
@@ -269,7 +270,7 @@ else correct = pCorrect;
         if (stringlist.toString().replace(new RegExp(',', 'g'), '') == correct || stringlist.includes(undefined)) between = false;
         else {
             console.log(correctedString[wrongI + addI - beforeBeginning].letter + " müsste weg");
-            if (!pCorrect) correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
+            if (!pCorrect && !unitTesting) correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.dark.text;
             doubleError++;
             // addI++;
             graphemFehler++;
@@ -277,7 +278,7 @@ else correct = pCorrect;
       }
       }
       originalSilben.correct.split("-")[silbeNow].split('').forEach((syllable, i1) => {
-        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1].toLowerCase() && correctedString[wrongI + i1 + addI - beforeBeginning]) {
+        if (!pCorrect && syllable != originalSilben.wrong[wrongI + i1] && originalSilben.wrong[wrongI + i1] && syllable.toLowerCase() == originalSilben.wrong[wrongI + i1].toLowerCase() && correctedString[wrongI + i1 + addI - beforeBeginning] && !unitTesting) {
           correctedString[wrongI + i1 + addI - beforeBeginning].colour = selectedColours.wrong.light.text;
         }
 
@@ -364,7 +365,7 @@ else {
       correctedString[wrongI + 1 + addI].colour = selectedColours.wrong.dark.text;
       addWrongLetter(original.correct, wrongI + 1);
       // da ein i übersprungen, wird dieses manuell hinzugefügt (vergessen wie es sonst geht :) )
-   
+      if (!unitTesting) {
       // checkCategory(original.correct, allI + i + 1/* + doubleError - beforeBeginning*/, null, pCorrect, possibleGraphemtreffer);
       var completeCorrect = replaceAll(originalSilben.correct, "-", "");
       for (const category of Object.keys(neededTest.kategorien)) {
@@ -381,6 +382,7 @@ else {
           }
         }
       }
+    }
 
       i += 2//++;
       skipLetters = i - correct.length;
@@ -401,7 +403,7 @@ else {
       wrongI++;
     }
     // markiere falsche Groß-Kleinschreibung
-    else if (!pCorrect && originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI - beforeBeginning]) {
+    else if (!pCorrect && originalSilben.correct.split("-")[silbeNow][i] != originalSilben.wrong[wrongI] && correctedString[wrongI + addI - beforeBeginning] && !unitTesting) {
       correctedString[wrongI + addI - beforeBeginning].colour = selectedColours.wrong.light.text;
     }
     var wrongILetter = [];
