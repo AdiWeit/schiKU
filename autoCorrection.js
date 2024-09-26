@@ -356,9 +356,10 @@ else {
   // graphemFehler++;
 }
     }
-    // getauscht/vertauscht check (TODO: mehr oder weniger Fehler als ohne?)
-    else if (nextLetter == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != nextLetter && allI + i == wrongI) {
+    // getauscht/vertauscht check (nur wenn sicher, dass wirklich vertauscht wurde (bestimmte Einschränkungen)) (TODO: mehr oder weniger Fehler als ohne?)
+    else if (nextLetter == wrong[wrongI] && correct[i] == wrong[wrongI + 1] && correct[i] != nextLetter && allI + i == wrongI && !(correct[i] == correct[i + 2] || correct[i + 1] == correct[i + 3])) {
       // insgesamt für vertauscht graphemFehler++, aber addWrongLetter erhöht graphemFehler um einen
+      console.log(wrong[wrongI + addI] + " mit " + wrong[wrongI + 1 + addI] + " vertauscht");
       graphemFehler--;
       correctedString[wrongI + addI].colour = selectedColours.wrong.dark.text;
       addWrongLetter(original.correct, wrongI);
