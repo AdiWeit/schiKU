@@ -222,7 +222,7 @@ for (nameTypeNow of Object.keys(officialData)) {
 localStorage.setItem('words', JSON.stringify(words));
 }
 var auswertung = {allGraphemtreffer: {possible: 0, got: 0}, wrongLetters: {}, letter: {}, categories: {}, byCategories: {}, doNotCount: {}};
-var inputs = {};
+var inputs = {"1. settings": {}};
 inputs[selectedTest] = {}
 // eigen hinzugefügte Tests oder Test Typen, die nich vorprogrammiert sind werden hinzugefügt
 // if (localStorage.getItem('words') != "undefined" && localStorage.getItem('words')) {
@@ -516,3 +516,11 @@ function alertCorrectionChanged() {
     graphemtrefferChanged = false;
   }
 }
+// reload website without cash every time
+// if (!localStorage.getItem("reloaded") || localStorage.getItem("reloaded") == "false") {
+//   localStorage.setItem("reloaded", "true");
+//   window.location.reload(true);
+// }
+// else {
+//   localStorage.setItem("reloaded", "false");
+// }
