@@ -8,6 +8,9 @@ const markErrors = require('./autoCorrection');
 //   wrong: ['Hobe', 'Waden', 'Hafel', ''],
 //   graphemtreffer: ['2/4']
 // }
+
+// Problem 1: 2 falsche Buchstaben hintereinander (die im Wort vorhandene Buchstaben ersetzen) + nur 1 richtiger Buchstabe am Ende
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Hupe --> Hobe', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Hu-pe', 'Hobe', null, null, true)).toBe('2/4')})
 test('Faden --> Waden', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Fa-den', 'Waden', null, null, true)).toBe('4/5')})
 test('Hafen --> Hafel', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ha-fen', 'Hafel', null, null, true)).toBe('4/5')})
@@ -21,9 +24,13 @@ test('Rakete --> Ragete', () => {expect(markErrors('pupilsWriting 3', 'pupilShee
 test('Lama --> Lamma', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'La-ma', 'Lamma', null, null, true)).toBe('3/4')})
 test('Hupe --> Hope', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Hu-pe', 'Hope', null, null, true)).toBe('3/4')})
 test('Domino --> Dumino', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Do-mi-no', 'Dumino', null, null, true)).toBe('5/6')})
+// Problem 1: 2 falsche Buchstaben hintereinander (die im Wort vorhandene Buchstaben ersetzen) + nur 1 richtiger Buchstabe am Ende
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Tapete --> Fabide', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ta-pe-te', 'Fabide', null, null, true)).toBe('2/6')})
 
 test('Haufen --> Hafen', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Hau-fen', 'Hafen', null, null, true)).toBe('4/5')})
+// Problem 1: 2 falsche Buchstaben hintereinander (die im Wort vorhandene Buchstaben ersetzen) + nur 1 richtiger Buchstabe am Ende
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Anteil --> Andaiel', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'An-teil', 'Andaiel', null, null, true)).toBe('3/5')})
 // ab hier Wörter wo ein Buchstabe vertauscht raus
 test('Einkauf --> Einkaufen', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ein-kauf', 'Einkaufen', null, null, true)).toBe('3/5')})
@@ -45,10 +52,14 @@ test('Alter --> Aalta', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1
 test('lederhose --> ledahose', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'le-der-ho-se', 'ledahose', null, null, true)).toBe('7/9')})
 test('Melonenschale --> Mlunschle', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Me-lo-nen-scha-le', 'Mlunschle', null, null, true)).toBe('6/11')})
 test('Kilometer --> Kelenta', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ki-lo-me-ter', 'Kelenta', null, null, true)).toBe('3/9')})
+// Problem 3: falscher Buchstabe wird für richtigen Buchstaben später im Wort gehalten
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Möwenfeder --> Medenfeda', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Mö-wen-fe-der', 'Medenfeda', null, null, true)).toBe('6/10')})
 
 test('Reiter --> Raitaer', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Rei-ter', 'Raitaer', null, null, true)).toBe('3/5')})
 test('Eimer --> Aima', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ei-mer', 'Aima', null, null, true)).toBe('1/4')})
+// Problem 4: mehrere falsche buchstaben hintereinander
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Ausweis --> Ausfais', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Aus-weis', 'Ausfais', null, null, true)).toBe('3/5')})
 test('Döner --> Döna', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Dö-ner', 'Döna', null, null, true)).toBe('3/5')})
 // ab hier nicht mehr a statt er
@@ -56,6 +67,8 @@ test('Schönheit --> Schönaid', () => {expect(markErrors('pupilsWriting 3', 'pu
 test('Melonenschale --> Meloneschale', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Me-lo-nen-scha-le', 'Meloneschale', null, null, true)).toBe('10/11')})
 // ab hier nicht mehr nur einen ausgelassen
 test('Modenschau --> Modeschaue', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Mo-den-schau', 'Modeschaue', null, null, true)).toBe('5/7')})
+// Problem 3: falscher Buchstabe wird für richtigen Buchstaben später im Wort gehalten
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Möwenfeder --> Modeweda', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Mö-wen-fe-der', 'Modeweda', null, null, true)).toBe('5/10')})
 
 test('Eule --> Eulle', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Eu-le', 'Eulle', null, null, true)).toBe('2/3')})
@@ -65,15 +78,18 @@ test('Ofenfeuer --> Ofenfäuer', () => {expect(markErrors('pupilsWriting 3', 'pu
 test('Lebewesen --> Lebewese', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Le-be-we-sen', 'Lebewese', null, null, true)).toBe('8/9')})
 // ab hier nicht mehr nur Buchstaben fehlen (auch am Ende)
 
+// Problem 4: mehrere falsche buchstaben hintereinander (a als überflüssig angesehen und nachher als fehlend)
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Nudelsalat --> Nutelschalat', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Nu-del-sa-lat', 'Nutelschalat', null, null, true)).toBe('7/10')}) // fragen
 test('Möwenfeder --> Möfenfeter', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Mö-wen-fe-der', 'Möfenfeter', null, null, true)).toBe('8/10')})
 
-test('Hupe --> Hobe', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Hu-pe', 'Hobe', null, null, true)).toBe('2/4')})
 test('Tapete --> Dabede', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ta-pe-te', 'Dabede', null, null, true)).toBe('3/6')})
 
-test('Raupe --> BauBe', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Raupe', 'BauBe', null, null, true)).toBe('3/4')})
+test('Raupe --> RauBe', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Raupe', 'RauBe', null, null, true)).toBe('3/4')})
 test('Reiter --> Rater', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Rei-ter', 'Rater', null, null, true)).toBe('4/5')})
 test('Döner --> Duma', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Dö-ner', 'Duma', null, null, true)).toBe('1/5')})
+// Problem 4: mehrere falsche buchstaben hintereinander
+// alert über wahrscheinlich falsche Autokorrektur vorhanden
 test('Möwenfeder --> Mädenfeler', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Mö-wen-fe-der', 'Mädenfeler', null, null, true)).toBe('7/10')})
 test('Scheunentor --> Schäunnentor', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Scheu-nen-tor', 'Schäunnentor', null, null, true)).toBe('6/8')})
 
@@ -82,3 +98,5 @@ test('Faden --> Waten', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1
 test('Hafen --> Hwen', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ha-fen', 'Hwen', null, null, true)).toBe('3/5')})
 test('Pedalen --> BeTalen', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Pe-da-len', 'BeTalen', null, null, true)).toBe('5/7')})
 test('Kusine --> KQsine', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ku-si-ne', 'KQsine', null, null, true)).toBe('5/6')})
+// problem 2: (TODO?): only one letter after "gap"
+test('Einkauf --> Einkf', () => {expect(markErrors('pupilsWriting 3', 'pupilSheet1', null, null, null, 'Ein-kauf', 'Einkf', null, null, true)).toBe('4/5')})
