@@ -36,9 +36,9 @@ jobs:
           git add -A
           git status --porcelain | wc -l
           if [[ $(git status --porcelain | wc -l) -gt 0 ]]; then
-            echo "hasNewFiles=true >> $GITHUB_OUTPUT"
+            echo "hasNewFiles=true" >> $GITHUB_OUTPUT
           else
-            echo "hasNewFiles=false >> $GITHUB_OUTPUT"
+            echo "hasNewFiles=false" >> $GITHUB_OUTPUT
           fi
       - name: show variable output
         run: echo "hasNewFiles='${{ steps.newFiles.outputs.hasNewFiles }}'"
