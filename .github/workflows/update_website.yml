@@ -38,7 +38,7 @@ jobs:
           if [[ $(git status --porcelain | wc -l) -gt 0 ]]; then
             echo "hasNewFiles=true >> $GITHUB_OUTPUT"
           else
-            echo ""hasNewFiles=false >> $GITHUB_OUTPUT"
+            echo "hasNewFiles=false >> $GITHUB_OUTPUT"
           fi
       - name: Push new files
         if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
