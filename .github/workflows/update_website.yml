@@ -1,0 +1,52 @@
+name: Update Website
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  copy-files:
+    runs-on: ubuntu.latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: 'src'
+          ref: 'main'
+          persist-credentials: false
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: 'dest'
+          ref: 'main'
+          repository: 'my_website'
+          # token: ${{ secrets.BOT_TOKEN }}
+          # fetch-depth: 0
+          persist-credentials: true
+      - name: Copy files to new repo
+        shell: bash
+        run: cp -rvT src/ dest/SchiKU
+      - name: Check for new files
+        id: newFiles
+        shell: bash
+        working-directory: dest
+        run: |
+          git add -A
+          git status --porcelain | wc -1
+          if [[ $(git status --porcelain | wc -1) -gt 0]];
+            echo "::set-output name=hasNewFiles::true"
+          else
+            echo "::set-output name=hasNewFiles::false"
+          fi
+      - name: Push new files
+        if: ${{ steps.newFiles.output.hasNewFiles == 'true' }}
+        shell: bash
+        working-directory: dest
+        # in run:
+           # git config --global user.name "keas [bot]"
+           # git config --global user.email "${{ secrets.BOT_EMAIL }}"
+        run: |
+          git commit -m "Updated SchiKU files from repository other"
+          git push
