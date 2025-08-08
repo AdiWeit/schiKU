@@ -49,5 +49,5 @@ jobs:
         run: |
           git config --global user.name "AdiWeit"
           git config --global user.email "43521682+AdiWeit@users.noreply.github.com"
-          git commit -m "Updated SchiKU files from repository other"
+          git commit -m "Updated SchiKU files from other repository"
           git push

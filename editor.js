@@ -1,5 +1,4 @@
 // öffnet Editor und erstellt falls test bearbeiten gedrückt wurde das bereits vorhandene der tests
-// github actions test
 function editTest() {
   if (syncDataCheckbox.checked && confirm("Wenn Sie die Seite neu laden, werden ihre Änderungen mit den offiziellen Daten überschrieben! Wollen Sie die Synchronisation mit offiziellen Daten deaktivieren um dies zu vermeiden?")) {
     syncDataCheckbox.checked = false;
