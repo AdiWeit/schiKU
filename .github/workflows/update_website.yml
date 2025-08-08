@@ -34,7 +34,7 @@ jobs:
         working-directory: dest
         run: |
           git add -A
-          git status --porcelain | wc -1
+          git status --porcelain | wc -l
           if [[ $(git status --porcelain | wc -1) -gt 0]]; then
             echo "::set-output name=hasNewFiles::true"
           else
