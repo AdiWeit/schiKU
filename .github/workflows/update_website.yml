@@ -40,6 +40,8 @@ jobs:
           else
             echo "hasNewFiles=false >> $GITHUB_OUTPUT"
           fi
+      - name: Debug: show output
+        run: echo "hasNewFiles='${{ steps.newFiles.outputs.hasNewFiles }}'"
       - name: Push new files
         if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
         shell: bash
