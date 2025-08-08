@@ -41,7 +41,7 @@ jobs:
             echo "hasNewFiles=false >> $GITHUB_OUTPUT"
           fi
       - name: Push new files
-        if: steps.newFiles.outputs.hasNewFiles == 'true'
+        if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
         shell: bash
         working-directory: dest
         # in run:
