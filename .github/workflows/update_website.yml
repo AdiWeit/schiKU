@@ -46,9 +46,8 @@ jobs:
         if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
         shell: bash
         working-directory: dest
-        # in run:
-           # git config --global user.name "keas [bot]"
-           # git config --global user.email "${{ secrets.BOT_EMAIL }}"
         run: |
+          git config --global user.name "AdiWeit"
+          git config --global user.email "43521682+AdiWeit@users.noreply.github.com"
           git commit -m "Updated SchiKU files from repository other"
           git push
