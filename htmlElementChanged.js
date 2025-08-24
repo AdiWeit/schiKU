@@ -92,15 +92,20 @@ function printMode(checked, pupilSheets) {
           }
         }
       }
-      document.title=`SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformulare`;
-      if (sameInputs.class) {
-        document.title+=` der Klasse ${sameInputs.class}`;
+      document.title=`SchiKU Test Auswertungsformulare`;
+      var tests = list.map(x => inputs[selectedTest][x]);
+      // check if all tests have the same test number (equal words)
+      if (tests.every(x => x.testName === tests[0].testName)) {
+        document.title += ` Schreiben ${test.testName.split(' ')[1]}`
       }
-      if (sameInputs.date) {
-        document.title += " von " + sameInputs.date;
+      if (sameInputs.class) {
+        document.title +=` der Klasse ${sameInputs.class}`;
       }
       if (sameInputs.name) {
-        document.title = `SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformulare des Schülers ${sameInputs.class}`;
+        document.title += ` des Schülers ${sameInputs.class}`;
+      }
+      if (sameInputs.date) {
+        document.title += " vom " + sameInputs.date;
       }
     }
     setTimeout(() => {
