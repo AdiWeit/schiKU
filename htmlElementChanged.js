@@ -285,20 +285,20 @@ function toggleTestSelection() {
 
 function openSelectedTests(type) {
   if (type == "print") printerMode.checked = true;
-  if (type == "delete") deleteSelected.style.backgroundColor = "red";
   while (document.getElementsByClassName("pupilSheet").length > 0 && type != "delete") {
     document.getElementsByClassName("pupilSheet")[0].remove();
   }
-  selectionGrid.contentWindow.postMessage("get data", "*");
+  selectionGrid.contentWindow.postMessage({message: "get data", openingType: type}, "*");
 }
 var selectedTests = [];
 window.addEventListener('message', function(event) {
   if (typeof event.data == "string" && event.data.includes("sendData")) {
     selectedTests = JSON.parse(event.data.split("sendData: ")[1]);
+    type = event.data.split("sendData: ")[0]
     pupilSheets = [];
     selectedTests.forEach((sheet, i) => {
     // nur Tests anzeigen, wenn diese nicht gelöscht werden sollen
-    if (deleteSelected.style.backgroundColor != "red") {
+    if (type != "delete") {
       if (i < selectedTests.length - 1) recreatePupil(false, sheet.pupilSheet);
       else recreatePupil(true, sheet.pupilSheet);
     }
@@ -310,9 +310,6 @@ window.addEventListener('message', function(event) {
   testSelectionToggler.innerText = "Tests zum Öffnen/drucken(auch Speichern)/löschen auswählen";
   settings.style.display = 'none';
   if (printerMode.checked) printMode(true, pupilSheets);
-  if (deleteSelected.style.backgroundColor == "red") {
-    deleteSelected.style.backgroundColor = "";
-  }
   printerMode.checked = false;
 }
 }, false);

@@ -84,11 +84,11 @@ var api;
       rowData = data;
       api.setGridOption("rowData", rowData) 
     }
-    if (event.data == "get data") {
+    if (event.data.message == "get data") {
       // selectedTests = [];
       // // get selected rows
       // api.forEachNode(node => {if (node.selected) selectedTests.push(node.data)})
-      window.parent.postMessage("sendData: " + JSON.stringify(api.getSelectedRows()), "*");
+      window.parent.postMessage(event.data.openingType + "sendData: " + JSON.stringify(api.getSelectedRows()), "*");
     }
 }, false);
 
