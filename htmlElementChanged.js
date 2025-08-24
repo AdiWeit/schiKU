@@ -145,7 +145,7 @@ function pupilsWritingFinished(id, restoringData) {
 // @param value: Inhalt der Textbox
 function dataChanged(id, value) {
   if (!inputs[/*'Test ' + */selectedTest]) inputs[/*'Test ' + */selectedTest] = {};
-  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent]) inputs[/*'Test ' + */selectedTest][selectedElementId.parent] = {};
+  if (!inputs[/*'Test ' + */selectedTest][selectedElementId.parent]) inputs[/*'Test ' + */selectedTest][selectedElementId.parent] = {completed: false};
   inputs[/*'Test ' + */selectedTest][selectedElementId.parent][id] = value;
   localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   if (id == "comment" && !printerMode.checked) makeTextboxBigger();
@@ -159,7 +159,7 @@ function completed() {
   for (const elm of document.getElementsByClassName("writingPupilSheet" + pupilNr)) {
     if (elm.value == "") completed = false;
   }
-  return (inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["name" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["date" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["class" + pupilNr] != undefined && completed).toString().replace("true", "ja").replace("false", "nein");
+  return (inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["name" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["date" + pupilNr] != undefined && inputs[/*'Test ' + */selectedTest][selectedElementId.parent]["class" + pupilNr] != undefined && completed);
 }
 // setzt Graphemtreffer auf Auswertung des Programmes zurrück
 function resetGraphemtreffer(element, parent) {
