@@ -219,6 +219,10 @@ function pupilInfoChanged({name, date, elm}) {
 }
 
 function restore_specific_test(type) {
+  if (type == "newest" && Object.keys(inputs["Kreis Unna"]).length <= 1) {
+    alert("Der angezeigte Test ist bereits der neuste. ");
+    return;
+  }
   while (pupils > 0) {
     document.getElementById('pupilSheet' + pupils)?.remove();
     pupils--;
