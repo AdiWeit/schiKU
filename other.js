@@ -507,8 +507,8 @@ function toggleButtonsVis(vis) {
     elm.style.display = vis;
   }
 }
-function toggleSettingsVis() {
-  if (settings.style.display == 'inline') {
+function toggleSettingsVis(forced_bool) {
+  if (settings.style.display == 'inline' || forced_bool == false) {
     settings.style.display = 'none'; 
     for (elm of document.getElementsByClassName("commentDiv")) elm.style.display = "inline"
     // document.getElementById("commentDiv" + selectedElementId.parent.split("Sheet")[1]).style.display = "inline";
