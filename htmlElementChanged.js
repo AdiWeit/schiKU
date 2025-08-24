@@ -263,7 +263,7 @@ function deleteTest(parent, pConfirm=true) {
 var selectedGraphemtreffer = {possible: 0, got: 0};
 
 function toggleTestSelection() {
-  selectionGrid.height = Math.min(Object.keys(inputs["Kreis Unna"]).length*47 + 58, 500);
+  selectionGrid.height = Math.min((Object.keys(inputs["Kreis Unna"]).length + 1)*47 + 58, 500);
   var data = [];
   // var rowData = [
     //   { Datum: new Date("2024-03-01"), Klasse: "6a", Name: "Adrian of Hadrian", pupilSheet: "pupilSheet1" },
