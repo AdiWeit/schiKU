@@ -75,12 +75,12 @@
       <input type="checkbox" checked="true" id="patterns" onchange="patternSelected(checked);"> Schraffur für Schwarz-Weiß-Druck
       <br>
       <input id="highContrastBlackWhite" onchange="settingChanged(id, {checked: checked}, true);" type="checkbox"> hohen Kontrast zwischen richtigen und falschen
+      <br>
+      <input id="alwaysShowColoured" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
     </div>
     <input id="removeTextFields" onchange="settingChanged(id, {checked: checked});" checked="true" type="checkbox"> die Textfelder mit reinem Text ersetzen
     <br>
     <input checked="true" id="printAlerts" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Meldungen mit Informationen zum Drucken anzeigen
-    <br>
-    <input id="alwaysShowColoured" onchange="settingChanged(id, {checked: checked}, true);"  type="checkbox"> außer zum Drucken Grafik farbig anzeigen
 </div>
 <div class="card">
   <h3>Layout der Blätter/Tests</h3>
