@@ -1,10 +1,15 @@
 // if (localStorage.getItem('words') && localStorage.getItem('words') != "undefined" && !angular.equals(JSON.parse(localStorage.getItem('words')), officialData)/*Object.keys(JSON.parse(localStorage.getItem('words'))["Kreis Unna"]).includes("preComment")*/) localStorage.clear();
 // window.location.replace('https://adi.nicolaiweitkemper.de/')  
-if (window.location.href.includes("adi.nicolaiweitkemper.de/SchiKU/") && (!localStorage.getItem('ownWebsiteNotification') || localStorage.getItem('ownWebsiteNotification') == "false")) {
-  if (confirm('SchiKU zieht um! Die neue Website lautet adrianweitkemper.de/SchiKU. Wenn Sie auf OK o.ä. klicken, werden Sie automatisch zu dieser weitergeleitet. Für die alte Version lautet die neue Website adrianweitkemper.de/SchiKU-old. Diese Seite wird weiterhin erreichbar sein, jedoch ist das Fortbestehen dieser nicht sicher. Sie können die Website auch über die Einstellungen erreichen. Die Daten werden nicht auf die neue Seite übertragen. Wenn dies gewünscht ist, schreiben Sie bitte eine Mail an den Entwickler (Weitkemper.Adrian@web.de; siehe Einstellungen)')) {
-    window.location.replace('https://adrianweitkemper.de/SchiKU')
+if (window.location.href.includes("adi.nicolaiweitkemper.de/SchiKU/")) {
+  if ((!localStorage.getItem('ownWebsiteNotification') || localStorage.getItem('ownWebsiteNotification') == "false")) {
+    if (confirm('SchiKU zieht um! Die neue Website lautet adrianweitkemper.de/SchiKU. Wenn Sie auf OK o.ä. klicken, werden Sie automatisch zu dieser weitergeleitet. Für die alte Version lautet die neue Website adrianweitkemper.de/SchiKU-old. Diese Seite wird weiterhin erreichbar sein, jedoch ist das Fortbestehen dieser nicht sicher. Sie können die Website auch über die Einstellungen erreichen. Die Daten werden nicht auf die neue Seite übertragen. Wenn dies gewünscht ist, schreiben Sie bitte eine Mail an den Entwickler (Weitkemper.Adrian@web.de; siehe Einstellungen)')) {
+      window.location.replace('https://adrianweitkemper.de/SchiKU')
+    }
+    localStorage.setItem('ownWebsiteNotification', "true");
   }
-  localStorage.setItem('ownWebsiteNotification', "true");
+}
+else {
+  schikuUmzug.style.display = "none";
 }
 categories.style.left = 166 + 22;
 var colours = { 
@@ -473,7 +478,7 @@ function storeSchiKUInputs() {
   try {
     localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
   } catch (error) {
-    if (!alertStorageFull.checked || (!alert_enough_storage && error.message.includes('exceeded the quota') && confirm('Der Speicherplatz für die Speicherung der Tests ist voll. Wenn Sie auf "OK" o.ä. klicken, werden die ältesten Tests gelöscht, um Speicherplatz frei zu machen. Falls Sie diese vorher ausdrucken bzw. als PDF abspeichern wollen, klicken Sie auf "Abbrechen". Außerdem können Sie manuell Speicherplatz freimachen: Sie können den ältesten gespeicherten Test oder alle gespeicherten Tests ("Verlauf") in den Einstellungen anzeigen lassen und durch Klicken auf das rote X oben links neben dem Typ (z.B. Test 1) löschen. Wenn genügend Speicherplatz frei ist, werden Sie benachrichtigt. Sie können außerdem in den Einstellungen alle Tests löschen. Auch ist es in den Einstellungen möglich, diese Meldung deaktivieren, falls Sie die gespeicherten Tests nicht interessieren. Dann wird automatisch der älteste Eintrag gelöscht. ') && confirm("Sind Sie sich sicher, dass Sie die ältesten Eingaben löschen wollen?"))) {
+    if (!alertStorageFull.checked || (!alert_enough_storage && error.message.includes('exceeded the quota') && confirm('Der Speicherplatz für die Speicherung der Tests ist voll. Wenn Sie auf "OK" o.ä. klicken, werden die ältesten Tests gelöscht, um Speicherplatz frei zu machen. Falls Sie diese vorher ausdrucken bzw. als PDF abspeichern wollen, klicken Sie auf "Abbrechen". Außerdem können Sie manuell Speicherplatz freimachen: Sie können über die Einstellungen die Testauswahl öffnen und dort die Tests löschen, die Sie nicht mehr brauchen, löschen. Wenn genügend Speicherplatz frei ist, werden Sie benachrichtigt. Auch ist es in den Einstellungen möglich, diese Meldung deaktivieren, falls Sie die gespeicherten Tests nicht interessieren. Dann wird automatisch der älteste Eintrag gelöscht. ') && confirm("Sind Sie sich sicher, dass Sie die ältesten Eingaben löschen wollen?"))) {
       var quotaExceeded = true;
       while (quotaExceeded) {
         quotaExceeded = false;
@@ -488,7 +493,10 @@ function storeSchiKUInputs() {
       }
       localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
     }
-    else alert_enough_storage = true;
+    else {
+      alert_enough_storage = true;
+      testSelectionToggler.style.backgroundColor = "red";
+    }
   }
 }
 function toggleButtonsVis(vis) {

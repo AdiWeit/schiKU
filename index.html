@@ -30,15 +30,15 @@
       <br>
         dem Entwickler </b> <a href="mailto:Weitkemper.Adrian@web.de?subject=Probleme/Fragen oder Feedback zu SchiKU">Weitkemper.Adrian@web.de</a> schreiben
       </div>
-    <div class="card" style="background-color: red; color: white;">
+    <div id="schikuUmzug" class="card" style="background-color: red; color: white;">
       <h3>SchiKU zieht um!</h3>
-      Die neue Website lautet <a href="https://adrianweitkemper.de/SchiKU">adrianweitkemper.de/SchiKU</a>. Für die alte Version lautet die neue Website <a href="https://adrianweitkemper.de/SchiKU-old">adrianweitkemper.de/SchiKU-old</a>. Diese Seite wird weiterhin erreichbar sein, jedoch ist das Vortbestehen dieser nicht sicher. Die Daten werden nicht auf die neue Seite übertragen. Wenn dies gewünscht ist, schreiben Sie bitte eine Mail an den Entwickler <a href="mailto:Weitkemper.Adrian@web.de?subject=Feature request Datentransfer">Weitkemper.Adrian@web.de</a>
+      Die neue Website lautet <a href="https://adrianweitkemper.de/SchiKU">adrianweitkemper.de/SchiKU</a>. Für die alte Version lautet die neue Website <a href="https://adrianweitkemper.de/SchiKU-old">adrianweitkemper.de/SchiKU-old</a>. Diese Seite wird weiterhin erreichbar sein, jedoch ist das Fortbestehen dieser nicht sicher. Die Daten werden nicht auf die neue Seite übertragen. Wenn dies gewünscht ist, schreiben Sie bitte eine Mail an den Entwickler <a href="mailto:Weitkemper.Adrian@web.de?subject=Feature request Datentransfer">Weitkemper.Adrian@web.de</a>
     </div>
     <div class="card">
     <h2>Einstellungen</h2>
     <div class="card">
       <h3>allgemein</h3>
-      <input id="preview" checked="true" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (nur bei vielen geöffneten Tests. Dort dauert dies einige Sek.)
+      <input id="preview" checked="true" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Änderungen übernehmen wenn Einstellungen geändert und Optionen geschlossen (dauert bei vielen offenen Tests lange)
       <br>
       <input id="alertStorageFull" checked="true" onchange="settingChanged(id, {checked: checked});" type="checkbox"> Meldung bei vollem Speicherplatz
     </div>
@@ -55,7 +55,7 @@
       <br>
       <button onclick="openSelectedTests();">öffnen</button>
       <button onclick="openSelectedTests('print');">drucken (auch zum Speichern)</button>
-      <button id="deleteSelected" onclick="if (confirm('Sind Sie sich sicher, dass Sie alle ausgewählten Tests löschen wollen?')) openSelectedTests('delete');">löschen</button>
+      <button id="deleteSelected" style="background-color: red; color: white;" onclick="if (confirm('Sind Sie sich sicher, dass Sie alle ausgewählten Tests löschen wollen?')) openSelectedTests('delete');">löschen</button>
     </div>
     <br>
     <button onclick="clearHistory();" style="font-weight: bold;">Verlauf leeren</button> der neuste Test bleibt erhalten
@@ -107,7 +107,7 @@
 </div>
 <div class="card">
   <h3>alte Version</h3>
-  Die ältere Version finden Sie unter folgendem Link: <a href="https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/rechtschreibdiagnostik-SchiKU.html"><br>https://adi.nicolaiweitkemper.de/SchiKU:Rechtschreibdiagnostik_Kreis_Unna/rechtschreibdiagnostik-SchiKU.html</a>
+  Die ältere Version finden Sie unter folgendem Link: <a href="adrianweitkemper.de/SchiKU-old"><br>adrianweitkemper.de/SchiKU-old</a>
 </div>
   <!-- <button type="button" style="display: none" id="syncWithOfficialDataButton" onclick="syncWithOfficialData(true); style.display = 'none';" title="bleibt gespeichert, aber wenn sich beim Offiziellen was ändert, wird das nich automatisch synchronisiert." name="button">einmalig mit offiziellen Daten überschreiben</button> -->
   <!-- <br> -->
