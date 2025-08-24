@@ -246,17 +246,17 @@ function deleteTest(parent, pConfirm=true) {
   if (!pConfirm || confirm(('Sind Sie sicher, dass Sie den Test von "' + inputs[selectedTest][parent]["name" + parent.split("Sheet")[1]] + '" löschen wollen?').replace("von undefined", "ohne Schülernamen"))) {
     delete inputs[selectedTest][parent];
     document.getElementById(parent)?.remove();
-    if (alert_enough_storage) {
       var storage_full = false;
       try {
         localStorage.setItem('inputsSchiku', JSON.stringify(inputs));
       }
       catch(err) {
-        alert("Der Speicherplatz ist leider immer noch zu voll. Bitte löschen Sie weitere Tests.");
-        storage_full = true;
+        if (alert_enough_storage) {
+          alert("Der Speicherplatz ist leider immer noch zu voll. Bitte löschen Sie weitere Tests.");
+          storage_full = true;
+        }
       }
-      if (!storage_full) alert("Sie haben genug Speicherplatz frei gemacht, um den neuesten Test zu speichern. ");
-    }
+      if (!storage_full && alert_enough_storage) alert("Sie haben genug Speicherplatz frei gemacht, um den neuesten Test zu speichern. ");
   }
 }
 var selectedGraphemtreffer = {possible: 0, got: 0};
