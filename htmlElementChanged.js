@@ -80,7 +80,7 @@ function printMode(checked, pupilSheets) {
   if (checked) {
     if (list.length == 1) {
       test = inputs[selectedTest][sheet];
-      document.title=`SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformular_${test["name" + sheet.split("Sheet")[1]]}`;
+      document.title=`SchiKU Test Schreiben ${test.testName.split(' ')[1]} Auswertungsformular ${test["name" + sheet.split("Sheet")[1]]}`;
     }
     else {
       sameInputs = {date: inputs[selectedTest][list[0]]["date" + list[0].split("Sheet")[1]], class: inputs[selectedTest][list[0]]["class" + list[0].split("Sheet")[1]], name: inputs[selectedTest][list[0]]["name" + list[0].split("Sheet")[1]]};
@@ -257,6 +257,7 @@ function deleteTest(parent, pConfirm=true) {
         }
       }
       if (!storage_full && alert_enough_storage) alert("Sie haben genug Speicherplatz frei gemacht, um den neuesten Test zu speichern. ");
+      testSelectionToggler.style.backgroundColor = "";
   }
 }
 var selectedGraphemtreffer = {possible: 0, got: 0};

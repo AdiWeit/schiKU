@@ -143,7 +143,7 @@ for (i=1; pupils == 0; i++) {
     sheetNr = pupils
   }
 if (!inputs[/*'Test ' + */selectedTestType]) inputs[/*'Test ' + */selectedTestType] = {};
-if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {};
+if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr]) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr] = {completed: false};
 if (!inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName) inputs[/*'Test ' + */selectedTestType]['pupilSheet' + sheetNr].testName = pSelectedTest;
 var pageBreak = "always"
 if (lastPage) pageBreak = "avoid"
