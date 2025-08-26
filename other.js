@@ -3,7 +3,7 @@
 if (window.location.href.includes("adi.nicolaiweitkemper.de/SchiKU/")) {
   if ((!localStorage.getItem('ownWebsiteNotification') || localStorage.getItem('ownWebsiteNotification') == "false")) {
     if (confirm('SchiKU zieht um! Die neue Website lautet adrianweitkemper.de/SchiKU. Wenn Sie auf OK o.ä. klicken, werden Sie automatisch zu dieser weitergeleitet. Für die alte Version lautet die neue Website adrianweitkemper.de/SchiKU-old. Diese Seite wird weiterhin erreichbar sein, jedoch ist das Fortbestehen dieser nicht sicher. Sie können die Website auch über die Einstellungen erreichen. Die Daten werden nicht auf die neue Seite übertragen. Wenn dies gewünscht ist, schreiben Sie bitte eine Mail an den Entwickler (Weitkemper.Adrian@web.de; siehe Einstellungen)')) {
-      window.location.replace('https://adrianweitkemper.de/SchiKU')
+      window.location.replace('https://www.adrianweitkemper.de/SchiKU')
     }
     localStorage.setItem('ownWebsiteNotification', "true");
   }
